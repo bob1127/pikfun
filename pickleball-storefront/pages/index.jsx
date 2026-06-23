@@ -224,7 +224,7 @@ export default function Home({
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="whitespace-nowrap text-[#0f43e7] font-bold text-[13vw] leading-[0.8] tracking-tighter opacity-95 -ml-[3vw] select-none pointer-events-none"
           >
-            ing the “Let's Do It” for
+            ing the Joy of Pickleball
           </motion.div>
 
           <div className="max-w-[1440px] mx-auto px-6 md:px-16 mt-24 md:mt-40 flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-0">
@@ -241,9 +241,9 @@ export default function Home({
             {/* 標題區塊 */}
             <motion.div {...fadeUpProps} className="w-full lg:w-[45%] lg:pl-10">
               <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-gray-900 leading-[1.6] tracking-wide">
-                ゲームチェンジャーとして、
+                從球場出發，
                 <br className="hidden md:block" />
-                新たな価値を追求していく
+                打造完整的匹克球生活圈
               </h2>
             </motion.div>
 
@@ -254,10 +254,10 @@ export default function Home({
               className="w-full lg:w-[45%]"
             >
               <p className="text-gray-600 leading-[2.2] text-[14px] md:text-[15px] mb-12 text-justify">
-                私たちは、AIと独自のアルゴリズムを用いたデータサイエンスの領域から、ビジネスの意思決定における判断材料を抽出します。インターネットの不正利用の防止や、継続的に利用できるシステムの提供をはじめ、今ある課題の発見と、未来の環境予測までを、専門家が可視化。データサイエンスの力を活用し、これまでデータの扱い方が分からなかった人に対しても、簡単で使いやすいアルゴリズムに変えてご提供します。また、自らもゲームチェンジャーであり続け、新たな価値やサービスを追求します。
+                我們整合購物、揪團、教練與學習內容，讓你一站搞定匹克球所需的一切。精選球拍與配件、快速找到球友與場次、專業教練一對一指導，還有規則教學與趣味小遊戲幫你輕鬆入門。不只是買裝備，更是加入一個持續成長的運動社群。PikFun 持續拓展服務，讓每位球友都能更輕鬆享受這項人人皆可上手的運動。
               </p>
               <button className="bg-[#0f43e7] text-white px-12 py-4 rounded-full text-sm font-medium tracking-wider hover:bg-[#0c36b8] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                All Service
+                全部服務
               </button>
             </motion.div>
           </div>
@@ -280,7 +280,7 @@ export default function Home({
                 {/* 請替換為你實際的圖片路徑 */}
                 <Image
                   src="/images/office-worker.jpg"
-                  alt="Working in office"
+                  alt="匹克球場上揮拍"
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-[2s] ease-out"
                   unoptimized
@@ -302,9 +302,9 @@ export default function Home({
 
               <motion.div {...fadeUpProps}>
                 <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-gray-900 leading-[1.6] tracking-wide mb-10">
-                  「まずやってみよう」の挑戦心と
+                  「先上場再說」的運動精神，
                   <br className="hidden md:block" />
-                  推進力で、企業と伴走する。
+                  與每一位球友並肩同行。
                 </h2>
               </motion.div>
 
@@ -313,12 +313,10 @@ export default function Home({
                 transition={{ delay: 0.2, duration: 0.8 }}
               >
                 <p className="text-gray-600 leading-[2.2] text-[14px] md:text-[15px] mb-12 text-justify">
-                  創業以来、すべてのサービスを発展させ続けてきたCaccoの原動力が、Cacco
-                  Evolutionary Purpose
-                  (EP)『未来のゲームチェンジャーの「まずやってみよう」をカタチに』です。インターネットやスマートフォンの普及に伴い、目まぐるしく環境が変わる日々の中、現状維持にとどまっていては、企業は衰退してしまいます。新しいことに挑戦しなければ、革新的なビジネスは生まれません。2000年代以降、低成長が続いたこの日本の経済を打破したい。Caccoはそんな強い想いから、「まずやってみよう」の挑戦心と推進力とともに、AIと独自のアルゴリズムを用いたデータサイエンスの領域で企業と伴走するサービスを提供しています。既成概念を取り払い、効率化や問題解決を追求したシステムを開拓することで、社会の革新を支援します。
+                  PikFun 相信，匹克球不只是一項運動，更是連結人與人的起點。從第一次握拍、第一次上手，到找到固定球友、定期開團，我們希望降低入門門檻，讓更多人在球場上相遇。無論你是剛接觸的新手，還是想找固定場次的老手，都能在這裡找到屬於自己的節奏。我們提供裝備選購、揪團開打、教練課程與學習資源，陪你從好奇到熱愛，一起在場上揮灑汗水、享受每一次擊球。
                 </p>
                 <button className="bg-[#0f43e7] text-white px-12 py-4 rounded-full text-sm font-medium tracking-wider hover:bg-[#0c36b8] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                  About us
+                  關於我們
                 </button>
               </motion.div>
             </div>
