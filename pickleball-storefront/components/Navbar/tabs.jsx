@@ -1,0 +1,817 @@
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Menu,
+  User,
+  ShoppingBag,
+  Search,
+  ChevronRight,
+  Loader2,
+  X,
+  Home,
+  TrendingUp,
+  Package,
+  Users,
+  GraduationCap,
+  Newspaper,
+  CircleArrowRight,
+} from "lucide-react";
+
+import { useCart } from "../../components/context/CartContext";
+import { medusa } from "@/lib/medusa";
+import { useUser } from "../../components/context/UserContext";
+
+const COLORS = {
+  blue: "#005caf",
+  blueDark: "#1a3a8a",
+  pink: "#ef4023",
+  yellow: "#FFD43A",
+  grayBtn: "#F2F4F7",
+  loginDark: "#3d4450",
+  menuBg: "#eef5fb",
+};
+
+const NAV_ICONS = {
+  home: Home,
+  categories: TrendingUp,
+  brand: Package,
+  play: Users,
+  coaching: GraduationCap,
+  news: Newspaper,
+};
+
+function MenuLogo() {
+  return (
+    <Link href="/" className="flex items-center gap-2.5">
+      <div className="flex -space-x-1.5">
+        <div
+          className="w-5 h-5 rounded-full border-[2.5px]"
+          style={{ borderColor: COLORS.blue }}
+        />
+        <div
+          className="w-5 h-5 rounded-full border-[2.5px]"
+          style={{ borderColor: COLORS.yellow }}
+        />
+      </div>
+      <div className="leading-tight">
+        <span
+          className="text-lg font-black tracking-widest block"
+          style={{ color: COLORS.blue }}
+        >
+          PikFun
+        </span>
+        <span className="text-[9px] text-gray-500 tracking-wide">
+          匹克球裝備・活動・教練
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function PillArrowButton({
+  href,
+  onClick,
+  label,
+  variant = "solid",
+  arrowClass = "",
+  style,
+  leading,
+}) {
+  const isOutline = variant === "outline";
+  const inner = (
+    <>
+      <span className="flex items-center gap-3 min-w-0">
+        {leading}
+        <span className="text-sm font-bold tracking-wide">{label}</span>
+      </span>
+      <span
+        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${arrowClass}`}
+      >
+        <ChevronRight size={16} strokeWidth={2.5} />
+      </span>
+    </>
+  );
+  const className = `w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full transition-opacity hover:opacity-90 ${
+    isOutline ? "bg-white border-2" : "text-white"
+  }`;
+
+  const btnStyle = isOutline
+    ? { borderColor: COLORS.blue, color: COLORS.blue, ...style }
+    : style;
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        className={className}
+        style={btnStyle}
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={className}
+      style={btnStyle}
+    >
+      {inner}
+    </button>
+  );
+}
+
+function MemberAvatar({ userInfo, size = 22 }) {
+  if (userInfo?.avatar) {
+    return (
+      <img
+        src={userInfo.avatar}
+        alt=""
+        className="rounded-full object-cover shrink-0"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+  return (
+    <span
+      className="rounded-full flex items-center justify-center font-bold text-gray-500 shrink-0"
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}
+      aria-hidden
+    >
+      U
+    </span>
+  );
+}
+
+export const SlideTabsExample = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openMega, setOpenMega] = useState("none");
+  const [mounted, setMounted] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [searchResults, setSearchResults] = useState({
+    products: [],
+    pages: [],
+  });
+  const searchContainerRef = useRef(null);
+
+  const { totalQty, setIsCartOpen } = useCart();
+  const { userInfo, loading: userLoading } = useUser();
+
+  const [categoriesChildren, setCategoriesChildren] = useState([]);
+  const [brandChildren, setBrandChildren] = useState([]);
+  const [loadingCats, setLoadingCats] = useState(true);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setShowSearchDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    async function fetchMenuData() {
+      try {
+        setLoadingCats(true);
+        const BACKEND_URL =
+          process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+        const API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
+        const headers = { "Content-Type": "application/json" };
+        if (API_KEY) headers["x-publishable-api-key"] = API_KEY;
+
+        const [catsRes, colRes] = await Promise.all([
+          fetch(
+            `${BACKEND_URL}/store/product-categories?fields=id,name,handle,metadata&limit=100`,
+            { headers },
+          ).then((res) => res.json()),
+          fetch(
+            `${BACKEND_URL}/store/collections?fields=id,title,handle,metadata&limit=100`,
+            { headers },
+          ).then((res) => res.json()),
+        ]);
+
+        setCategoriesChildren(
+          (catsRes.product_categories || []).map((cat) => ({
+            id: cat.id,
+            name: cat.name,
+            slug: cat.handle,
+            image: cat.metadata?.image_url || null,
+          })),
+        );
+
+        setBrandChildren(
+          (colRes.collections || []).map((col) => ({
+            id: col.id,
+            name: col.title,
+            slug: col.handle,
+            image: col.metadata?.image_url || null,
+          })),
+        );
+      } catch (error) {
+        console.error("Medusa 資料抓取失敗:", error);
+      } finally {
+        setLoadingCats(false);
+      }
+    }
+    if (mounted) fetchMenuData();
+  }, [mounted]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.trim().length > 1) {
+        setIsSearching(true);
+        setShowSearchDropdown(true);
+        try {
+          const { products } = await medusa.products.list({
+            q: searchQuery,
+            limit: 4,
+          });
+          setSearchResults({
+            products: products.map((p) => ({
+              id: p.id,
+              title: p.title,
+              slug: p.handle,
+              image: p.thumbnail,
+              price: p.variants?.[0]?.prices?.[0]
+                ? `${(p.variants[0].prices[0].amount / 100).toLocaleString()} TWD`
+                : "TBA",
+            })),
+            pages: [],
+          });
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setShowSearchDropdown(false);
+      }
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (e) => {
+    if ((e.key === "Enter" || e.type === "click") && searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setShowSearchDropdown(false);
+      setSearchQuery("");
+      setIsMenuOpen(false);
+    }
+  };
+
+  const navLinks = [
+    { key: "home", label: "首頁", href: "/" },
+    { key: "categories", label: "匹克趨勢", href: "/category", hasMega: true },
+    { key: "brand", label: "相關產品", href: "/category", hasMega: true },
+    { key: "play", label: "揪團打球", href: "/play" },
+    { key: "coaching", label: "教練開課", href: "/coaching" },
+    { key: "news", label: "最新消息", href: "/news" },
+  ];
+
+  if (!mounted) return null;
+
+  return (
+    <>
+      <header
+        className="fixed top-0 left-0 w-full z-[1000] bg-white shadow-sm"
+        onMouseLeave={() => setOpenMega("none")}
+      >
+        {/* 上排：Logo + 功能按鈕（THEO 白底列） */}
+        <div className="border-b border-gray-100">
+          <div className="mx-auto max-w-[1400px] px-4 md:px-6 h-14 md:h-16 flex items-center justify-between gap-4">
+            <Link href="/" className="flex items-center gap-3 shrink-0">
+              <div className="flex -space-x-2">
+                <img
+                  src="/images/logo/company-logo.png"
+                  className="max-w-[45px]"
+                  alt=""
+                />
+              </div>
+              <div className="leading-tight">
+                <span className="text-lg md:text-xl font-black tracking-widest text-gray-900 block">
+                  PikFun
+                </span>
+                <span className="hidden sm:block text-[10px] text-gray-500 tracking-wide">
+                  匹克球裝備・活動・教練平台
+                </span>
+              </div>
+            </Link>
+
+            {/* 桌面：右側 CTA */}
+            <div className="hidden lg:flex items-center gap-2.5">
+              <Link
+                href="/category"
+                className="flex items-center gap-2 text-xs font-bold px-3 py-2 rounded-md transition-colors hover:bg-gray-50"
+                style={{ color: COLORS.blue }}
+              >
+                <span
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-white"
+                  style={{ backgroundColor: COLORS.blue }}
+                >
+                  <CircleArrowRight size={14} />
+                </span>
+                依打法挑選球拍
+              </Link>
+
+              <div className="relative" ref={searchContainerRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowSearchDropdown((v) => !v)}
+                  className="text-xs font-bold px-4 py-2.5 rounded-md border transition-colors hover:bg-gray-50"
+                  style={{ color: COLORS.blue, borderColor: COLORS.blue }}
+                >
+                  搜尋商品
+                </button>
+                <AnimatePresence>
+                  {showSearchDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      className="absolute top-full right-0 mt-2 w-80 bg-white shadow-2xl rounded-lg overflow-hidden border border-gray-100 z-50"
+                    >
+                      <div className="p-3 border-b border-gray-100">
+                        <div className="flex items-center gap-2 bg-[#F2F4F7] px-3 py-2 rounded-md">
+                          <Search
+                            size={14}
+                            className="text-gray-500 shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={handleSearchSubmit}
+                            placeholder="輸入關鍵字…"
+                            autoFocus
+                            className="bg-transparent text-sm w-full outline-none text-gray-700 placeholder-gray-400"
+                          />
+                        </div>
+                      </div>
+                      {isSearching ? (
+                        <div className="p-8 flex justify-center text-gray-400">
+                          <Loader2 size={24} className="animate-spin" />
+                        </div>
+                      ) : searchResults.products.length === 0 ? (
+                        <div className="p-6 text-center text-sm text-gray-500">
+                          {searchQuery.trim().length > 1
+                            ? "找不到相關結果"
+                            : "輸入至少 2 個字元開始搜尋"}
+                        </div>
+                      ) : (
+                        <div className="max-h-[50vh] overflow-y-auto p-2">
+                          {searchResults.products.map((p) => (
+                            <Link
+                              key={p.id}
+                              href={`/product/${p.slug}`}
+                              onClick={() => setShowSearchDropdown(false)}
+                              className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-md"
+                            >
+                              <div className="w-10 h-10 bg-gray-100 rounded-md overflow-hidden relative shrink-0">
+                                {p.image && (
+                                  <Image
+                                    src={p.image}
+                                    alt={p.title}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-bold text-gray-800 truncate">
+                                  {p.title}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {p.price}
+                                </p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsCartOpen(true)}
+                className="text-xs font-bold px-5 py-2.5 rounded-md text-white transition-opacity hover:opacity-90 flex items-center gap-2"
+                style={{ backgroundColor: COLORS.blue }}
+              >
+                <ShoppingBag size={14} />
+                進入購物車
+                {totalQty > 0 && (
+                  <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">
+                    {totalQty}
+                  </span>
+                )}
+              </button>
+
+              {!userLoading && (
+                <Link
+                  href={userInfo ? "/member" : "/login"}
+                  className="flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-[#005caf] transition-colors"
+                >
+                  {userInfo ? (
+                    <MemberAvatar userInfo={userInfo} size={26} />
+                  ) : (
+                    <User size={18} className="text-gray-600" />
+                  )}
+                  {userInfo ? "會員中心" : "登入"}
+                </Link>
+              )}
+            </div>
+
+            {/* 手機：圖示列 */}
+            <div className="flex lg:hidden items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setShowSearchDropdown((v) => !v)}
+                className="p-2 rounded-full text-gray-600 hover:bg-gray-100"
+                aria-label="搜尋"
+              >
+                <Search size={20} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 rounded-full text-gray-600 hover:bg-gray-100"
+                aria-label="購物車"
+              >
+                <ShoppingBag size={20} />
+                {totalQty > 0 && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold text-white flex items-center justify-center"
+                    style={{ backgroundColor: COLORS.pink }}
+                  >
+                    {totalQty > 99 ? "99+" : totalQty}
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(true)}
+                className="p-2 rounded-full text-gray-600 hover:bg-gray-100"
+                aria-label="開啟選單"
+              >
+                <Menu size={22} strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 下排：藍底主選單（THEO 風格，icon + 文字） */}
+        <div
+          className="hidden lg:block relative"
+          style={{ backgroundColor: COLORS.blue }}
+        >
+          <div className="mx-auto max-w-[1400px] px-4 md:px-6">
+            <nav className="flex items-stretch justify-between h-12">
+              {navLinks.map((link) => {
+                const Icon = NAV_ICONS[link.key] || Home;
+                const isActive =
+                  router.pathname === link.href ||
+                  (link.href !== "/" && router.pathname.startsWith(link.href));
+
+                return (
+                  <div
+                    key={link.key}
+                    className="flex-1 flex items-center justify-center relative group"
+                    onMouseEnter={() =>
+                      setOpenMega(link.hasMega ? link.key : "none")
+                    }
+                  >
+                    <Link
+                      href={link.href}
+                      className={`flex items-center gap-2 px-2 py-2 text-white text-sm font-bold tracking-wide transition-opacity hover:opacity-90 ${
+                        isActive ? "opacity-100" : "opacity-95"
+                      }`}
+                    >
+                      <Icon size={16} strokeWidth={2.2} className="shrink-0" />
+                      <span>{link.label}</span>
+                    </Link>
+                    <span
+                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] transition-all duration-300 ${
+                        isActive ? "w-[70%]" : "w-0 group-hover:w-[70%]"
+                      }`}
+                      style={{ backgroundColor: COLORS.yellow }}
+                    />
+                  </div>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Mega Menu */}
+          <AnimatePresence>
+            {openMega !== "none" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full left-0 w-full bg-white shadow-xl border-t border-white/10 overflow-hidden z-40"
+              >
+                <div className="px-6 md:px-10 py-8 max-w-[1200px] mx-auto">
+                  {loadingCats ? (
+                    <div className="flex justify-center py-10">
+                      <Loader2 className="animate-spin text-gray-300" />
+                    </div>
+                  ) : (
+                    <>
+                      {openMega === "categories" && (
+                        <>
+                          <div className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest border-b pb-2">
+                            產品類別
+                          </div>
+                          <ul className="flex flex-wrap gap-8">
+                            {categoriesChildren.map((cat) => (
+                              <li key={cat.id} className="group">
+                                <Link
+                                  href={`/category/${cat.slug}`}
+                                  className="flex flex-col items-center gap-3"
+                                >
+                                  <div className="w-[80px] h-[80px] rounded-full bg-gray-50 border border-gray-100 overflow-hidden relative group-hover:border-[#005caf] transition-colors">
+                                    {cat.image && (
+                                      <Image
+                                        src={cat.image}
+                                        alt={cat.name}
+                                        fill
+                                        className="object-cover"
+                                        unoptimized
+                                      />
+                                    )}
+                                  </div>
+                                  <span className="text-sm font-bold text-gray-700 group-hover:text-[#005caf]">
+                                    {cat.name}
+                                  </span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      {openMega === "brand" && (
+                        <>
+                          <div className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest border-b pb-2">
+                            精選品牌
+                          </div>
+                          <ul className="flex flex-wrap gap-8">
+                            {brandChildren.map((brand) => (
+                              <li key={brand.id} className="group">
+                                <Link
+                                  href={`/category/${brand.slug}`}
+                                  className="flex flex-col items-center gap-3"
+                                >
+                                  <div className="w-[80px] h-[80px] rounded-full bg-gray-50 border border-gray-100 overflow-hidden relative group-hover:border-[#005caf] transition-colors">
+                                    {brand.image && (
+                                      <Image
+                                        src={brand.image}
+                                        alt={brand.name}
+                                        fill
+                                        className="object-cover"
+                                        unoptimized
+                                      />
+                                    )}
+                                  </div>
+                                  <span className="text-sm font-bold text-gray-700 group-hover:text-[#005caf]">
+                                    {brand.name}
+                                  </span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </header>
+
+      {/* 固定導覽列佔位 */}
+      <div className="h-14 lg:h-[7rem]" aria-hidden />
+
+      {/* 手機搜尋下拉 */}
+      <AnimatePresence>
+        {showSearchDropdown && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="lg:hidden fixed top-14 left-0 right-0 z-[999] bg-white border-b border-gray-100 shadow-lg px-4 py-3"
+          >
+            <div className="flex items-center gap-2 bg-[#F2F4F7] px-3 py-2.5 rounded-md">
+              <Search size={16} className="text-gray-500 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearchSubmit}
+                placeholder="搜尋商品…"
+                autoFocus
+                className="bg-transparent text-sm w-full outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSearchDropdown(false)}
+                className="text-gray-400 p-1"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 全螢幕手機選單（THEO 風格 + fade） */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            className="fixed inset-0 z-[2000] lg:hidden flex flex-col overflow-hidden"
+            style={{ backgroundColor: COLORS.menuBg }}
+          >
+            {/* Header：Logo + 關閉 */}
+            <div className="shrink-0 px-5 pt-4 pb-3 flex items-start justify-between bg-white/60 backdrop-blur-sm border-b border-white/80">
+              <div onClick={() => setIsMenuOpen(false)}>
+                <MenuLogo />
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex flex-col items-center gap-0.5 pt-1"
+                aria-label="關閉選單"
+              >
+                <X size={28} strokeWidth={2} style={{ color: COLORS.blue }} />
+                <span
+                  className="text-[10px] font-bold tracking-[0.2em]"
+                  style={{ color: COLORS.blue }}
+                >
+                  MENU
+                </span>
+              </button>
+            </div>
+
+            {/* 主選單捲動區 */}
+            <div className="flex-1 overflow-y-auto px-5 py-6 pb-44">
+              <nav className="space-y-5">
+                {navLinks.map((link) => {
+                  const Icon = NAV_ICONS[link.key] || Home;
+                  const isActive =
+                    router.pathname === link.href ||
+                    (link.href !== "/" &&
+                      router.pathname.startsWith(link.href));
+
+                  return (
+                    <Link
+                      key={link.key}
+                      href={link.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-4 group"
+                    >
+                      <Icon
+                        size={22}
+                        strokeWidth={2.2}
+                        className="shrink-0 transition-transform group-hover:scale-105"
+                        style={{ color: COLORS.blue }}
+                      />
+                      <span
+                        className={`text-lg font-bold tracking-wide ${
+                          isActive ? "underline underline-offset-4" : ""
+                        }`}
+                        style={{ color: COLORS.blue }}
+                      >
+                        {link.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* 登入主按鈕 */}
+              <div className="mt-10 space-y-5">
+                {!userLoading && (
+                  <Link
+                    href={userInfo ? "/member" : "/login"}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center gap-3 text-lg font-bold tracking-wide"
+                    style={{ color: COLORS.blue }}
+                  >
+                    {userInfo ? (
+                      <MemberAvatar userInfo={userInfo} size={32} />
+                    ) : (
+                      <User size={22} style={{ color: COLORS.blue }} />
+                    )}
+                    {userInfo ? "會員中心" : "登入"}
+                  </Link>
+                )}
+
+                <Link
+                  href="/category"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="inline-flex items-center gap-2 text-sm font-bold"
+                  style={{ color: COLORS.blue }}
+                >
+                  <span
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-white"
+                    style={{ backgroundColor: COLORS.blue }}
+                  >
+                    <CircleArrowRight size={14} />
+                  </span>
+                  依打法挑選球拍
+                </Link>
+              </div>
+            </div>
+
+            {/* 底部固定 CTA 區 */}
+            <div className="shrink-0 absolute bottom-0 left-0 right-0 px-3 pb-4 pt-2">
+              <div className="bg-white rounded-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.08)] overflow-hidden">
+                <div className="grid grid-cols-2 divide-x divide-gray-200">
+                  {/* 左：指南 */}
+                  <div className="p-4 flex flex-col gap-3">
+                    <p className="text-xs font-bold text-gray-800 leading-snug">
+                      不確定買哪支？
+                      <br />
+                      先看挑選指南
+                    </p>
+                    <PillArrowButton
+                      href="/blog?category=rackets-equipment"
+                      onClick={() => setIsMenuOpen(false)}
+                      label="裝備攻略"
+                      variant="outline"
+                      arrowClass="bg-[#eef5fb] text-[#005caf]"
+                    />
+                  </div>
+
+                  {/* 右：購物車 */}
+                  <div className="p-4 flex flex-col gap-3">
+                    <p className="text-xs font-bold text-gray-800 leading-snug">
+                      熱銷球拍
+                      <br />
+                      <span
+                        className="inline-block mt-0.5 px-1"
+                        style={{
+                          background: `linear-gradient(transparent 60%, ${COLORS.yellow} 60%)`,
+                        }}
+                      >
+                        立即選購！
+                      </span>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCartOpen(true);
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between gap-2 px-5 py-3.5 rounded-full text-white text-sm font-bold hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: COLORS.blue }}
+                    >
+                      <span>
+                        進入購物車
+                        {totalQty > 0 ? ` (${totalQty})` : ""}
+                      </span>
+                      <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                        <ChevronRight size={16} strokeWidth={2.5} />
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export default SlideTabsExample;

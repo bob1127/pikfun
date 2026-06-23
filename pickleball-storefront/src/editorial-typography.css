@@ -1,0 +1,912 @@
+/* 全站編輯／博物館風排版（參考 Rekihaku + TRANSIT） */
+
+:root {
+  --font-sans: "Noto Sans TC", "Helvetica Neue", "Arial", sans-serif;
+  --text-base: 1rem;
+  --leading-body: 2.27;
+  --letter-body: 0.0125em;
+  --color-text: #000000;
+  --color-text-muted: #555555;
+  --color-border: #d8d8d8;
+  --color-border-dashed: #cccccc;
+  --color-accent: #8b4513;
+  --color-accent-blue: #005caf;
+  --color-tag-notice: #f5d0c8;
+  --color-tag-research: #d4e8f5;
+  --content-max: 71.625rem;
+  --section-gap: 4.5rem;
+}
+
+html.text-scale-lg {
+  font-size: 112.5%;
+}
+
+html.text-scale-xl {
+  font-size: 125%;
+}
+
+body {
+  font-family: var(--font-sans) !important;
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  font-weight: 500;
+  letter-spacing: var(--letter-body);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* —— 文章列表頁 —— */
+.editorial-page {
+  background: #ffffff;
+  min-height: 100vh;
+  padding-top: 6rem;
+  padding-bottom: 5rem;
+}
+
+.editorial-container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.editorial-breadcrumb {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.02em;
+}
+
+.editorial-breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.editorial-breadcrumb a:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.editorial-page-title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: var(--section-gap);
+  letter-spacing: 0.04em;
+  color: var(--color-text);
+}
+
+/* 列表列（注意事項風格） */
+.editorial-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.editorial-list-item {
+  border-bottom: 1px dashed var(--color-border-dashed);
+}
+
+.editorial-list-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.35rem 0;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: opacity 0.2s;
+}
+
+.editorial-list-link:hover {
+  opacity: 0.75;
+}
+
+@media (min-width: 768px) {
+  .editorial-list-link {
+    gap: 1.25rem;
+    padding: 1.5rem 0;
+  }
+}
+
+.editorial-tag {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.5rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.editorial-tag--active {
+  background: var(--color-tag-notice);
+  color: #5c2a22;
+}
+
+.editorial-tag--knowledge {
+  background: var(--color-tag-research);
+  color: #1a4a6e;
+}
+
+.editorial-tag--default {
+  background: #eeeeee;
+  color: #333333;
+}
+
+.editorial-list-date {
+  flex-shrink: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  min-width: 6.5rem;
+}
+
+.editorial-list-title {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.6;
+  min-width: 0;
+}
+
+.editorial-list-arrow {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #000000;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.editorial-list-link:hover .editorial-list-arrow {
+  transform: translateX(2px);
+}
+
+.editorial-list-footer {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.editorial-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.editorial-cta-link:hover {
+  opacity: 0.7;
+}
+
+/* —— 文章內頁 —— */
+.editorial-article-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.editorial-article-title {
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+  margin: 0 0 1.75rem;
+  color: var(--color-text);
+}
+
+.editorial-article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.editorial-article-lead {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: var(--leading-body);
+  max-width: 42rem;
+  margin: 0 auto 2rem;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.editorial-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2.5rem 0;
+}
+
+.editorial-hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  border-radius: 0;
+  background: #f3f3f3;
+}
+
+.editorial-hero img {
+  object-fit: cover;
+}
+
+/* WP 內文（TRANSIT：16px / line-height 2.27 / weight 500） */
+.editorial-article__body {
+  font-size: 1rem;
+  line-height: var(--leading-body);
+  font-weight: 500;
+  letter-spacing: var(--letter-body);
+  color: var(--color-text);
+  max-width: 42rem;
+  margin: 0 auto 4rem;
+}
+
+.editorial-article__body p {
+  margin: 0 0 1.75rem;
+}
+
+.editorial-article__body h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 3rem 0 1.25rem;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+}
+
+.editorial-article__body h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 2.25rem 0 1rem;
+  line-height: 1.5;
+}
+
+.editorial-article__body h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.75rem;
+}
+
+.editorial-article__body ul,
+.editorial-article__body ol {
+  margin: 0 0 1.75rem;
+  padding-left: 1.5rem;
+}
+
+.editorial-article__body li {
+  margin-bottom: 0.65rem;
+  line-height: var(--leading-body);
+}
+
+.editorial-article__body ul li::marker {
+  color: var(--color-accent);
+}
+
+.editorial-article__body a {
+  color: var(--color-accent-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.editorial-article__body a:hover {
+  opacity: 0.8;
+}
+
+.editorial-article__body img {
+  max-width: 100%;
+  height: auto;
+  margin: 2rem auto;
+  display: block;
+}
+
+.editorial-article__body figure {
+  margin: 2.5rem 0;
+}
+
+.editorial-article__body figcaption {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 0.75rem;
+}
+
+.editorial-article__body blockquote {
+  margin: 2rem 0;
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--color-accent);
+  background: #fafafa;
+  font-weight: 500;
+}
+
+.editorial-article__body strong {
+  font-weight: 700;
+}
+
+.editorial-article__body .wp-block-image {
+  margin: 2.5rem 0;
+}
+
+.editorial-article-footer {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.editorial-back-home {
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.editorial-back-home:hover {
+  color: var(--color-text);
+}
+
+/* 字級切換（Rekihaku 標準／大／特大） */
+.editorial-font-toolbar {
+  position: fixed;
+  top: 5.5rem;
+  right: 1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  padding: 0.2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+@media (min-width: 768px) {
+  .editorial-font-toolbar {
+    right: 2rem;
+  }
+}
+
+.editorial-font-btn {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-family: inherit;
+}
+
+.editorial-font-btn:hover {
+  color: var(--color-text);
+}
+
+.editorial-font-btn.is-active {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* —— PR TIMES 風格：文章內頁底部 —— */
+.pr-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ① 文章資訊 */
+.pr-meta-section {
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pr-meta-list {
+  margin: 0;
+  max-width: 52rem;
+}
+
+.pr-meta-row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 1rem 2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #eeeeee;
+  align-items: start;
+}
+
+.pr-meta-row:last-child {
+  border-bottom: none;
+}
+
+.pr-meta-row dt {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.pr-meta-row dd {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.pr-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pr-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.pr-pill--active {
+  border-color: #e8b4ab;
+  background: #fdf5f3;
+}
+
+.pr-pill--knowledge {
+  border-color: #a8cce8;
+  background: #f0f7fc;
+}
+
+.pr-pill--topic {
+  border-color: #cccccc;
+}
+
+.pr-meta-link {
+  color: var(--color-accent-blue);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.pr-meta-link:hover {
+  text-decoration: underline;
+}
+
+.pr-meta-muted {
+  color: var(--color-text-muted);
+}
+
+/* ② 會員 CTA */
+.pr-cta-section {
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pr-cta-box {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  text-align: center;
+  background: #ffffff;
+}
+
+.pr-cta-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.6;
+  margin: 0 0 1.75rem;
+  color: var(--color-text);
+}
+
+.pr-cta-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.pr-cta-btn-wrap {
+  flex: 1;
+  min-width: 10rem;
+  max-width: 14rem;
+}
+
+.pr-cta-btn {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.2s;
+}
+
+.pr-cta-btn:hover {
+  opacity: 0.88;
+}
+
+.pr-cta-btn--dark {
+  background: #000000;
+  color: #ffffff;
+}
+
+.pr-cta-btn--blue {
+  background: #0066cc;
+  color: #ffffff;
+}
+
+.pr-cta-sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.pr-cta-note {
+  font-size: 0.75rem;
+  line-height: 1.8;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ③ 文章圖片 */
+.pr-gallery-section {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pr-gallery-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 1.25rem;
+  color: var(--color-text);
+}
+
+.pr-gallery-track {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+.pr-gallery-item {
+  position: relative;
+  flex-shrink: 0;
+  width: 11rem;
+  height: 7.5rem;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #f3f3f3;
+}
+
+/* ④ 站點概要 */
+.pr-profile-section {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pr-profile-heading {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem;
+}
+
+.pr-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .pr-profile-grid {
+    grid-template-columns: 220px 1fr;
+    gap: 3rem;
+  }
+}
+
+.pr-profile-brand {
+  text-align: center;
+}
+
+.pr-profile-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.pr-profile-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+}
+
+.pr-profile-followers {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0 0 1rem;
+}
+
+.pr-follow-btn {
+  display: inline-block;
+  padding: 0.5rem 2.5rem;
+  background: #000000;
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.pr-follow-btn:hover {
+  opacity: 0.88;
+}
+
+.pr-rss-link {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.pr-rss-link:hover {
+  text-decoration: underline;
+}
+
+.pr-profile-details {
+  margin: 0;
+}
+
+.pr-profile-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #eeeeee;
+  font-size: 0.875rem;
+}
+
+.pr-profile-row:last-child {
+  border-bottom: none;
+}
+
+.pr-profile-row dt {
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.pr-profile-row dd {
+  margin: 0;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.pr-profile-row dd a {
+  color: var(--color-accent-blue);
+  text-decoration: none;
+}
+
+.pr-profile-row dd a:hover {
+  text-decoration: underline;
+}
+
+/* ⑤⑥ 輪播區塊 */
+.pr-section {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pr-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.pr-section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.pr-section-more {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.pr-section-more:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.pr-carousel-wrap {
+  position: relative;
+}
+
+.pr-carousel-track {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 0.25rem;
+}
+
+.pr-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.pr-carousel-arrow {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #dddddd;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 2;
+}
+
+.pr-carousel-arrow:hover {
+  background: #f5f5f5;
+}
+
+/* コンパクトカード（プレスリリース風） */
+.pr-card {
+  flex-shrink: 0;
+  text-decoration: none;
+  color: var(--color-text);
+  scroll-snap-align: start;
+  transition: opacity 0.2s;
+}
+
+.pr-card:hover {
+  opacity: 0.75;
+}
+
+.pr-card--compact {
+  width: 11.5rem;
+}
+
+.pr-card-logo {
+  width: 100%;
+  height: 6.5rem;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+  border: 1px solid #eeeeee;
+}
+
+.pr-card--compact .pr-card-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0 0 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pr-card--compact .pr-card-date {
+  font-size: 0.6875rem;
+  color: #888888;
+  line-height: 1.4;
+}
+
+/* ストーリーカード */
+.pr-card--story {
+  width: 13.5rem;
+}
+
+.pr-card-story-img {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  background: #f3f3f3;
+}
+
+.pr-card--story .pr-card-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 0 0 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pr-card--story .pr-card-date {
+  font-size: 0.6875rem;
+  color: #888888;
+}
+
+/* ⑦ 底部麵包屑 */
+.pr-bottom-crumb {
+  padding: 2rem 0 1rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.pr-bottom-crumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pr-bottom-crumb a:hover {
+  text-decoration: underline;
+  color: var(--color-text);
+}
+
+@media (max-width: 640px) {
+  .pr-meta-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .pr-cta-box {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .pr-cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pr-cta-btn-wrap {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .pr-profile-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}
