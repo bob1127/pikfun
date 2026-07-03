@@ -11,6 +11,7 @@ import { useGSAP } from "@gsap/react";
 
 // 引用外部 Carousel (接收 Medusa 資料)
 import Carousel from "../components/EmblaCarousel06/index.jsx";
+import { getMedusaBackendUrl, getMedusaFetchHeaders } from "@/lib/medusa";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -160,15 +161,9 @@ export default function CollectionShowcase({ initialProducts = [] }) {
     isFetched.current = true;
 
     const fetchMedusaProducts = async () => {
-      // 🔥 智慧判斷：如果是本地開發就用 9000，如果是正式上線 (Vercel) 就用 Railway
-      const defaultBackendUrl =
-        process.env.NODE_ENV === "development"
-          ? "http://localhost:9000"
-          : "https://kesh-backend-production.up.railway.app";
-
-      const BACKEND_URL =
-        process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || defaultBackendUrl;
+      const BACKEND_URL = getMedusaBackendUrl();
       const API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
+      const fetchHeaders = getMedusaFetchHeaders();
 
       // 🕵️‍♂️ 超級除錯追蹤器開始
       console.log("🔍 [Medusa API 測試] 開始抓取商品資料...");
@@ -191,10 +186,7 @@ export default function CollectionShowcase({ initialProducts = [] }) {
         console.log("📡 [Medusa API 測試] 準備發送請求至:", targetUrl);
 
         const res = await fetch(targetUrl, {
-          headers: {
-            "x-publishable-api-key": API_KEY,
-            "Content-Type": "application/json",
-          },
+          headers: fetchHeaders,
         });
 
         console.log("📥 [Medusa API 測試] 收到回應，狀態碼:", res.status);

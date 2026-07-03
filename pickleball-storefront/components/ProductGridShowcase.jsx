@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChevronLeft, ChevronRight, ExternalLink, Play } from "lucide-react";
+import { getMedusaConfig } from "@/lib/medusa";
 
 /* 參考圖色票 */
 const C = {
@@ -282,15 +283,6 @@ function TopicsInfiniteCarousel({ topics }) {
       </div>
     </>
   );
-}
-
-function getMedusaConfig() {
-  const BACKEND_URL =
-    process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
-    "https://kesh-backend-production.up.railway.app";
-  const API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
-  const headers = API_KEY ? { "x-publishable-api-key": API_KEY } : {};
-  return { BACKEND_URL, headers };
 }
 
 function ProductShopGrid({ metaLang, targetCurrency, symbol }) {

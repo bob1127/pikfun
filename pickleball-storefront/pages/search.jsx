@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { getMedusaBackendUrl, getMedusaFetchHeaders } from "@/lib/medusa";
 
 export default function SearchResults({ products, keyword }) {
   const { t } = useTranslation("common");
@@ -102,14 +103,8 @@ export async function getServerSideProps({ query, locale }) {
     };
   }
 
-  // 取得 Medusa 環境變數
-  const BACKEND_URL =
-    process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
-    "https://kesh-backend-production.up.railway.app";
-  const API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
-
-  const headers = { "Content-Type": "application/json" };
-  if (API_KEY) headers["x-publishable-api-key"] = API_KEY;
+  const BACKEND_URL = getMedusaBackendUrl();
+  const headers = getMedusaFetchHeaders();
 
   try {
     // 💡 呼叫 Medusa API 進行搜尋 (加上 encodeURIComponent 確保特輸符號正確傳遞)
