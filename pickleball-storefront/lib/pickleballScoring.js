@@ -85,9 +85,9 @@ export function applyRally(state, wonBy) {
     }
 
   } else {
-    // ─── 接發方得分（Side out）────────────────────────────────
-    if (serverNum === 2 || servingTeam !== wonBy) {
-      // 換發球隊
+    // ─── 接發方贏球 ───────────────────────────────────────────
+    if (serverNum === 2) {
+      // Server #2 也失誤 → Side out！換對方發球
       const nextTeam = servingTeam === 'A' ? 'B' : 'A';
       newState.servingTeam = nextTeam;
       newState.serverNum = 1;     // 換隊後從 1 號球員開始
@@ -97,11 +97,16 @@ export function applyRally(state, wonBy) {
         ...state.positions,
         ...serverSide(nextTeam, pts),
       };
-      newState.explanation = `接發方得分！\nSide out → 換 ${nextTeam === 'A' ? '你們隊' : '對手隊'} 發球，由 ${nextTeam}1 開始。`;
+      newState.explanation = `Side out！→ 換 ${nextTeam === 'A' ? '你們隊' : '對手隊'} 發球，由 ${nextTeam}1 開始。`;
     } else {
-      // 同隊換第二發球員
+      // Server #1 失誤 → 同隊換 Server #2 發球（不換隊，不得分）
       newState.serverNum = 2;
-      newState.explanation = `接發方得分！\n${servingTeam}1 失誤 → 換 ${servingTeam}2 發球（發球權未換隊）。`;
+      // Server 2 站位：根據當前得分決定哪邊
+      newState.positions = {
+        ...state.positions,
+        ...serverSide(servingTeam, servingTeam === 'A' ? newState.teamA.pts : newState.teamB.pts),
+      };
+      newState.explanation = `${servingTeam}1 失誤 → 換 ${servingTeam}2 發球（發球權留在本隊）。`;
     }
   }
 

@@ -1,3 +1,4 @@
+import { getSiteUrl } from "@/lib/siteUrl";
 import {
   SKILL_LABELS,
   PAYMENT_LABELS,
@@ -22,8 +23,8 @@ function escHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
-function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL || "https://PikFuntw";
+function getSiteUrlForReminder() {
+  return getSiteUrl();
 }
 
 /** 依 remind_at 與 starts_at 判斷是 1 天前或 2 小時前 */
@@ -37,7 +38,7 @@ export function getReminderTimingLabel(remindAt, startsAt) {
 
 export function buildReminderContext(session, reminder = null) {
   const s = enrichPaymentFields(session);
-  const siteUrl = getSiteUrl();
+  const siteUrl = getSiteUrlForReminder();
   const mapsUrl =
     buildGoogleMapsLink(s.location_name, s.location_address) || null;
   const detailUrl = `${siteUrl}/play/${s.id}`;
@@ -63,7 +64,7 @@ export function buildReminderContext(session, reminder = null) {
     feeText: formatFee(fee, s.payment_method),
     paymentLabel,
     paymentNote: fee > 0 ? s.payment_note?.trim() || "" : "",
-    altText: `PikPie 揪團提醒：${s.title || "活動"} ${getReminderTimingLabel(reminder?.remind_at, s.starts_at)}`,
+    altText: `PikFun 揪團提醒：${s.title || "活動"} ${getReminderTimingLabel(reminder?.remind_at, s.starts_at)}`,
   };
 }
 
@@ -295,7 +296,7 @@ export function buildReminderEmailHtml(ctx) {
     </div>
     <div style="padding:16px 28px;background:#f8fafc;border-top:1px solid #eef2f7;text-align:center">
       <p style="margin:0;font-size:11px;color:#9ca3af;line-height:1.6">
-        你收到此信是因為已報名 PikPie 揪團活動。
+        你收到此信是因為已報名 PikFun 揪團活動。
       </p>
     </div>
   </div>
@@ -304,5 +305,5 @@ export function buildReminderEmailHtml(ctx) {
 }
 
 export function buildReminderEmailSubject(ctx) {
-  return `PikPie 揪團提醒｜${ctx.timingLabel}｜${ctx.title}`;
+  return `PikFun 揪團提醒｜${ctx.timingLabel}｜${ctx.title}`;
 }

@@ -18,9 +18,27 @@ export const UserProvider = ({ children }) => {
     const isGoogle = localStorage.getItem("is_google_login") === "true";
     const isFacebook = localStorage.getItem("is_facebook_login") === "true";
     const isLine = localStorage.getItem("is_line_login") === "true";
-    
-    const socialName = localStorage.getItem("google_name") || localStorage.getItem("facebook_name") || localStorage.getItem("line_name");
-    const socialAvatar = localStorage.getItem("google_avatar") || localStorage.getItem("facebook_avatar") || localStorage.getItem("line_avatar");
+
+    const pick = (key) => {
+      const v = localStorage.getItem(key);
+      return v && v.trim() ? v.trim() : "";
+    };
+
+    const socialName = isGoogle
+      ? pick("google_name")
+      : isFacebook
+        ? pick("facebook_name")
+        : isLine
+          ? pick("line_name")
+          : pick("google_name") || pick("facebook_name") || pick("line_name");
+
+    const socialAvatar = isGoogle
+      ? pick("google_avatar")
+      : isFacebook
+        ? pick("facebook_avatar")
+        : isLine
+          ? pick("line_avatar")
+          : pick("google_avatar") || pick("facebook_avatar") || pick("line_avatar");
 
     if (!token) {
       setUserInfo(null);
@@ -61,9 +79,9 @@ export const UserProvider = ({ children }) => {
           email: customer.email,
           phone: customer.phone,
           avatar:
-            (isGoogle || isFacebook || isLine) && socialAvatar
-              ? socialAvatar
-              : customer.metadata?.avatar_url || null,
+            socialAvatar ||
+            customer.metadata?.avatar_url ||
+            null,
         });
       } else {
         console.warn(`[UserContext] 驗證警告：API 回傳狀態碼 ${res.status}`);
@@ -89,7 +107,15 @@ export const UserProvider = ({ children }) => {
 
     // 💡 黑魔法：跨分頁同步登入狀態
     const handleStorageChange = (e) => {
-        if (e.key === "medusa_auth_token") {
+        if (
+          e.key === "medusa_auth_token" ||
+          e.key === "google_avatar" ||
+          e.key === "google_name" ||
+          e.key === "line_avatar" ||
+          e.key === "line_name" ||
+          e.key === "is_google_login" ||
+          e.key === "is_line_login"
+        ) {
             verifyMedusaSession();
         }
     };

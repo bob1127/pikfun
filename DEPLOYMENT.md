@@ -2,7 +2,7 @@
 
 ```
 顧客網站 (Vercel)          後台 Admin (Vercel)          API (Railway)
-pikfun.vercel.app    →     admin.xxx.vercel.app   →     xxx.up.railway.app
+www.pikfun.com.tw    →     admin.xxx.vercel.app   →     xxx.up.railway.app
      │                            │                           │
      └──── NEXT_PUBLIC_MEDUSA_BACKEND_URL ────────────────────┘
                                   └─ vercel.json 轉發 API ────┘
@@ -21,7 +21,7 @@ pikfun.vercel.app    →     admin.xxx.vercel.app   →     xxx.up.railway.app
 ### 1. 建立專案
 
 1. [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
-2. 選 `kejiweibai17-source/pikfun`
+2. 選 `bob1127/pikfun`（前端）或 `bob1127/pikfun-backend`（後端 API）
 3. **Settings → Root Directory** → `pickleball-backend`
 4. **New** → **Database** → **Add Redis**（Medusa 需要 Redis）
 
@@ -37,9 +37,9 @@ REDIS_URL=${{Redis.REDIS_URL}}
 JWT_SECRET=（長隨機字串）
 COOKIE_SECRET=（長隨機字串）
 
-STORE_CORS=https://pikfun.vercel.app,https://你的自訂網域
+STORE_CORS=https://www.pikfun.com.tw,https://pikfun.vercel.app
 ADMIN_CORS=https://pikfun-admin.vercel.app,https://你的後台網域
-AUTH_CORS=https://pikfun.vercel.app,https://pikfun-admin.vercel.app
+AUTH_CORS=https://www.pikfun.com.tw,https://pikfun-admin.vercel.app
 
 MEDUSA_BACKEND_URL=https://你的服務.up.railway.app
 
@@ -127,8 +127,8 @@ Vercel → pikfun-admin → **Settings → Domains**
 
 ```env
 NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://你的服務.up.railway.app
-NEXT_PUBLIC_SITE_URL=https://pikfun.vercel.app
-NEXTAUTH_URL=https://pikfun.vercel.app
+NEXT_PUBLIC_SITE_URL=https://www.pikfun.com.tw
+NEXTAUTH_URL=https://www.pikfun.com.tw
 ```
 
 其餘 Supabase、LINE、Google 等變數照 `.env.local` 填。

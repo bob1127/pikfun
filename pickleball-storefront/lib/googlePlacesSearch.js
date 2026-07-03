@@ -115,7 +115,7 @@ export function isDuplicateCourt(local, googleCourt) {
   return false;
 }
 
-/** 合併 PikPie 資料庫與 Google 商家，本地資料優先 */
+/** 合併 PikFun 資料庫與 Google 商家，本地資料優先 */
 export function mergeCourtLists(localCourts = [], googleCourts = [], { typeFilter = "all" } = {}) {
   let local = [...localCourts];
   if (typeFilter && typeFilter !== "all") {
@@ -127,7 +127,7 @@ export function mergeCourtLists(localCourts = [], googleCourts = [], { typeFilte
   );
 
   return [
-    ...local.map((c) => ({ ...c, source: c.source || "pikpie" })),
+    ...local.map((c) => ({ ...c, source: c.source || "PikFun" })),
     ...google,
   ];
 }

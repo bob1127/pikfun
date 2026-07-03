@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Head from "next/head";
+import { getSiteUrl, DEFAULT_CONTACT_EMAIL } from "@/lib/siteUrl";
 import { ReactLenis } from "@studio-freight/react-lenis";
 import { motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
@@ -19,7 +20,7 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- SEO 設定 ---
-  const siteUrl = "https://www.kesh-de1.com";
+  const siteUrl = getSiteUrl();
   const pageTitle = t("contact.seo.title");
   const pageDesc = t("contact.seo.description");
 
@@ -34,12 +35,12 @@ export default function Contact() {
       "@type": "Organization",
       name: "KÉSH de¹ 凱仕國際精品",
       url: siteUrl,
-      email: "contact@kesh-de1.com",
+      email: DEFAULT_CONTACT_EMAIL,
       contactPoint: [
         {
           "@type": "ContactPoint",
           contactType: "customer service",
-          email: "contact@kesh-de1.com",
+          email: DEFAULT_CONTACT_EMAIL,
           areaServed: "TW",
           availableLanguage: ["Chinese", "English", "Korean"],
         },
@@ -138,10 +139,10 @@ export default function Contact() {
                     {t("contact.left.email_label")}
                   </h3>
                   <a
-                    href="mailto:contact@kesh-de1.com"
+                    href={`mailto:${DEFAULT_CONTACT_EMAIL}`}
                     className="text-xl font-serif hover:text-gray-300 transition-colors border-b border-transparent hover:border-gray-300 pb-1"
                   >
-                    contact@kesh-de1.com
+                    {DEFAULT_CONTACT_EMAIL}
                   </a>
                 </div>
 

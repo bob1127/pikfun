@@ -187,7 +187,7 @@ export default function Slider() {
         .hero-container {
           position: relative;
           width: 100%;
-          height: 100svh;
+          height: 85vh;
           overflow: hidden;
           background-color: #000;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

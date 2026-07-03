@@ -11,6 +11,7 @@ import { useUser } from "@/components/context/UserContext";
 import ClassCard from "@/components/coaching/ClassCard";
 import CoachingSidebar from "@/components/coaching/CoachingSidebar";
 import FeaturedCoachesSection from "@/components/coaching/FeaturedCoachesSection";
+import CoachingRecruitFooter from "@/components/coaching/CoachingRecruitFooter";
 
 const FILTERS = [
   { key: "upcoming", label: "即將開課" },
@@ -113,158 +114,44 @@ export default function CoachingListPage() {
         />
       </Head>
 
-      <main className="bg-[#E8E8E3] min-h-screen pt-24 pb-20">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-10">
-          {/* Header */}
-          <header className="text-center py-10 md:py-14 border-b border-dashed border-gray-400/50 mb-10">
+      <main className="bg-[#f5f7fa] min-h-screen pt-24 pb-0">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10">
+          {/* 頂部標題 — 圖4 風格 */}
+          <header className="flex items-end justify-between gap-6 py-12 md:py-16 border-b border-gray-200">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <p className="text-[10px] md:text-xs font-black tracking-[0.3em] text-gray-500 uppercase mb-3">
-                Pickleball Coaching
+              <p className="text-[10px] font-bold tracking-[0.35em] text-[#3366CC] uppercase mb-3">
+                Coaching
               </p>
-              <h1 className="text-4xl md:text-6xl font-black text-black tracking-tight uppercase mb-3">
+              <h1 className="text-3xl md:text-5xl font-bold text-[#1a2d4a] tracking-tight">
                 教練開課
               </h1>
-              <p className="text-sm text-gray-600 max-w-md mx-auto">
-                匹克球教練課程 · 從新手入門到進階技術
+              <p className="text-sm text-gray-500 mt-3 max-w-md">
+                — 匹克球教練課程 · 從新手入門到進階技術
               </p>
             </motion.div>
+            <span className="hidden md:block text-[#3366CC] font-bold text-lg tracking-wider shrink-0">
+              {"{01}"}
+            </span>
           </header>
 
-          {/* Yellow pill nav */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-10">
-            <div className="flex items-center gap-1 bg-[#FFD43A] rounded-full px-2 py-2 overflow-x-auto scrollbar-hide">
-              {FILTERS.filter((f) => !f.requireAuth || userInfo).map((f) => (
-                <button
-                  key={f.key}
-                  onClick={() => setFilter(f.key)}
-                  className={`shrink-0 px-4 py-2 rounded-full text-xs font-black tracking-wide transition-colors ${
-                    filter === f.key
-                      ? "bg-black text-white"
-                      : "text-black hover:bg-black/10"
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={handleCreateClick}
-              className="flex items-center justify-center gap-2 bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 rounded-md transition-colors shrink-0"
+          <div className="flex flex-col lg:flex-row gap-0 py-10 md:py-14">
+            {/* 左側直書標籤 — 圖1/2 */}
+            <div
+              className="hidden xl:flex w-12 shrink-0 items-start justify-center pt-2 border-r border-gray-200 mr-8"
+              aria-hidden
             >
-              我要開課
-              <ChevronRight size={16} />
-            </button>
-          </div>
-
-          {/* Two-column layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 lg:gap-16">
-            {/* Main grid */}
-            <div>
-              {appliedSearch && !loading && (
-                <div className="flex flex-wrap items-center gap-2 mb-6">
-                  <span className="text-sm text-gray-600">
-                    搜尋「
-                    <span className="font-bold text-black">
-                      {appliedSearch}
-                    </span>
-                    」{searchMeta ? ` · 找到 ${searchMeta.count} 堂課` : ""}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-black border border-gray-300 rounded-full px-2.5 py-1"
-                  >
-                    <X size={12} /> 清除
-                  </button>
-                  {classes.length === 0 && filter === "upcoming" && (
-                    <button
-                      type="button"
-                      onClick={() => setFilter("all")}
-                      className="text-xs font-bold text-[#3157B5] underline"
-                    >
-                      改查全部課程
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {loading ? (
-                <div className="text-center py-20 text-gray-500 font-medium">
-                  載入課程中...
-                </div>
-              ) : error ? (
-                <div className="text-center py-20">
-                  <p className="text-red-500 mb-2">{error}</p>
-                  <p className="text-sm text-gray-500 mb-4">
-                    若為資料表錯誤，請先在 Supabase 執行
-                    supabase/coach_classes.sql
-                  </p>
-                  <button
-                    onClick={fetchClasses}
-                    className="text-black font-bold underline"
-                  >
-                    重試
-                  </button>
-                </div>
-              ) : classes.length === 0 ? (
-                <div className="text-center py-20 border border-dashed border-gray-400 rounded-lg">
-                  {appliedSearch ? (
-                    <>
-                      <p className="text-gray-600 mb-2">
-                        找不到符合「{appliedSearch}」的課程
-                      </p>
-                      <p className="text-sm text-gray-400 mb-4">
-                        試試球場名稱、地址、教練姓名，或改用「全部」篩選
-                      </p>
-                      <button
-                        onClick={clearSearch}
-                        className="inline-flex items-center gap-2 bg-black text-white font-bold px-6 py-3 rounded-md mr-2"
-                      >
-                        清除搜尋
-                      </button>
-                      {filter === "upcoming" && (
-                        <button
-                          onClick={() => setFilter("all")}
-                          className="inline-flex items-center gap-2 border border-gray-400 text-black font-bold px-6 py-3 rounded-md"
-                        >
-                          查看全部課程
-                        </button>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-gray-600 mb-4">目前沒有課程</p>
-                      <button
-                        onClick={handleCreateClick}
-                        className="inline-flex items-center gap-2 bg-black text-white font-bold px-6 py-3 rounded-md"
-                      >
-                        <Plus size={18} /> 成為第一位開課教練
-                      </button>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
-                  {classes.map((cls, i) => (
-                    <div
-                      key={cls.id}
-                      className={
-                        i % 3 !== 2
-                          ? "sm:border-r sm:border-dashed sm:border-gray-300 sm:pr-8"
-                          : ""
-                      }
-                    >
-                      <ClassCard cls={cls} index={i} />
-                    </div>
-                  ))}
-                </div>
-              )}
+              <span
+                className="text-xs font-bold tracking-[0.4em] text-gray-400 uppercase"
+                style={{ writingMode: "vertical-rl" }}
+              >
+                課程介紹
+              </span>
             </div>
 
-            {/* Sidebar */}
+            {/* 左側 Menu + 篩選 */}
             <CoachingSidebar
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
@@ -280,13 +167,169 @@ export default function CoachingListPage() {
               onSkillLevelChange={setSkillLevel}
               featuredClasses={featuredClasses}
             />
-          </div>
 
-          {/* 進駐教練 */}
+            {/* 主內容區 */}
+            <div className="flex-1 min-w-0">
+              {/* 篩選列 — 圖3 GROUP 風格 */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-gray-200">
+                <div>
+                  <p className="text-[10px] font-bold tracking-[0.25em] text-[#3366CC] uppercase mb-2">
+                    Group
+                  </p>
+                  <div className="flex flex-wrap gap-x-6 gap-y-2">
+                    {FILTERS.filter((f) => !f.requireAuth || userInfo).map(
+                      (f) => (
+                        <button
+                          key={f.key}
+                          onClick={() => setFilter(f.key)}
+                          className={`text-sm font-bold transition-colors pb-1 border-b-2 ${
+                            filter === f.key
+                              ? "text-[#1a2d4a] border-[#3366CC]"
+                              : "text-gray-400 border-transparent hover:text-[#3366CC]"
+                          }`}
+                        >
+                          {f.label}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={handleCreateClick}
+                  className="hidden sm:inline-flex items-center gap-2 bg-[#3366CC] hover:bg-[#2855aa] text-white font-bold px-6 py-2.5 rounded-full transition-colors shrink-0 text-sm"
+                >
+                  我要開課
+                  <ChevronRight size={15} />
+                </button>
+              </div>
+
+              {appliedSearch && !loading && (
+                <div className="flex flex-wrap items-center gap-2 mb-8">
+                  <span className="text-sm text-gray-600">
+                    搜尋「
+                    <span className="font-bold text-[#1a2d4a]">
+                      {appliedSearch}
+                    </span>
+                    」{searchMeta ? ` · 找到 ${searchMeta.count} 堂課` : ""}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-[#3366CC] border border-gray-200 rounded-full px-2.5 py-1 bg-white"
+                  >
+                    <X size={12} /> 清除
+                  </button>
+                  {classes.length === 0 && filter === "upcoming" && (
+                    <button
+                      type="button"
+                      onClick={() => setFilter("all")}
+                      className="text-xs font-bold text-[#3366CC] underline"
+                    >
+                      改查全部課程
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {loading ? (
+                <div className="text-center py-24 text-gray-500 font-medium">
+                  載入課程中...
+                </div>
+              ) : error ? (
+                <div className="text-center py-24 bg-white border border-gray-200 rounded-xl">
+                  <p className="text-red-500 mb-2">{error}</p>
+                  <p className="text-sm text-gray-500 mb-4">
+                    若為資料表錯誤，請先在 Supabase 執行
+                    supabase/coach_classes.sql
+                  </p>
+                  <button
+                    onClick={fetchClasses}
+                    className="text-[#3366CC] font-bold underline"
+                  >
+                    重試
+                  </button>
+                </div>
+              ) : classes.length === 0 ? (
+                <div className="text-center py-24 bg-white border border-gray-200 rounded-xl">
+                  {appliedSearch ? (
+                    <>
+                      <p className="text-gray-600 mb-2">
+                        找不到符合「{appliedSearch}」的課程
+                      </p>
+                      <p className="text-sm text-gray-400 mb-6">
+                        試試球場名稱、地址、教練姓名，或改用「全部」篩選
+                      </p>
+                      <button
+                        onClick={clearSearch}
+                        className="inline-flex items-center gap-2 bg-[#1a2d4a] text-white font-bold px-6 py-3 rounded-full mr-2"
+                      >
+                        清除搜尋
+                      </button>
+                      {filter === "upcoming" && (
+                        <button
+                          onClick={() => setFilter("all")}
+                          className="inline-flex items-center gap-2 border border-gray-300 text-[#1a2d4a] font-bold px-6 py-3 rounded-full bg-white"
+                        >
+                          查看全部課程
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-gray-600 mb-6">目前沒有課程</p>
+                      <button
+                        onClick={handleCreateClick}
+                        className="inline-flex items-center gap-2 bg-[#3366CC] text-white font-bold px-6 py-3 rounded-full"
+                      >
+                        <Plus size={18} /> 成為第一位開課教練
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-6 md:space-y-8">
+                  {classes.map((cls, i) => (
+                    <ClassCard key={cls.id} cls={cls} index={i} layout="horizontal" />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 底部 CTA — 圖3 ENTRY 橫幅 */}
+        <section className="bg-[#3366CC] mt-4">
+          <button
+            type="button"
+            onClick={handleCreateClick}
+            className="w-full max-w-[1280px] mx-auto px-6 md:px-10 py-10 md:py-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-white hover:bg-[#2855aa] transition-colors group"
+          >
+            <div className="text-center sm:text-left">
+              <p className="text-2xl md:text-3xl font-bold tracking-wide uppercase">
+                我要開課
+              </p>
+              <p className="text-sm text-white/75 mt-1">
+                成為 PikFun 教練，開始你的第一堂課
+              </p>
+            </div>
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#3366CC] group-hover:scale-105 transition-transform">
+              <ChevronRight size={22} />
+            </span>
+          </button>
+        </section>
+
+        {/* 進駐教練 */}
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10">
           <div id="featured-coaches">
             <FeaturedCoachesSection />
           </div>
         </div>
+
+        <CoachingRecruitFooter
+          entryLabel="ENTRY"
+          entryHref="/coaching/create"
+          onEntryClick={handleCreateClick}
+        />
       </main>
     </>
   );

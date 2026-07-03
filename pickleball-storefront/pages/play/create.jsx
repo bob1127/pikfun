@@ -24,7 +24,8 @@ import {
 } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import {
-  SKILL_LABELS,
+  SKILL_RATING_PRESETS,
+  getSkillLevelLabel,
   PAYMENT_METHODS,
   toLocalDatetimeValue,
   syncEndsAtOnStartChange,
@@ -57,27 +58,26 @@ function fmtTime(iso) {
 }
 
 /* ─── skill options ────────────────────────────────────── */
-const SKILL_OPTIONS = [
-  { value: "all", label: SKILL_LABELS.all, color: "#e0f2fe", text: "#0369a1" },
-  {
-    value: "beginner",
-    label: SKILL_LABELS.beginner,
-    color: "#dcfce7",
-    text: "#16a34a",
-  },
-  {
-    value: "intermediate",
-    label: SKILL_LABELS.intermediate,
-    color: "#c8f542",
-    text: "#365314",
-  },
-  {
-    value: "advanced",
-    label: SKILL_LABELS.advanced,
-    color: "#fde68a",
-    text: "#92400e",
-  },
+const SKILL_LEVEL_PRESETS = [
+  { value: "all", label: "不限程度" },
+  ...SKILL_RATING_PRESETS.map((value) => ({
+    value,
+    label: value === "5.5+" ? "5.5+" : value,
+  })),
 ];
+
+function normalizeSkillRating(raw) {
+  const trimmed = String(raw).trim();
+  if (!trimmed) return null;
+  if (trimmed === "5.5+") return "5.5+";
+  const match = trimmed.match(/^(\d)(?:\.(\d))?$/);
+  if (!match) return null;
+  const major = Number(match[1]);
+  const minor = match[2] != null ? Number(match[2]) : 0;
+  if (major < 1 || major > 8 || minor > 9) return null;
+  if (match[2] == null && !trimmed.includes(".")) return `${major}.0`;
+  return `${major}.${minor}`;
+}
 
 /* ─── Section row header ───────────────────────────────── */
 function SectionTitle({
@@ -448,6 +448,8 @@ export default function CreatePlayPage() {
   const defaultEnd = new Date(defaultStart);
   defaultEnd.setHours(defaultEnd.getHours() + 2);
 
+  const [skillCustom, setSkillCustom] = useState("");
+
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -564,8 +566,10 @@ export default function CreatePlayPage() {
     return `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
   })();
 
-  const skill =
-    SKILL_OPTIONS.find((s) => s.value === form.skill_level) || SKILL_OPTIONS[0];
+  const skillLabel = getSkillLevelLabel(form.skill_level);
+  const isCustomSkillActive =
+    form.skill_level !== "all" &&
+    !SKILL_LEVEL_PRESETS.some((option) => option.value === form.skill_level);
   const showPaymentDetail = Number(form.fee_per_person) > 0;
 
   if (userLoading || !userInfo) {
@@ -731,22 +735,52 @@ export default function CreatePlayPage() {
         </div>
 
         <div className="crt-field-label crt-field-label-spaced">程度建議</div>
+        <p className="crt-skill-hint">可選擇匹克球級數（如 3.5），或於下方自訂輸入</p>
         <div className="crt-skill-grid">
-          {SKILL_OPTIONS.map((s) => (
+          {SKILL_LEVEL_PRESETS.map((option) => (
             <button
-              key={s.value}
+              key={option.value}
               type="button"
-              onClick={() => set("skill_level", s.value)}
-              className={`crt-skill-card ${form.skill_level === s.value ? "active" : ""}`}
-              style={
-                form.skill_level === s.value
-                  ? { background: s.color, borderColor: s.color, color: s.text }
-                  : {}
-              }
+              onClick={() => {
+                set("skill_level", option.value);
+                setSkillCustom("");
+              }}
+              className={`crt-skill-card ${
+                form.skill_level === option.value && !isCustomSkillActive
+                  ? "active"
+                  : ""
+              }`}
             >
-              {s.label}
+              {option.label}
             </button>
           ))}
+        </div>
+        <div className="crt-skill-custom">
+          <span className="crt-skill-custom-label">自訂級數</span>
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder="例：3.5"
+            value={skillCustom}
+            onChange={(e) => {
+              const next = e.target.value;
+              setSkillCustom(next);
+              const normalized = normalizeSkillRating(next);
+              if (normalized) set("skill_level", normalized);
+              else if (!next.trim()) set("skill_level", "all");
+            }}
+            onBlur={() => {
+              const normalized = normalizeSkillRating(skillCustom);
+              if (normalized) {
+                setSkillCustom(normalized);
+                set("skill_level", normalized);
+              }
+            }}
+            className={`crt-skill-custom-input ${
+              isCustomSkillActive ? "active" : ""
+            }`}
+            aria-label="自訂匹克球級數"
+          />
         </div>
       </section>
 
@@ -906,7 +940,7 @@ export default function CreatePlayPage() {
         {/* ── DESKTOP CTA + INFO ──────────────────────── */}
         <div className="crt-dsk-actions crt-desktop-only">
           <p className="crt-dsk-note">
-            發布揪團即表示你同意 PikPie 揪團使用規範，並確認所填資訊正確。
+            發布揪團即表示你同意 PokFun 揪團使用規範，並確認所填資訊正確。
           </p>
           <ConfettiButton
             onClick={handleSubmitClick}
@@ -924,7 +958,7 @@ export default function CreatePlayPage() {
           <div className="crt-dsk-panel-inner">
             <h2 className="crt-dsk-panel-title">發布後，球友即可報名</h2>
             <p className="crt-dsk-panel-lead">
-              完成上方表單並發布，你的球局會出現在 PikPie 揪團列表
+              完成上方表單並發布，你的球局會出現在 PokFun 揪團列表
             </p>
 
             <div className="crt-dsk-panel-grid">
@@ -933,7 +967,7 @@ export default function CreatePlayPage() {
                 <p className="crt-dsk-panel-highlight">
                   <em>{form.max_players} 人</em>
                   <span className="crt-dsk-panel-sep">·</span>
-                  <em>{skill.label}</em>
+                  <em>{skillLabel}</em>
                 </p>
                 <p className="crt-dsk-panel-meta">
                   {fmtDate(form.starts_at)} {fmtTime(form.starts_at)}–
@@ -1005,11 +1039,8 @@ export default function CreatePlayPage() {
               <div className="crt-sticky-line">
                 <span className="crt-sticky-count">{form.max_players} 人</span>
                 <span className="crt-sticky-sep">·</span>
-                <span
-                  className="crt-sticky-skill"
-                  style={{ color: skill.text, background: skill.color }}
-                >
-                  {skill.label}
+                <span className="crt-sticky-skill crt-skill-badge-active">
+                  {skillLabel}
                 </span>
               </div>
               <div className="crt-sticky-line crt-sticky-line-sub">
@@ -1517,7 +1548,7 @@ export default function CreatePlayPage() {
             font-weight: 700;
           }
           .crt-skill-grid {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 0.5rem;
             margin-top: 0.5rem;
           }
@@ -1527,6 +1558,24 @@ export default function CreatePlayPage() {
             font-size: 0.75rem;
             font-weight: 600;
             border: 1px solid #e5e7eb;
+          }
+          .crt-skill-card.active {
+            background: #e0f2fe;
+            border-color: #7dd3fc;
+            color: #0369a1;
+          }
+          .crt-skill-hint {
+            margin: 0.25rem 0 0;
+            font-size: 0.6875rem;
+            color: #94a3b8;
+            line-height: 1.4;
+          }
+          .crt-skill-custom {
+            margin-top: 0.625rem;
+          }
+          .crt-skill-custom-input {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
           }
           .crt-fee-row {
             background: transparent;
@@ -1682,10 +1731,21 @@ export default function CreatePlayPage() {
         }
 
         /* ─── skill grid ──────────────────────────── */
+        .crt-skill-hint {
+          margin: 0.375rem 0 0;
+          font-size: 0.75rem;
+          color: #94a3b8;
+          line-height: 1.45;
+        }
         .crt-skill-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(3, 1fr);
           gap: 0.625rem;
+        }
+        @media (min-width: 480px) {
+          .crt-skill-grid {
+            grid-template-columns: repeat(4, 1fr);
+          }
         }
         .crt-skill-card {
           padding: 0.75rem;
@@ -1699,8 +1759,50 @@ export default function CreatePlayPage() {
           transition: all 0.2s;
           text-align: center;
         }
+        .crt-skill-card.active {
+          background: #e0f2fe;
+          border-color: #7dd3fc;
+          color: #0369a1;
+        }
         .crt-skill-card:active {
           transform: scale(0.97);
+        }
+        .crt-skill-custom {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-top: 0.875rem;
+        }
+        .crt-skill-custom-label {
+          font-size: 0.8125rem;
+          font-weight: 700;
+          color: #64748b;
+          white-space: nowrap;
+        }
+        .crt-skill-custom-input {
+          flex: 1;
+          min-width: 0;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 0.875rem;
+          padding: 0.75rem 0.875rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #0f172a;
+          background: #fff;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .crt-skill-custom-input:focus {
+          outline: none;
+          border-color: #7dd3fc;
+        }
+        .crt-skill-custom-input.active {
+          background: #e0f2fe;
+          border-color: #7dd3fc;
+          color: #0369a1;
+        }
+        .crt-skill-badge-active {
+          background: #e0f2fe;
+          color: #0369a1;
         }
 
         /* ─── fee row ─────────────────────────────── */

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
+import { persistSocialProfile } from "@/lib/socialProfile";
 
 export default function LineCallback() {
   const router = useRouter();
@@ -32,31 +33,34 @@ export default function LineCallback() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
       })
-        .then((res) => res.json())
-        .then((data) => {
+        .then(async (res) => {
+          const data = await res.json();
           if (data.token) {
-            // 登入大成功！存入 Token
             localStorage.setItem("medusa_auth_token", data.token);
-            localStorage.setItem("line_avatar", data.picture || "");
-            localStorage.setItem("line_name", data.name || "");
-            localStorage.setItem("is_line_login", "true");
+            persistSocialProfile("line", {
+              name: data.name,
+              picture: data.picture,
+              email: data.email,
+            });
 
-            // 🔥 防呆：清除其他社群登入標記
             localStorage.removeItem("is_google_login");
             localStorage.removeItem("is_facebook_login");
+            localStorage.removeItem("google_name");
+            localStorage.removeItem("google_avatar");
+            localStorage.removeItem("facebook_name");
+            localStorage.removeItem("facebook_avatar");
 
-            // ✅ 關鍵修改：強制硬重載跳轉，確保右上角狀態更新
             window.location.href =
               router.locale === "zh-TW" || !router.locale
                 ? "/"
                 : `/${router.locale}`;
-          } else {
-            throw new Error(data.error || "登入失敗");
+            return;
           }
+          throw new Error(data.error || "登入失敗");
         })
         .catch((err) => {
           console.error(err);
-          alert("系統處理錯誤，請稍後再試");
+          alert(err.message || "系統處理錯誤，請稍後再試");
           router.push("/login");
         });
     }

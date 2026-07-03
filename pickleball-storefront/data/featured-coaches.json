@@ -24,7 +24,7 @@
       "specialties": ["新手入門", "雙打站位", "網前短球"],
       "published_at": "2025-03-15",
       "email": "coach.lin@example.com",
-      "instagram": "pikpie_coach_lin",
+      "instagram": "PikFun_coach_lin",
       "is_featured": true,
       "sort_order": 1
     },
@@ -42,7 +42,7 @@
       "tags": ["女性專班", "銀髮族", "私人課"],
       "excerpt": "溫柔但專業的教學風格，特別適合第一次接觸球拍運動的學員，已在台北授課超過 200 位學員。",
       "bio": "陳美玲教練畢業於台北市立大學運動科學系，結合羽球底子與匹克球戰術，開設女性友善與銀髮族安全運動課程。課堂節奏彈性，注重暖身、伸展與正確發力，減少運動傷害。",
-      "story": "很多學員告訴我，她們以前覺得球類運動是「年輕人的遊戲」。直到接觸匹克球，才發現這是一項可以全家一起玩的運動。\n\n我的課從「如何握拍不緊張」開始，一步步建立信心。有位 62 歲的學員上完八堂課後，第一次參加社區比賽就拿到混雙季軍——那種成就感，是我當教練最大的動力。\n\n在 PikPie，我希望讓更多女性與長輩找到屬於自己的節奏，享受運動的快樂。",
+      "story": "很多學員告訴我，她們以前覺得球類運動是「年輕人的遊戲」。直到接觸匹克球，才發現這是一項可以全家一起玩的運動。\n\n我的課從「如何握拍不緊張」開始，一步步建立信心。有位 62 歲的學員上完八堂課後，第一次參加社區比賽就拿到混雙季軍——那種成就感，是我當教練最大的動力。\n\n在 PikFun，我希望讓更多女性與長輩找到屬於自己的節奏，享受運動的快樂。",
       "credentials": [
         "台北市立大學運動科學系",
         "PPR 認證教練",
@@ -51,7 +51,7 @@
       "specialties": ["女性專班", "銀髮族", "發力與伸展"],
       "published_at": "2025-02-20",
       "email": "coach.chen@example.com",
-      "instagram": "pikpie_coach_chen",
+      "instagram": "PikFun_coach_chen",
       "is_featured": true,
       "sort_order": 2
     },
@@ -69,7 +69,7 @@
       "tags": ["高階", "第三拍", "比賽战术"],
       "excerpt": "競賽經驗豐富的進階教練，專門協助想從 recreational 邁向 tournament 的球友突破瓶頸。",
       "bio": "黃家偉教練是南台灣活跃的競賽型選手，擅長 third shot drop、drive 與 doubles 站位調度。課程以 video review 與實戰模擬為特色，適合已有基礎、想系統提升的學員。",
-      "story": "從 recreational player 到全國賽四強，我花了兩年時間理解「比賽跟練球不一樣」。心理素質、戰術選擇、關鍵分處理——這些都是進階班要教的。\n\n我開的競賽準備班，每堂課會針對一個實戰情境：如何讀對手、何時 lob、怎麼在 deuce 穩住。學員說最受益的是「終於知道自己為什麼輸」。\n\n進駐 PikPie 官網，希望連結更多南部的熱血球友。",
+      "story": "從 recreational player 到全國賽四強，我花了兩年時間理解「比賽跟練球不一樣」。心理素質、戰術選擇、關鍵分處理——這些都是進階班要教的。\n\n我開的競賽準備班，每堂課會針對一個實戰情境：如何讀對手、何時 lob、怎麼在 deuce 穩住。學員說最受益的是「終於知道自己為什麼輸」。\n\n進駐 PikFun 官網，希望連結更多南部的熱血球友。",
       "credentials": [
         "全國匹克球公開賽混雙四強",
         "PPR 認證教練",
@@ -78,7 +78,7 @@
       "specialties": ["第三拍", "比賽战术", "混雙配合"],
       "published_at": "2025-04-01",
       "email": "coach.huang@example.com",
-      "instagram": "pikpie_coach_huang",
+      "instagram": "PikFun_coach_huang",
       "is_featured": true,
       "sort_order": 3
     },
@@ -105,7 +105,7 @@
       "specialties": ["青少年", "親子共學", "暑期營"],
       "published_at": "2025-05-10",
       "email": "coach.wu@example.com",
-      "instagram": "pikpie_coach_wu",
+      "instagram": "PikFun_coach_wu",
       "is_featured": true,
       "sort_order": 4
     },
@@ -132,7 +132,7 @@
       "specialties": ["動作矯正", "中階突破", "體能訓練"],
       "published_at": "2025-01-08",
       "email": "coach.zhang@example.com",
-      "instagram": "pikpie_coach_zhang",
+      "instagram": "PikFun_coach_zhang",
       "is_featured": true,
       "sort_order": 5
     },
@@ -159,7 +159,7 @@
       "specialties": ["比賽心理", "專注力", "賽前準備"],
       "published_at": "2025-04-22",
       "email": "coach.liu@example.com",
-      "instagram": "pikpie_coach_liu",
+      "instagram": "PikFun_coach_liu",
       "is_featured": true,
       "sort_order": 6
     }

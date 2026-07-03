@@ -82,7 +82,7 @@ export function mapPostToStoreCard(post, index, categoryLabel) {
   return {
     id: `No.${String(index + 1).padStart(3, "0")}`,
     slug: base.slug,
-    brand: categoryLabel || base.categories[0] || "PikPie",
+    brand: categoryLabel || base.categories[0] || "PikFun",
     title: base.title,
     date: base.dateFormatted,
     type: tag,

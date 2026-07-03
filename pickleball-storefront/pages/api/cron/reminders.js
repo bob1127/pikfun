@@ -68,7 +68,7 @@ async function sendEmail(toEmail, session, reminder) {
   });
 
   await transporter.sendMail({
-    from: MAIL_FROM || `PikPie <${SMTP_USER}>`,
+    from: MAIL_FROM || `PikFun <${SMTP_USER}>`,
     to: toEmail,
     subject: buildReminderEmailSubject(ctx),
     html: buildReminderEmailHtml(ctx),

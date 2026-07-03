@@ -113,7 +113,7 @@ export default function Register() {
     const REDIRECT_URI = encodeURIComponent(`${currentOrigin}/auth/callback`);
     const STATE = Math.random().toString(36).substring(7);
     localStorage.setItem("google_oauth_state", STATE);
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}&scope=email%20profile`;
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}&scope=openid%20email%20profile&prompt=select_account`;
   };
 
   const handleFacebookLogin = () => {
@@ -211,7 +211,7 @@ export default function Register() {
           email: formData.email.toLowerCase(),
           password: formData.password,
         }),
-      }
+      },
     );
 
     const authData = await authRes.json();
@@ -246,7 +246,7 @@ export default function Register() {
           email: formData.email.toLowerCase(),
           password: formData.password,
         }),
-      }
+      },
     );
 
     if (!finalLoginRes.ok) throw new Error("同步登入狀態失敗，請手動登入");
@@ -296,7 +296,7 @@ export default function Register() {
   return (
     <>
       <Head>
-        <title>會員註冊 | PikPie</title>
+        <title>會員註冊 | PikFun</title>
       </Head>
       <main className="min-h-screen bg-white flex flex-col justify-center items-center pt-24 pb-24 px-6 overflow-hidden">
         <div className="w-full max-w-[480px] relative">
@@ -317,7 +317,7 @@ export default function Register() {
                     會員註冊
                   </h1>
                   <p className="text-sm" style={{ color: SITE.muted }}>
-                    加入 PikPie，探索匹克球裝備與最新資訊
+                    加入 PikFun，探索匹克球裝備與最新資訊
                   </p>
                 </div>
 
@@ -537,7 +537,11 @@ export default function Register() {
                   </p>
                 </div>
 
-                <form ref={step2FormRef} onSubmit={handleStep2Submit} className="space-y-6">
+                <form
+                  ref={step2FormRef}
+                  onSubmit={handleStep2Submit}
+                  className="space-y-6"
+                >
                   {errorMsg && (
                     <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs text-center rounded-md">
                       {errorMsg}
@@ -568,7 +572,7 @@ export default function Register() {
 
                   <ConfettiButton
                     onClick={handleRegisterClick}
-                    successLabel="歡迎加入 PikPie！🎉"
+                    successLabel="歡迎加入 PikFun！🎉"
                     className="w-full bg-[#1a3a8a] hover:bg-[#ef4023] text-white font-bold tracking-widest py-4 mt-8 rounded-md transition-colors disabled:opacity-60"
                   >
                     驗證並完成註冊

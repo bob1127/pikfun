@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
 import Link from "next/link";
 import Head from "next/head";
+import { getSiteUrl } from "@/lib/siteUrl";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
@@ -59,6 +60,7 @@ export default function FAQPage() {
   const ui = t("faq.ui", { returnObjects: true });
   const schemaItems = t("faq.schema", { returnObjects: true });
   const faqSections = t("faq.sections", { returnObjects: true });
+  const siteUrl = getSiteUrl();
 
   // 動態生成 SEO Schema
   const schemaData = {
@@ -78,8 +80,8 @@ export default function FAQPage() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "KÉSH de¹ 凱仕國際精品",
-    url: "https://www.kesh-de1.com",
-    logo: "https://www.kesh-de1.com/images/logo.png",
+    url: siteUrl,
+    logo: `${siteUrl}/images/logo.png`,
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+886-4-xxxx-xxxx", // ⚠️ 記得修改為您的實際電話
@@ -97,10 +99,10 @@ export default function FAQPage() {
         <meta property="og:title" content={seo.title} />
         <meta property="og:description" content={seo.description} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.kesh-de1.com/faq" />
+        <meta property="og:url" content={`${siteUrl}/faq`} />
         <meta
           property="og:image"
-          content="https://www.kesh-de1.com/images/og-faq.jpg"
+          content={`${siteUrl}/images/og-faq.jpg`}
         />
 
         <script

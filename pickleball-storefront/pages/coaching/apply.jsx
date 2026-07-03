@@ -100,7 +100,7 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
               </div>
               <h1 className="text-2xl font-black">教練進駐已審核通過</h1>
               <p className="text-sm text-white/75 mt-1">
-                您的教練頁已上架 PikPie 官網，球友可以搜尋並報名您的課程。
+                您的教練頁已上架 PikFun 官網，球友可以搜尋並報名您的課程。
               </p>
               {reviewedAt && (
                 <p className="text-xs text-white/50 mt-2">
@@ -142,7 +142,7 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
                   )}
                   {slug && (
                     <p className="text-[10px] text-gray-400 mt-2 font-mono">
-                      PikFuncom/coaching/coach/{slug}
+                      pikfun.com.tw/coaching/coach/{slug}
                     </p>
                   )}
                 </div>
@@ -209,7 +209,7 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
           <p className="text-center text-xs text-gray-400 mt-6 leading-relaxed">
             如需修改教練資料，請至「編輯教練頁」更新。
             <br />
-            如有問題請聯絡 PikPie 客服。
+            如有問題請聯絡 PikFun 客服。
           </p>
         </div>
       </main>
@@ -595,7 +595,7 @@ export default function CoachApplyPage() {
               {isEditMode ? "Edit Application" : "Apply as Coach"}
             </p>
             <h1 className="text-3xl font-black text-black mb-2">
-              {isEditMode ? "編輯進駐申請" : "申請進駐 PikPie 官網"}
+              {isEditMode ? "編輯進駐申請" : "申請進駐 PikFun 官網"}
             </h1>
             <p className="text-sm text-gray-600 mb-2">
               已綁定會員：
@@ -605,7 +605,7 @@ export default function CoachApplyPage() {
             <p className="text-xs text-gray-400 mb-8">
               {isEditMode
                 ? "修改後重新提交，審核工作天數將從送出當日重新計算。"
-                : "送出後由 PikPie 團隊審核，核准後將顯示於「進駐教練」專區。"}
+                : "送出後由 PikFun 團隊審核，核准後將顯示於「進駐教練」專區。"}
             </p>
 
             {isEditMode && (

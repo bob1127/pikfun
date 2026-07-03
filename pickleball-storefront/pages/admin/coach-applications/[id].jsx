@@ -14,7 +14,9 @@ function Field({ label, children }) {
       <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase mb-1">
         {label}
       </p>
-      <div className="text-sm text-gray-800 whitespace-pre-wrap">{children}</div>
+      <div className="text-sm text-gray-800 whitespace-pre-wrap">
+        {children}
+      </div>
     </div>
   );
 }
@@ -62,7 +64,7 @@ export default function AdminCoachApplicationDetailPage() {
     if (!id || !isAdmin || !userInfo?.email) return;
     setLoading(true);
     fetch(
-      `/api/admin/coach-applications/${id}?admin_email=${encodeURIComponent(userInfo.email)}`
+      `/api/admin/coach-applications/${id}?admin_email=${encodeURIComponent(userInfo.email)}`,
     )
       .then((res) => res.json())
       .then((data) => setApp(data.application || null))
@@ -72,9 +74,7 @@ export default function AdminCoachApplicationDetailPage() {
   const patch = async (action) => {
     if (!userInfo?.email) return;
     const admin_note =
-      action === "reject"
-        ? prompt("拒絕原因（選填）") || ""
-        : "";
+      action === "reject" ? prompt("拒絕原因（選填）") || "" : "";
 
     setActing(true);
     try {
@@ -127,7 +127,7 @@ export default function AdminCoachApplicationDetailPage() {
   return (
     <>
       <Head>
-        <title>審核：{app.name} | PikPie Admin</title>
+        <title>審核：{app.name} | PikFun Admin</title>
       </Head>
 
       <main className="bg-[#F8FAFC] min-h-screen pt-24 pb-20">

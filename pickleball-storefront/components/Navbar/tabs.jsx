@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Newspaper,
   CircleArrowRight,
+  Truck,
 } from "lucide-react";
 
 import { useCart } from "../../components/context/CartContext";
@@ -34,6 +35,13 @@ const COLORS = {
   loginDark: "#3d4450",
   menuBg: "#eef5fb",
 };
+
+const ANNOUNCEMENTS = [
+  "全場球拍九折活動開跑！",
+  "免運優惠進行中｜滿 NT$3,000 即可享有",
+  "優惠碼 PIKFUN2026 限時使用",
+  "新會員首購再享額外折扣",
+];
 
 const NAV_ICONS = {
   home: Home,
@@ -128,24 +136,38 @@ function PillArrowButton({
   );
 }
 
-function MemberAvatar({ userInfo, size = 22 }) {
+function MemberAvatar({ userInfo, size = 22, bordered = true }) {
+  const ring = bordered ? " border border-gray-300 bg-gray-50" : "";
   if (userInfo?.avatar) {
     return (
       <img
         src={userInfo.avatar}
         alt=""
-        className="rounded-full object-cover shrink-0"
+        className={`rounded-full object-cover shrink-0${ring}`}
         style={{ width: size, height: size }}
       />
     );
   }
+  const initial = userInfo?.name?.charAt(0)?.toUpperCase() || "U";
   return (
     <span
-      className="rounded-full flex items-center justify-center font-bold text-gray-500 shrink-0"
+      className={`rounded-full flex items-center justify-center font-bold text-gray-500 shrink-0${ring}`}
       style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}
       aria-hidden
     >
-      U
+      {initial}
+    </span>
+  );
+}
+
+function MemberNavGreeting({ userInfo, avatarSize = 32 }) {
+  const displayName = userInfo?.name?.trim() || "會員";
+  return (
+    <span className="inline-flex items-center gap-2.5 max-w-[160px]">
+      <MemberAvatar userInfo={userInfo} size={avatarSize} />
+      <span className="text-[13px] font-semibold text-gray-800 truncate leading-tight">
+        Hi，{displayName}
+      </span>
     </span>
   );
 }
@@ -170,8 +192,27 @@ export const SlideTabsExample = () => {
   const [categoriesChildren, setCategoriesChildren] = useState([]);
   const [brandChildren, setBrandChildren] = useState([]);
   const [loadingCats, setLoadingCats] = useState(true);
+  const [showAnnouncement, setShowAnnouncement] = useState(true);
+  const [announceIndex, setAnnounceIndex] = useState(0);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (!mounted || !showAnnouncement) return;
+    const timer = setInterval(() => {
+      setAnnounceIndex((i) => (i + 1) % ANNOUNCEMENTS.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [mounted, showAnnouncement]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const desktopH = showAnnouncement ? 40 + 72 : 72;
+    document.documentElement.style.setProperty(
+      "--nav-offset-desktop",
+      `${desktopH}px`,
+    );
+  }, [showAnnouncement, mounted]);
 
   useEffect(() => {
     setMounted(true);
@@ -293,23 +334,320 @@ export const SlideTabsExample = () => {
 
   return (
     <>
-      <header
-        className="fixed top-0 left-0 w-full z-[1000] bg-white shadow-sm"
-        onMouseLeave={() => setOpenMega("none")}
-      >
-        {/* 上排：Logo + 功能按鈕（THEO 白底列） */}
-        <div className="border-b border-gray-100">
-          <div className="mx-auto max-w-[1400px] px-4 md:px-6 h-14 md:h-16 flex items-center justify-between gap-4">
+      <header className="fixed top-0 left-0 w-full z-[1000] bg-white">
+        {/* ── 電腦版：公告列 + 單列白底導覽（參考 SANNO SPORTS 版型） ── */}
+        <div
+          className="hidden lg:block"
+          onMouseLeave={() => setOpenMega("none")}
+        >
+          {showAnnouncement && (
+            <div style={{ backgroundColor: COLORS.blue }}>
+              <div className="mx-auto max-w-[1400px] px-8 h-10 flex items-center justify-center relative">
+                <button
+                  type="button"
+                  onClick={() => setShowAnnouncement(false)}
+                  className="absolute left-6 top-1/2 -translate-y-1/2 p-1 text-white/80 hover:text-white transition-colors z-10"
+                  aria-label="關閉公告"
+                >
+                  <X size={14} strokeWidth={1.5} />
+                </button>
+                <div className="flex items-center justify-center gap-2 px-10 w-full max-w-2xl">
+                  <Truck
+                    size={14}
+                    strokeWidth={1.5}
+                    className="shrink-0 text-white"
+                  />
+                  <div className="h-5 overflow-hidden relative flex-1">
+                    <AnimatePresence mode="wait">
+                      <motion.p
+                        key={announceIndex}
+                        initial={{ y: 14, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -14, opacity: 0 }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                        className="text-[11px] leading-5 font-normal tracking-wide text-white text-center whitespace-nowrap"
+                      >
+                        {ANNOUNCEMENTS[announceIndex]}
+                      </motion.p>
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="border-b border-gray-200 bg-white relative">
+            <div className="mx-auto max-w-[1400px] px-8 h-[72px] flex items-center justify-between">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-3 shrink-0">
+                <img
+                  src="/images/logo/pikfun-logo.png"
+                  className="w-[42px] h-[42px] object-contain"
+                  alt="PikFun"
+                />
+                <div className="leading-none">
+                  <span className="block text-[10px] font-bold tracking-[0.14em] uppercase text-gray-900">
+                    匹克球球拍｜活動｜教練｜開課
+                  </span>
+                  <span className="block text-[15px] font-bold tracking-[0.06em] uppercase text-gray-900 mt-1">
+                    PikFun
+                  </span>
+                </div>
+              </Link>
+
+              {/* 選單 + 圖示 */}
+              <div className="flex items-center">
+                <nav className="flex items-center gap-8 mr-8">
+                  {navLinks.map((link) => {
+                    const isActive =
+                      router.pathname === link.href ||
+                      (link.href !== "/" &&
+                        router.pathname.startsWith(link.href));
+
+                    return (
+                      <div
+                        key={link.key}
+                        className="relative"
+                        onMouseEnter={() =>
+                          setOpenMega(link.hasMega ? link.key : "none")
+                        }
+                      >
+                        <Link
+                          href={link.href}
+                          className={`text-[13px] font-normal tracking-[0.06em] transition-colors whitespace-nowrap ${
+                            isActive
+                              ? "text-[#005caf]"
+                              : "text-gray-900 hover:text-[#005caf]"
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </nav>
+
+                <div className="flex items-center gap-5 pl-8 border-l border-gray-200">
+                  {!userLoading && (
+                    <Link
+                      href={userInfo ? "/member" : "/login"}
+                      className="inline-flex items-center text-gray-900 hover:text-[#005caf] transition-colors"
+                      aria-label={userInfo ? "會員中心" : "登入"}
+                    >
+                      {userInfo ? (
+                        <MemberNavGreeting userInfo={userInfo} avatarSize={32} />
+                      ) : (
+                        <User size={20} strokeWidth={1.5} />
+                      )}
+                    </Link>
+                  )}
+
+                  <div className="relative" ref={searchContainerRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowSearchDropdown((v) => !v)}
+                      className="p-1 text-gray-900 hover:text-[#005caf] transition-colors"
+                      aria-label="搜尋商品"
+                    >
+                      <Search size={20} strokeWidth={1.5} />
+                    </button>
+                    <AnimatePresence>
+                      {showSearchDropdown && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          className="absolute top-full right-0 mt-3 w-80 bg-white shadow-2xl rounded-lg overflow-hidden border border-gray-100 z-50"
+                        >
+                          <div className="p-3 border-b border-gray-100">
+                            <div className="flex items-center gap-2 bg-[#F2F4F7] px-3 py-2 rounded-md">
+                              <Search
+                                size={14}
+                                className="text-gray-500 shrink-0"
+                              />
+                              <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={handleSearchSubmit}
+                                placeholder="輸入關鍵字…"
+                                autoFocus
+                                className="bg-transparent text-sm w-full outline-none text-gray-700 placeholder-gray-400"
+                              />
+                            </div>
+                          </div>
+                          {isSearching ? (
+                            <div className="p-8 flex justify-center text-gray-400">
+                              <Loader2 size={24} className="animate-spin" />
+                            </div>
+                          ) : searchResults.products.length === 0 ? (
+                            <div className="p-6 text-center text-sm text-gray-500">
+                              {searchQuery.trim().length > 1
+                                ? "找不到相關結果"
+                                : "輸入至少 2 個字元開始搜尋"}
+                            </div>
+                          ) : (
+                            <div className="max-h-[50vh] overflow-y-auto p-2">
+                              {searchResults.products.map((p) => (
+                                <Link
+                                  key={p.id}
+                                  href={`/product/${p.slug}`}
+                                  onClick={() => setShowSearchDropdown(false)}
+                                  className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-md"
+                                >
+                                  <div className="w-10 h-10 bg-gray-100 rounded-md overflow-hidden relative shrink-0">
+                                    {p.image && (
+                                      <Image
+                                        src={p.image}
+                                        alt={p.title}
+                                        fill
+                                        className="object-cover"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-bold text-gray-800 truncate">
+                                      {p.title}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {p.price}
+                                    </p>
+                                  </div>
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsCartOpen(true)}
+                    className="relative p-1 text-gray-900 hover:text-[#005caf] transition-colors"
+                    aria-label="購物車"
+                  >
+                    <ShoppingBag size={20} strokeWidth={1.5} />
+                    {totalQty > 0 && (
+                      <span
+                        className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold text-white flex items-center justify-center"
+                        style={{ backgroundColor: COLORS.pink }}
+                      >
+                        {totalQty > 99 ? "99+" : totalQty}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mega Menu */}
+            <AnimatePresence>
+              {openMega !== "none" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute top-full left-0 w-full bg-white border border-gray-200 overflow-hidden z-40"
+                >
+                  <div className="px-8 py-8 max-w-[1200px] mx-auto">
+                    {loadingCats ? (
+                      <div className="flex justify-center py-10">
+                        <Loader2 className="animate-spin text-gray-300" />
+                      </div>
+                    ) : (
+                      <>
+                        {openMega === "categories" && (
+                          <>
+                            <div className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest border-b pb-2">
+                              產品類別
+                            </div>
+                            <ul className="flex flex-wrap gap-8">
+                              {categoriesChildren.map((cat) => (
+                                <li key={cat.id} className="group">
+                                  <Link
+                                    href={`/category/${cat.slug}`}
+                                    className="flex flex-col items-center gap-3"
+                                  >
+                                    <div className="w-[80px] h-[80px] rounded-full bg-gray-50 border border-gray-100 overflow-hidden relative group-hover:border-[#005caf] transition-colors">
+                                      {cat.image && (
+                                        <Image
+                                          src={cat.image}
+                                          alt={cat.name}
+                                          fill
+                                          className="object-cover"
+                                          unoptimized
+                                        />
+                                      )}
+                                    </div>
+                                    <span className="text-sm font-bold text-gray-700 group-hover:text-[#005caf]">
+                                      {cat.name}
+                                    </span>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                        {openMega === "brand" && (
+                          <>
+                            <div className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest border-b pb-2">
+                              精選品牌
+                            </div>
+                            <ul className="flex flex-wrap gap-8">
+                              {brandChildren.map((brand) => (
+                                <li key={brand.id} className="group">
+                                  <Link
+                                    href={`/category/${brand.slug}`}
+                                    className="flex flex-col items-center gap-3"
+                                  >
+                                    <div className="w-[80px] h-[80px] rounded-full bg-gray-50 border border-gray-100 overflow-hidden relative group-hover:border-[#005caf] transition-colors">
+                                      {brand.image && (
+                                        <Image
+                                          src={brand.image}
+                                          alt={brand.name}
+                                          fill
+                                          className="object-cover"
+                                          unoptimized
+                                        />
+                                      )}
+                                    </div>
+                                    <span className="text-sm font-bold text-gray-700 group-hover:text-[#005caf]">
+                                      {brand.name}
+                                    </span>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* ── 手機版：維持原設計 ── */}
+        <div
+          className="lg:hidden border-b border-gray-100"
+          onMouseLeave={() => setOpenMega("none")}
+        >
+          <div className="mx-auto max-w-[1400px] px-4 md:px-6 h-14 flex items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-3 shrink-0">
               <div className="flex -space-x-2">
                 <img
-                  src="/images/logo/company-logo.png"
+                  src="/images/logo/pikfun-logo.png"
                   className="max-w-[45px]"
                   alt=""
                 />
               </div>
               <div className="leading-tight">
-                <span className="text-lg md:text-xl font-black tracking-widest text-gray-900 block">
+                <span className="text-lg font-black tracking-widest text-gray-900 block">
                   PikFun
                 </span>
                 <span className="hidden sm:block text-[10px] text-gray-500 tracking-wide">
@@ -318,134 +656,7 @@ export const SlideTabsExample = () => {
               </div>
             </Link>
 
-            {/* 桌面：右側 CTA */}
-            <div className="hidden lg:flex items-center gap-2.5">
-              <Link
-                href="/category"
-                className="flex items-center gap-2 text-xs font-bold px-3 py-2 rounded-md transition-colors hover:bg-gray-50"
-                style={{ color: COLORS.blue }}
-              >
-                <span
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-white"
-                  style={{ backgroundColor: COLORS.blue }}
-                >
-                  <CircleArrowRight size={14} />
-                </span>
-                依打法挑選球拍
-              </Link>
-
-              <div className="relative" ref={searchContainerRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowSearchDropdown((v) => !v)}
-                  className="text-xs font-bold px-4 py-2.5 rounded-md border transition-colors hover:bg-gray-50"
-                  style={{ color: COLORS.blue, borderColor: COLORS.blue }}
-                >
-                  搜尋商品
-                </button>
-                <AnimatePresence>
-                  {showSearchDropdown && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      className="absolute top-full right-0 mt-2 w-80 bg-white shadow-2xl rounded-lg overflow-hidden border border-gray-100 z-50"
-                    >
-                      <div className="p-3 border-b border-gray-100">
-                        <div className="flex items-center gap-2 bg-[#F2F4F7] px-3 py-2 rounded-md">
-                          <Search
-                            size={14}
-                            className="text-gray-500 shrink-0"
-                          />
-                          <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={handleSearchSubmit}
-                            placeholder="輸入關鍵字…"
-                            autoFocus
-                            className="bg-transparent text-sm w-full outline-none text-gray-700 placeholder-gray-400"
-                          />
-                        </div>
-                      </div>
-                      {isSearching ? (
-                        <div className="p-8 flex justify-center text-gray-400">
-                          <Loader2 size={24} className="animate-spin" />
-                        </div>
-                      ) : searchResults.products.length === 0 ? (
-                        <div className="p-6 text-center text-sm text-gray-500">
-                          {searchQuery.trim().length > 1
-                            ? "找不到相關結果"
-                            : "輸入至少 2 個字元開始搜尋"}
-                        </div>
-                      ) : (
-                        <div className="max-h-[50vh] overflow-y-auto p-2">
-                          {searchResults.products.map((p) => (
-                            <Link
-                              key={p.id}
-                              href={`/product/${p.slug}`}
-                              onClick={() => setShowSearchDropdown(false)}
-                              className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-md"
-                            >
-                              <div className="w-10 h-10 bg-gray-100 rounded-md overflow-hidden relative shrink-0">
-                                {p.image && (
-                                  <Image
-                                    src={p.image}
-                                    alt={p.title}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-sm font-bold text-gray-800 truncate">
-                                  {p.title}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {p.price}
-                                </p>
-                              </div>
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setIsCartOpen(true)}
-                className="text-xs font-bold px-5 py-2.5 rounded-md text-white transition-opacity hover:opacity-90 flex items-center gap-2"
-                style={{ backgroundColor: COLORS.blue }}
-              >
-                <ShoppingBag size={14} />
-                進入購物車
-                {totalQty > 0 && (
-                  <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">
-                    {totalQty}
-                  </span>
-                )}
-              </button>
-
-              {!userLoading && (
-                <Link
-                  href={userInfo ? "/member" : "/login"}
-                  className="flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-[#005caf] transition-colors"
-                >
-                  {userInfo ? (
-                    <MemberAvatar userInfo={userInfo} size={26} />
-                  ) : (
-                    <User size={18} className="text-gray-600" />
-                  )}
-                  {userInfo ? "會員中心" : "登入"}
-                </Link>
-              )}
-            </div>
-
-            {/* 手機：圖示列 */}
-            <div className="flex lg:hidden items-center gap-1.5">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setShowSearchDropdown((v) => !v)}
@@ -481,141 +692,10 @@ export const SlideTabsExample = () => {
             </div>
           </div>
         </div>
-
-        {/* 下排：藍底主選單（THEO 風格，icon + 文字） */}
-        <div
-          className="hidden lg:block relative"
-          style={{ backgroundColor: COLORS.blue }}
-        >
-          <div className="mx-auto max-w-[1400px] px-4 md:px-6">
-            <nav className="flex items-stretch justify-between h-12">
-              {navLinks.map((link) => {
-                const Icon = NAV_ICONS[link.key] || Home;
-                const isActive =
-                  router.pathname === link.href ||
-                  (link.href !== "/" && router.pathname.startsWith(link.href));
-
-                return (
-                  <div
-                    key={link.key}
-                    className="flex-1 flex items-center justify-center relative group"
-                    onMouseEnter={() =>
-                      setOpenMega(link.hasMega ? link.key : "none")
-                    }
-                  >
-                    <Link
-                      href={link.href}
-                      className={`flex items-center gap-2 px-2 py-2 text-white text-sm font-bold tracking-wide transition-opacity hover:opacity-90 ${
-                        isActive ? "opacity-100" : "opacity-95"
-                      }`}
-                    >
-                      <Icon size={16} strokeWidth={2.2} className="shrink-0" />
-                      <span>{link.label}</span>
-                    </Link>
-                    <span
-                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] transition-all duration-300 ${
-                        isActive ? "w-[70%]" : "w-0 group-hover:w-[70%]"
-                      }`}
-                      style={{ backgroundColor: COLORS.yellow }}
-                    />
-                  </div>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Mega Menu */}
-          <AnimatePresence>
-            {openMega !== "none" && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 w-full bg-white shadow-xl border-t border-white/10 overflow-hidden z-40"
-              >
-                <div className="px-6 md:px-10 py-8 max-w-[1200px] mx-auto">
-                  {loadingCats ? (
-                    <div className="flex justify-center py-10">
-                      <Loader2 className="animate-spin text-gray-300" />
-                    </div>
-                  ) : (
-                    <>
-                      {openMega === "categories" && (
-                        <>
-                          <div className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest border-b pb-2">
-                            產品類別
-                          </div>
-                          <ul className="flex flex-wrap gap-8">
-                            {categoriesChildren.map((cat) => (
-                              <li key={cat.id} className="group">
-                                <Link
-                                  href={`/category/${cat.slug}`}
-                                  className="flex flex-col items-center gap-3"
-                                >
-                                  <div className="w-[80px] h-[80px] rounded-full bg-gray-50 border border-gray-100 overflow-hidden relative group-hover:border-[#005caf] transition-colors">
-                                    {cat.image && (
-                                      <Image
-                                        src={cat.image}
-                                        alt={cat.name}
-                                        fill
-                                        className="object-cover"
-                                        unoptimized
-                                      />
-                                    )}
-                                  </div>
-                                  <span className="text-sm font-bold text-gray-700 group-hover:text-[#005caf]">
-                                    {cat.name}
-                                  </span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      )}
-                      {openMega === "brand" && (
-                        <>
-                          <div className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest border-b pb-2">
-                            精選品牌
-                          </div>
-                          <ul className="flex flex-wrap gap-8">
-                            {brandChildren.map((brand) => (
-                              <li key={brand.id} className="group">
-                                <Link
-                                  href={`/category/${brand.slug}`}
-                                  className="flex flex-col items-center gap-3"
-                                >
-                                  <div className="w-[80px] h-[80px] rounded-full bg-gray-50 border border-gray-100 overflow-hidden relative group-hover:border-[#005caf] transition-colors">
-                                    {brand.image && (
-                                      <Image
-                                        src={brand.image}
-                                        alt={brand.name}
-                                        fill
-                                        className="object-cover"
-                                        unoptimized
-                                      />
-                                    )}
-                                  </div>
-                                  <span className="text-sm font-bold text-gray-700 group-hover:text-[#005caf]">
-                                    {brand.name}
-                                  </span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
       </header>
 
       {/* 固定導覽列佔位 */}
-      <div className="h-14 lg:h-[7rem]" aria-hidden />
+      <div className="h-14 lg:h-[var(--nav-offset-desktop)]" aria-hidden />
 
       {/* 手機搜尋下拉 */}
       <AnimatePresence>
@@ -727,11 +807,13 @@ export const SlideTabsExample = () => {
                     style={{ color: COLORS.blue }}
                   >
                     {userInfo ? (
-                      <MemberAvatar userInfo={userInfo} size={32} />
+                      <MemberNavGreeting userInfo={userInfo} avatarSize={36} />
                     ) : (
-                      <User size={22} style={{ color: COLORS.blue }} />
+                      <>
+                        <User size={22} style={{ color: COLORS.blue }} />
+                        登入
+                      </>
                     )}
-                    {userInfo ? "會員中心" : "登入"}
                   </Link>
                 )}
 

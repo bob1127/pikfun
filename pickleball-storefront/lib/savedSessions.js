@@ -1,10 +1,10 @@
 /**
  * lib/savedSessions.js
  * localStorage-based saved sessions utility.
- * Key: "pikpie_saved_sessions" → JSON array of session objects (id, title, location_name, starts_at, fee_per_person, payment_method, max_players, host_name)
+ * Key: "PikFun_saved_sessions" → JSON array of session objects (id, title, location_name, starts_at, fee_per_person, payment_method, max_players, host_name)
  */
 
-const KEY = "pikpie_saved_sessions";
+const KEY = "PikFun_saved_sessions";
 
 export function getSavedRaw() {
   if (typeof window === "undefined") return [];

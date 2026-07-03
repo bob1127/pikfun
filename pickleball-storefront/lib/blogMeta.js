@@ -1,3 +1,5 @@
+import { DEFAULT_SITE_URL, DEFAULT_SERVICE_EMAIL } from "@/lib/siteUrl";
+
 /** 從 HTML 內容擷取圖片 URL */
 export function extractImagesFromHtml(html) {
   if (!html) return [];
@@ -21,16 +23,15 @@ export const BLOG_TOPIC_LABEL = {
   knowledge: "運動教學",
 };
 
-/** PikPie 站點資訊（会社概要區塊） */
 export const SITE_PROFILE = {
   name: "PikFun 匹克方",
   tagline: "台灣匹克球資訊與裝備平台",
   logo: "/images/company-logo.png",
-  url: "https://www.PikFuncom.tw",
+  url: DEFAULT_SITE_URL,
   industry: "運動休閒／匹克球",
   region: "台灣",
-  contact: "service@PikFuncom.tw",
-  representative: "PikPie 團隊",
+  contact: DEFAULT_SERVICE_EMAIL,
+  representative: "PikFun 團隊",
   established: "2024年",
   followers: "1,200+",
 };

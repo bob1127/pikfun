@@ -45,8 +45,12 @@ function IntroScreen({ onStart }) {
           ["勝利條件", "11 分且領先 ≥ 2 分"],
         ].map(([t, d]) => (
           <div key={t} className="flex gap-3">
-            <span className="text-[#00FF88] font-bold text-xs min-w-[72px] mt-0.5 leading-snug">{t}</span>
-            <span className="text-white/60 text-xs leading-snug whitespace-pre-line">{d}</span>
+            <span className="text-[#00FF88] font-bold text-xs min-w-[72px] mt-0.5 leading-snug">
+              {t}
+            </span>
+            <span className="text-white/60 text-xs leading-snug whitespace-pre-line">
+              {d}
+            </span>
           </div>
         ))}
       </div>
@@ -162,14 +166,17 @@ export default function ScoringGame() {
   return (
     <>
       <Head>
-        <title>匹克球計分教學 | PikPie</title>
+        <title>匹克球計分教學 | PikFun</title>
         <meta name="description" content="2D 互動球場，學習匹克球雙打計分" />
       </Head>
 
       <div className="min-h-screen bg-[#071628] flex flex-col">
         {/* ── Header ── */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <a href="/" className="text-white/30 hover:text-white text-xl transition-colors leading-none">
+          <a
+            href="/"
+            className="text-white/30 hover:text-white text-xl transition-colors leading-none"
+          >
             ←
           </a>
           <h1 className="text-white font-bold text-base tracking-wide">

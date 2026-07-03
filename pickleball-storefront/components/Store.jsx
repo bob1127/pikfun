@@ -168,7 +168,9 @@ export default function ProjectSection({ posts = [] }) {
               <ProjectCard key={item.slug || index} data={item} />
             ))
           ) : (
-            <p className="text-stone-500 text-sm py-8">尚無文章，請至 WordPress 後台發佈。</p>
+            <p className="text-stone-500 text-sm py-8">
+              尚無文章，請至 WordPress 後台發佈。
+            </p>
           )}
         </div>
 

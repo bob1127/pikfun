@@ -1,16 +1,20 @@
 // components/Layout.js
 import { useEffect } from "react";
+import { useRouter } from "next/router";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Navbar from "@/components/Navbar/Navbar.jsx"; 
 import Banner from "@/components/banner";
 import Footer from "@/components/ui/footer.jsx";
 import Head from "next/head";
+import { getSiteUrl } from "@/lib/siteUrl";
 import CartSidebar from "@/components/CartSidebar"; 
 import { ReactLenis } from "@studio-freight/react-lenis";
 
 export default function Layout({ children }) {
-  
+  const router = useRouter();
+  const disableLenis = router.pathname.startsWith("/product/");
+
   useEffect(() => {
     AOS.init({
       once: true,
@@ -21,7 +25,7 @@ export default function Layout({ children }) {
   }, []);
 
   // === SEO & 結構化資料設定 ===
-  const siteUrl = "https://www.kesh-de1.com";
+  const siteUrl = getSiteUrl();
   const siteName = "KÉSH de¹ 凱仕國際精品";
   const siteTitle = "KÉSH de¹ 凱仕國際精品｜台中二手精品買賣 ";
   const siteDescription =
@@ -80,7 +84,7 @@ export default function Layout({ children }) {
     },
   };
 
-  const faviconVersion = "pikpie-20260622";
+  const faviconVersion = "PikFun-20260622";
 
   return (
     <>
@@ -90,7 +94,7 @@ export default function Layout({ children }) {
         <meta name="keywords" content="KÉSH de¹, 凱仕國際精品, 台中精品, 二手精品,  Hermès, Chanel, Louis Vuitton, Dior, Gucci, Loewe, Celine, YSL, Goyard" />
         <meta name="author" content="KÉSH de¹ Boutique" />
 
-        {/* PikPie favicon — PNG 優先，避免舊 KESH ico 快取 */}
+        {/* PikFun favicon — PNG 優先，避免舊 KESH ico 快取 */}
         <link rel="icon" type="image/png" sizes="32x32" href={`/icon-32.png?v=${faviconVersion}`} key="icon32" />
         <link rel="icon" type="image/png" sizes="192x192" href={`/icon.png?v=${faviconVersion}`} key="icon192" />
         <link rel="shortcut icon" href={`/favicon.ico?v=${faviconVersion}`} key="shortcut" />
@@ -103,7 +107,7 @@ export default function Layout({ children }) {
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
 
@@ -136,6 +140,15 @@ export default function Layout({ children }) {
       <Navbar />
       <CartSidebar />
 
+      {disableLenis ? (
+        <div className="flex flex-col justify-between">
+          <main>{children}</main>
+          <div>
+            <Banner />
+            <Footer />
+          </div>
+        </div>
+      ) : (
       <ReactLenis root>
         <div className="flex flex-col justify-between">
            <main>
@@ -147,6 +160,7 @@ export default function Layout({ children }) {
            </div>
         </div>
       </ReactLenis>
+      )}
     </>
   );
 }

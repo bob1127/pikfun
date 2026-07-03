@@ -45,7 +45,7 @@ export default function PlaySessionsGoogleMap({
   const { groups, mappedCount } = useSessionMapGroups(sessions, courts);
 
   const { isLoaded, loadError } = useJsApiLoader({
-    id: "pikpie-play-map",
+    id: "PikFun-play-map",
     googleMapsApiKey: apiKey,
     language: "zh-TW",
     region: "TW",
@@ -75,7 +75,7 @@ export default function PlaySessionsGoogleMap({
         map.setZoom(7);
       }
     },
-    [bounds, groups]
+    [bounds, groups],
   );
 
   if (loadError) {
@@ -84,7 +84,9 @@ export default function PlaySessionsGoogleMap({
 
   if (!isLoaded) {
     return (
-      <div className={`psm-fallback${fullscreen ? " psm-fallback--fullscreen" : ""}`}>
+      <div
+        className={`psm-fallback${fullscreen ? " psm-fallback--fullscreen" : ""}`}
+      >
         <Loader2 size={28} className="animate-spin text-[#005caf] mb-3" />
         <p className="text-sm text-gray-500">載入 Google 地圖中…</p>
         <style jsx>{`

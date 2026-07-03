@@ -21,6 +21,7 @@ import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import MemberCoachingPanel from "../components/member/MemberCoachingPanel";
 import SavedSessionsPanel from "../components/member/SavedSessionsPanel";
+import MemberSettingsPanel from "../components/member/MemberSettingsPanel";
 
 const formatMoney = (v) =>
   Number.isNaN(Number(v)) ? "0" : Math.round(Number(v)).toLocaleString();
@@ -182,8 +183,21 @@ export default function MemberProfile() {
               {t("member.subtitle", "管理您的訂單與個人資料")}
             </p>
           </div>
-          <div className="text-xs text-gray-400 tracking-widest uppercase">
-            {t("member.welcome", "Hi,")} {userInfo.name}
+          <div className="flex items-center gap-3 text-sm text-gray-600">
+            {userInfo.avatar ? (
+              <img
+                src={userInfo.avatar}
+                alt=""
+                className="w-10 h-10 rounded-full object-cover border border-gray-300 bg-gray-50"
+              />
+            ) : (
+              <span className="w-10 h-10 rounded-full border border-gray-300 bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500">
+                {userInfo.name?.charAt(0)?.toUpperCase() || "U"}
+              </span>
+            )}
+            <span className="font-semibold text-gray-800">
+              Hi，{userInfo.name}
+            </span>
           </div>
         </div>
 
@@ -335,6 +349,41 @@ export default function MemberProfile() {
                     email={userInfo.email}
                     memberId={userInfo.id}
                   />
+                </motion.div>
+              )}
+
+              {activeTab === "settings" && (
+                <motion.div
+                  key="settings"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  <MemberSettingsPanel />
+                </motion.div>
+              )}
+
+              {activeTab === "addresses" && (
+                <motion.div
+                  key="addresses"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  <div className="mb-8">
+                    <h3 className="text-sm font-bold tracking-widest uppercase text-black">
+                      {t("member.tabs.addresses", "收件地址")}
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-1">
+                      結帳時填寫的地址會自動保存為預設收件資訊
+                    </p>
+                  </div>
+                  <div className="border border-dashed border-gray-200 bg-gray-50 p-10 text-center">
+                    <MapPin size={32} className="mx-auto text-gray-300 mb-4" />
+                    <p className="text-sm text-gray-600">
+                      尚未設定預設收件地址，請於下次結帳時填寫完整資訊。
+                    </p>
+                  </div>
                 </motion.div>
               )}
 

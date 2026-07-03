@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Head from "next/head";
+import { getSiteUrl } from "@/lib/siteUrl";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -72,8 +73,7 @@ export default function NewsDetail({ post, recentPosts }) {
     );
   if (!post) return null;
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_STORE_URL || "https://www.kesh-de1.com";
+  const siteUrl = getSiteUrl();
   const postUrl = `${siteUrl}/${router.locale === "zh-TW" ? "" : router.locale + "/"}news/${post.slug}`;
   const metaDesc =
     post.seo_description || post.excerpt?.replace(/<[^>]+>/g, "");
@@ -262,7 +262,7 @@ export default function NewsDetail({ post, recentPosts }) {
                 <p>
                   Official HP :{" "}
                   <a href="/" className="underline hover:text-black">
-                    www.kesh-de1.com
+                    www.pikfun.com.tw
                   </a>
                 </p>
                 <p>

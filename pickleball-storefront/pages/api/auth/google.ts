@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
+import { resolveGoogleProfile } from '@/lib/socialProfile';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -40,10 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const payloadBase64 = tokenData.id_token.split('.')[1];
     const decodedPayload = Buffer.from(payloadBase64, 'base64').toString('utf-8');
     const userInfo = JSON.parse(decodedPayload);
+    const profile = await resolveGoogleProfile(tokenData, userInfo);
 
-    console.log('2. 成功取得 Google 使用者:', userInfo.email);
+    console.log('2. 成功取得 Google 使用者:', profile.email, profile.name);
 
-    if (!userInfo.email) return res.status(400).json({ error: 'Google 未提供 Email' });
+    if (!profile.email) return res.status(400).json({ error: 'Google 未提供 Email' });
 
     // 3. 產生專屬密碼 (使用 Google sub ID)
     const generatedPassword = crypto
@@ -66,7 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const loginRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-publishable-api-key': API_KEY },
-      body: JSON.stringify({ email: userInfo.email, password: generatedPassword })
+      body: JSON.stringify({ email: profile.email, password: generatedPassword })
     });
 
     if (loginRes.ok) {
@@ -81,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        const authRegisterRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass/register`, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json', 'x-publishable-api-key': API_KEY },
-         body: JSON.stringify({ email: userInfo.email, password: generatedPassword })
+         body: JSON.stringify({ email: profile.email, password: generatedPassword })
        });
 
        if (!authRegisterRes.ok) {
@@ -104,9 +106,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
            'Authorization': `Bearer ${registerToken}` 
          },
          body: JSON.stringify({
-           email: userInfo.email,
-           first_name: userInfo.given_name || userInfo.name || 'Google User',
-           last_name: userInfo.family_name || ' '
+           email: profile.email,
+           first_name: profile.name || userInfo.given_name || 'Google User',
+           last_name: userInfo.family_name || ' ',
+           metadata: profile.picture ? { avatar_url: profile.picture } : undefined,
          })
        });
 
@@ -122,7 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        const finalLoginRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-publishable-api-key': API_KEY },
-          body: JSON.stringify({ email: userInfo.email, password: generatedPassword })
+          body: JSON.stringify({ email: profile.email, password: generatedPassword })
        });
        
        if (!finalLoginRes.ok) {
@@ -138,8 +141,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('====== 🔵 Google 登入流程完美結束 ======');
     return res.status(200).json({
       token: medusaToken,
-      name: userInfo.name,
-      picture: userInfo.picture
+      name: profile.name,
+      picture: profile.picture,
+      email: profile.email,
     });
 
   } catch (error: any) {

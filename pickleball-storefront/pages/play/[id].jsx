@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import {
-  SKILL_LABELS,
+  getSkillLevelLabel,
+  getSkillLevelColor,
   SKILL_COLORS,
   formatSessionDate,
   formatSessionRange,
@@ -27,6 +28,7 @@ import {
   buildGoogleMapsLink,
 } from "@/lib/playUtils";
 import MapEmbed from "@/components/play/MapEmbed";
+import { fireCelebrationConfettiFromElement } from "@/lib/fireCelebrationConfetti";
 
 // ─── 填入你的 LINE 設定（留空，之後在 .env.local 設定）──────────────────
 // NEXT_PUBLIC_LINE_CHANNEL_ID  已存在
@@ -78,7 +80,7 @@ function LineReminderCard({ sessionId, userEmail, isReturning = false }) {
             {isReturning ? "尚未開啟 LINE 提醒" : "開啟活動提醒（推薦）"}
           </p>
           <p className="text-[14px] text-white/80 mt-1 font-bold leading-relaxed">
-            活動前 1 天與 2 小時，PikPie 會透過 LINE 提醒你
+            活動前 1 天與 2 小時，PikFun 會透過 LINE 提醒你
             {isReturning ? "。現在設定也來得及。" : ""}
           </p>
           <p className="text-[12px] text-white/65 mt-2.5 leading-relaxed">
@@ -304,7 +306,7 @@ export default function PlayDetailPage() {
     router.push(`/register?redirect=${encodeURIComponent(`/play/${id}`)}`);
   };
 
-  const patchAction = async (action) => {
+  const patchAction = async (action, originEl) => {
     if (userLoading) return;
     if (!userInfo?.email) return requireLogin();
     setActionLoading(true);
@@ -329,6 +331,7 @@ export default function PlayDetailPage() {
       if (action === "join") {
         setJustJoined(true);
         setLineReminderEnabled(false);
+        fireCelebrationConfettiFromElement(originEl);
       }
       if (action === "leave") {
         setJustJoined(false);
@@ -386,13 +389,13 @@ export default function PlayDetailPage() {
   const isFree = fee === 0 || session.payment_method === "free";
   const mapsLink = buildGoogleMapsLink(
     session.location_name,
-    session.location_address
+    session.location_address,
   );
   const statusText = statusLabel(session, isCancelled, isPast);
   const showStickyCta =
     !isCancelled && !isPast && (canJoin || canWaitlistJoin || canLeave);
 
-  const handleJoin = () => patchAction("join");
+  const handleJoin = (e) => patchAction("join", e?.currentTarget);
   const handleLeave = () => patchAction("leave");
   const handleCancel = () => {
     if (confirm("確定要取消此揪團嗎？")) patchAction("cancel");
@@ -424,7 +427,7 @@ export default function PlayDetailPage() {
                 尚未註冊或登入會員嗎？
               </h3>
               <p className="text-gray-500 text-sm mb-7 leading-relaxed">
-                加入揪團需要先成為 PikPie 會員。
+                加入揪團需要先成為 PikFun 會員。
                 <br />
                 註冊後即可一鍵加入球友行列。
               </p>
@@ -475,8 +478,8 @@ export default function PlayDetailPage() {
             >
               {statusText}
             </span>
-            <span className={`pld-badge ${SKILL_COLORS[session.skill_level]}`}>
-              {SKILL_LABELS[session.skill_level]}
+            <span className={`pld-badge ${getSkillLevelColor(session.skill_level)}`}>
+              {getSkillLevelLabel(session.skill_level)}
             </span>
             {session.my_status === "joined" && (
               <span className="pld-badge pld-badge-joined">您已加入</span>
@@ -502,7 +505,9 @@ export default function PlayDetailPage() {
             <Users size={36} strokeWidth={1.25} />
           </div>
           <h1 className="pld-dsk-title">{session.title}</h1>
-          <p className="pld-dsk-sub">{statusText} · {SKILL_LABELS[session.skill_level]}</p>
+          <p className="pld-dsk-sub">
+            {statusText} · {getSkillLevelLabel(session.skill_level)}
+          </p>
         </div>
 
         {/* ── INFO (narrow / sheet) ───────────────── */}
@@ -615,14 +620,22 @@ export default function PlayDetailPage() {
               <div className="pld-dsk-panel-box">
                 <p className="pld-dsk-panel-box-label">報名狀況</p>
                 <p className="pld-dsk-panel-highlight">
-                  <em>{session.joined_count} / {session.max_players} 人</em>
+                  <em>
+                    {session.joined_count} / {session.max_players} 人
+                  </em>
                 </p>
                 <p className="pld-dsk-panel-meta">{statusText}</p>
               </div>
               <div className="pld-dsk-panel-box">
                 <p className="pld-dsk-panel-box-label">每人費用</p>
                 <p className="pld-dsk-panel-fee">
-                  {isFree ? <em>免費</em> : <>NT$ <em>{Number(fee).toLocaleString()}</em></>}
+                  {isFree ? (
+                    <em>免費</em>
+                  ) : (
+                    <>
+                      NT$ <em>{Number(fee).toLocaleString()}</em>
+                    </>
+                  )}
                 </p>
                 <p className="pld-dsk-panel-meta">
                   {formatFee(fee, session.payment_method)}
@@ -646,21 +659,29 @@ export default function PlayDetailPage() {
                 <h3 className="pld-dsk-step-heading">加入流程</h3>
                 <ol className="pld-dsk-step-list">
                   <li>
-                    <span className="pld-dsk-step-icon"><Mail size={18} strokeWidth={1.5} /></span>
-                    登入 PikPie 會員
+                    <span className="pld-dsk-step-icon">
+                      <Mail size={18} strokeWidth={1.5} />
+                    </span>
+                    登入 PikFun 會員
                   </li>
                   <li>
-                    <span className="pld-dsk-step-icon"><UserCheck size={18} strokeWidth={1.5} /></span>
+                    <span className="pld-dsk-step-icon">
+                      <UserCheck size={18} strokeWidth={1.5} />
+                    </span>
                     點擊「加入揪團」報名
                   </li>
                   <li>
-                    <span className="pld-dsk-step-icon"><Wallet size={18} strokeWidth={1.5} /></span>
+                    <span className="pld-dsk-step-icon">
+                      <Wallet size={18} strokeWidth={1.5} />
+                    </span>
                     依揪團說明完成付款（若有）
                   </li>
                 </ol>
               </div>
               <div className="pld-dsk-step-col">
-                <h3 className="pld-section-title">已加入 ({session.joined_count})</h3>
+                <h3 className="pld-section-title">
+                  已加入 ({session.joined_count})
+                </h3>
                 <div className="pld-participant-list">
                   {(session.participants || []).map((p) => (
                     <ParticipantRow
@@ -702,7 +723,9 @@ export default function PlayDetailPage() {
             </div>
           )}
           <div className="pld-participants-mobile">
-            <h3 className="pld-section-title">已加入 ({session.joined_count})</h3>
+            <h3 className="pld-section-title">
+              已加入 ({session.joined_count})
+            </h3>
             <div className="pld-participant-list">
               {(session.participants || []).map((p) => (
                 <ParticipantRow
@@ -719,10 +742,7 @@ export default function PlayDetailPage() {
                 </h3>
                 <div className="pld-participant-list pld-participant-list-muted">
                   {session.waitlist.map((p) => (
-                    <ParticipantRow
-                      key={p.id || p.participant_email}
-                      p={p}
-                    />
+                    <ParticipantRow key={p.id || p.participant_email} p={p} />
                   ))}
                 </div>
               </>
@@ -748,15 +768,25 @@ export default function PlayDetailPage() {
             />
           </div>
         )}
-        {showStickyCta && <div className="pld-mobile-spacer pld-mobile-only" aria-hidden />}
+        {showStickyCta && (
+          <div className="pld-mobile-spacer pld-mobile-only" aria-hidden />
+        )}
       </main>
 
       <style jsx global>{`
-        .pld-mobile-only { display: block; }
-        .pld-desktop-only { display: none !important; }
+        .pld-mobile-only {
+          display: block;
+        }
+        .pld-desktop-only {
+          display: none !important;
+        }
         @media (min-width: 1024px) {
-          .pld-mobile-only { display: none !important; }
-          .pld-desktop-only { display: block !important; }
+          .pld-mobile-only {
+            display: none !important;
+          }
+          .pld-desktop-only {
+            display: block !important;
+          }
         }
 
         .pld-page {
@@ -785,7 +815,12 @@ export default function PlayDetailPage() {
 
         /* mobile hero */
         .pld-hero {
-          background: linear-gradient(155deg, #0a5bb5 0%, #1a3a8a 55%, #0d2668 100%);
+          background: linear-gradient(
+            155deg,
+            #0a5bb5 0%,
+            #1a3a8a 55%,
+            #0d2668 100%
+          );
           margin: 0 -1.25rem;
           padding: 1.25rem 1.25rem 2.5rem;
           border-radius: 0 0 1.75rem 1.75rem;
@@ -802,11 +837,26 @@ export default function PlayDetailPage() {
           padding: 0.25rem 0.625rem;
           border-radius: 999px;
         }
-        .pld-badge-ok { background: rgba(255,255,255,0.2); color: #fff; }
-        .pld-badge-warn { background: #fed7aa; color: #c2410c; }
-        .pld-badge-muted { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
-        .pld-badge-joined { background: #c8f542; color: #0f172a; }
-        .pld-badge-wait { background: #e9d5ff; color: #7c3aed; }
+        .pld-badge-ok {
+          background: rgba(255, 255, 255, 0.2);
+          color: #fff;
+        }
+        .pld-badge-warn {
+          background: #fed7aa;
+          color: #c2410c;
+        }
+        .pld-badge-muted {
+          background: rgba(255, 255, 255, 0.15);
+          color: rgba(255, 255, 255, 0.8);
+        }
+        .pld-badge-joined {
+          background: #c8f542;
+          color: #0f172a;
+        }
+        .pld-badge-wait {
+          background: #e9d5ff;
+          color: #7c3aed;
+        }
         .pld-hero-title {
           font-size: 1.625rem;
           font-weight: 900;
@@ -816,7 +866,7 @@ export default function PlayDetailPage() {
         }
         .pld-hero-meta {
           font-size: 0.8125rem;
-          color: rgba(255,255,255,0.75);
+          color: rgba(255, 255, 255, 0.75);
           margin: 0;
         }
 
@@ -837,7 +887,9 @@ export default function PlayDetailPage() {
           text-decoration: none;
           margin-bottom: 1.5rem;
         }
-        .pld-dsk-back:hover { color: #1a9be8; }
+        .pld-dsk-back:hover {
+          color: #1a9be8;
+        }
         .pld-dsk-logo {
           display: block;
           font-size: 2rem;
@@ -888,7 +940,9 @@ export default function PlayDetailPage() {
           border-bottom: 1px solid #e8edf3;
         }
         @media (min-width: 1024px) {
-          .pld-row { border-bottom-color: #d1d5db; }
+          .pld-row {
+            border-bottom-color: #d1d5db;
+          }
         }
         .pld-row-label {
           display: block;
@@ -902,7 +956,10 @@ export default function PlayDetailPage() {
           color: #1a1a1a;
           line-height: 1.5;
         }
-        .pld-loc-name { font-weight: 700; margin: 0; }
+        .pld-loc-name {
+          font-weight: 700;
+          margin: 0;
+        }
         .pld-loc-addr {
           font-size: 0.8125rem;
           color: #94a3b8;
@@ -916,10 +973,23 @@ export default function PlayDetailPage() {
           margin-top: 0.375rem;
           text-decoration: none;
         }
-        .pld-map-link:hover { text-decoration: underline; }
-        .pld-fee-free { font-weight: 700; color: #16a34a; }
-        .pld-fee-paid { font-weight: 800; color: #1a9be8; font-size: 1.0625rem; }
-        .pld-fee-unit { font-weight: 600; color: #94a3b8; font-size: 0.875rem; }
+        .pld-map-link:hover {
+          text-decoration: underline;
+        }
+        .pld-fee-free {
+          font-weight: 700;
+          color: #16a34a;
+        }
+        .pld-fee-paid {
+          font-weight: 800;
+          color: #1a9be8;
+          font-size: 1.0625rem;
+        }
+        .pld-fee-unit {
+          font-weight: 600;
+          color: #94a3b8;
+          font-size: 0.875rem;
+        }
         .pld-pay-note {
           font-size: 0.75rem;
           color: #94a3b8;
@@ -993,13 +1063,20 @@ export default function PlayDetailPage() {
           transition: opacity 0.2s;
           padding: 0.9375rem 1.5rem;
         }
-        .pld-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .pld-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
         .pld-btn-primary {
           background: #1a9be8;
           color: #fff;
           width: 100%;
         }
-        .pld-btn-waitlist { background: #7c3aed; color: #fff; width: 100%; }
+        .pld-btn-waitlist {
+          background: #7c3aed;
+          color: #fff;
+          width: 100%;
+        }
         .pld-btn-outline {
           background: #fff;
           border: 1.5px solid #e2e8f0;
@@ -1020,7 +1097,10 @@ export default function PlayDetailPage() {
         .pld-actions--sticky .pld-btn-ghost {
           flex: 1;
         }
-        .pld-btn-sticky { padding: 0.875rem 1rem; font-size: 0.875rem; }
+        .pld-btn-sticky {
+          padding: 0.875rem 1rem;
+          font-size: 0.875rem;
+        }
 
         /* desktop panel */
         .pld-dsk-panel {
@@ -1090,8 +1170,13 @@ export default function PlayDetailPage() {
           margin: 0;
         }
 
-        .pld-map-block { margin-bottom: 2rem; }
-        .pld-map-embed { border-color: #b8d4f0 !important; border-radius: 0.5rem !important; }
+        .pld-map-block {
+          margin-bottom: 2rem;
+        }
+        .pld-map-embed {
+          border-color: #b8d4f0 !important;
+          border-radius: 0.5rem !important;
+        }
 
         .pld-dsk-steps {
           display: grid;
@@ -1107,7 +1192,9 @@ export default function PlayDetailPage() {
           color: #374151;
           margin: 0 0 1rem;
         }
-        .pld-section-title-spaced { margin-top: 1.25rem; }
+        .pld-section-title-spaced {
+          margin-top: 1.25rem;
+        }
         .pld-dsk-step-list {
           list-style: none;
           margin: 0;
@@ -1135,7 +1222,10 @@ export default function PlayDetailPage() {
           flex-shrink: 0;
         }
 
-        .pld-participant-list { display: flex; flex-direction: column; }
+        .pld-participant-list {
+          display: flex;
+          flex-direction: column;
+        }
         .pld-participant {
           display: flex;
           align-items: center;
@@ -1143,7 +1233,9 @@ export default function PlayDetailPage() {
           padding: 0.625rem 0;
           border-bottom: 1px solid #f1f5f9;
         }
-        .pld-participant:last-child { border-bottom: none; }
+        .pld-participant:last-child {
+          border-bottom: none;
+        }
         .pld-participant-avatar,
         .pld-participant-fallback {
           width: 2.25rem;
@@ -1151,7 +1243,9 @@ export default function PlayDetailPage() {
           border-radius: 999px;
           flex-shrink: 0;
         }
-        .pld-participant-avatar { object-fit: cover; }
+        .pld-participant-avatar {
+          object-fit: cover;
+        }
         .pld-participant-fallback {
           background: #eef6fc;
           color: #1a9be8;
@@ -1161,7 +1255,11 @@ export default function PlayDetailPage() {
           align-items: center;
           justify-content: center;
         }
-        .pld-participant-name { font-size: 0.875rem; font-weight: 700; color: #1a1a1a; }
+        .pld-participant-name {
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
         .pld-participant-host {
           margin-left: 0.5rem;
           font-size: 0.625rem;
@@ -1171,7 +1269,9 @@ export default function PlayDetailPage() {
           padding: 0.125rem 0.375rem;
           border-radius: 999px;
         }
-        .pld-participant-list-muted { opacity: 0.75; }
+        .pld-participant-list-muted {
+          opacity: 0.75;
+        }
 
         .pld-mobile-extra {
           padding: 0 0.25rem;
@@ -1193,7 +1293,7 @@ export default function PlayDetailPage() {
           padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
           background: #fff;
           border-top: 1px solid #e8edf3;
-          box-shadow: 0 -4px 24px rgba(15,23,42,0.08);
+          box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.08);
         }
         .pld-mobile-spacer {
           height: calc(5rem + env(safe-area-inset-bottom, 0px));

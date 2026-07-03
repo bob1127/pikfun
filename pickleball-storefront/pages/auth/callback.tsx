@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { persistSocialProfile } from "@/lib/socialProfile";
 
 export default function GoogleCallback() {
   const router = useRouter();
@@ -35,13 +36,18 @@ export default function GoogleCallback() {
         .then((data) => {
           if (data.token) {
             localStorage.setItem("medusa_auth_token", data.token);
-            localStorage.setItem("google_avatar", data.picture || "");
-            localStorage.setItem("google_name", data.name || "");
-            localStorage.setItem("is_google_login", "true");
+            persistSocialProfile("google", {
+              name: data.name,
+              picture: data.picture,
+              email: data.email,
+            });
 
-            // 🔥 防呆：清除其他社群登入標記
             localStorage.removeItem("is_facebook_login");
             localStorage.removeItem("is_line_login");
+            localStorage.removeItem("facebook_name");
+            localStorage.removeItem("facebook_avatar");
+            localStorage.removeItem("line_name");
+            localStorage.removeItem("line_avatar");
 
             // ✅ 關鍵修改：強制硬重載跳轉，確保右上角狀態更新
             window.location.href =

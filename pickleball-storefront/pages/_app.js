@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
+  const isProductPage = router.pathname.startsWith("/product/");
 
   return (
     <>
@@ -28,9 +29,9 @@ function MyApp({ Component, pageProps }) {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={router.asPath}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
+                      initial={isProductPage ? { opacity: 0 } : { opacity: 0, y: 20 }}
+                      animate={isProductPage ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                      exit={isProductPage ? { opacity: 0 } : { opacity: 0, y: -20 }}
                       transition={{
                         duration: 0.6,
                         ease: [0.25, 0.1, 0.25, 1],

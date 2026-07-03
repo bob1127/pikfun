@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import { getSiteUrl } from "@/lib/siteUrl";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -130,7 +131,7 @@ export default function NewsPage({ posts }) {
     itemListElement: posts.map((post, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `${process.env.NEXT_PUBLIC_STORE_URL || "https://www.kesh-de1.com"}/news/${post.slug}`,
+      url: `${getSiteUrl()}/news/${post.slug}`,
       name: post.title,
     })),
   };

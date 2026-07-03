@@ -10,12 +10,21 @@
   font-style: normal;
 }
  h2{
+  font-family: var(--font-sans) !important;
   font-size: 3.2vmin !important;
-  font-weight: normal !important;
+  font-weight: 700 !important;
   color: #1a1a1a !important;
   
  }
-/* 品牌標題等可保留 Futura；內文由 editorial-typography 的 Noto Sans TC 為主 */
+/* 全站字型與 Navbar 一致（Noto Sans TC），粗細由 Tailwind font-* 控制 */
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-sans);
+}
 .font-futura {
   font-family: "FuturaCyr", sans-serif !important;
 }
@@ -28,6 +37,9 @@
     /* 卡片 */
     --color-card-1:#ef4023;
       --color-card-2:#2382ef;
+  /* Navbar 高度（與 tabs.jsx spacer 一致） */
+  --nav-offset-mobile: 3.5rem;
+  --nav-offset-desktop: 112px;
 }
 
 .intro,
@@ -171,5 +183,32 @@
     top: unset;
     transform: none;
     bottom: 2rem;
+  }
+}
+
+/* 產品頁：主圖左側直向縮圖 */
+.product-thumb-swiper-vertical .swiper-slide {
+  height: calc((100% - 24px) / 4);
+  box-sizing: border-box;
+}
+
+.product-thumb-swiper-vertical .swiper-slide-thumb-active {
+  opacity: 1;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* 產品詳情頁：左側圖庫 sticky（需配合 Layout 關閉 Lenis） */
+@media (min-width: 1024px) {
+  .product-gallery-sticky {
+    position: sticky;
+    top: var(--nav-offset-desktop);
+    align-self: flex-start;
+    z-index: 10;
+    height: calc(100dvh - var(--nav-offset-desktop));
+  }
+
+  .product-gallery-inner {
+    height: 100%;
   }
 }

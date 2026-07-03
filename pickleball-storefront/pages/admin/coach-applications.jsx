@@ -37,7 +37,7 @@ export default function AdminCoachApplicationsPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/admin/coach-applications?status=${status}&admin_email=${encodeURIComponent(userInfo.email)}`
+        `/api/admin/coach-applications?status=${status}&admin_email=${encodeURIComponent(userInfo.email)}`,
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -56,9 +56,7 @@ export default function AdminCoachApplicationsPage() {
   const patch = async (id, action) => {
     if (!userInfo?.email) return;
     const admin_note =
-      action === "reject"
-        ? prompt("拒絕原因（選填，會留存紀錄）") || ""
-        : "";
+      action === "reject" ? prompt("拒絕原因（選填，會留存紀錄）") || "" : "";
 
     setActing(id);
     try {
@@ -97,7 +95,7 @@ export default function AdminCoachApplicationsPage() {
   return (
     <>
       <Head>
-        <title>教練進駐審核 | PikPie Admin</title>
+        <title>教練進駐審核 | PikFun Admin</title>
       </Head>
 
       <main className="bg-[#F8FAFC] min-h-screen pt-24 pb-20">
@@ -107,7 +105,10 @@ export default function AdminCoachApplicationsPage() {
               <h1 className="text-2xl font-black">教練進駐審核</h1>
               <p className="text-sm text-gray-500">管理員：{userInfo.email}</p>
             </div>
-            <Link href="/coaching" className="text-sm font-bold text-[#3157B5] underline">
+            <Link
+              href="/coaching"
+              className="text-sm font-bold text-[#3157B5] underline"
+            >
               返回前台
             </Link>
           </div>
@@ -118,10 +119,18 @@ export default function AdminCoachApplicationsPage() {
                 key={s}
                 onClick={() => setStatus(s)}
                 className={`px-4 py-2 rounded-full text-xs font-bold ${
-                  status === s ? "bg-black text-white" : "bg-white border border-gray-200"
+                  status === s
+                    ? "bg-black text-white"
+                    : "bg-white border border-gray-200"
                 }`}
               >
-                {s === "pending" ? "待審核" : s === "approved" ? "已核准" : s === "rejected" ? "已拒絕" : "全部"}
+                {s === "pending"
+                  ? "待審核"
+                  : s === "approved"
+                    ? "已核准"
+                    : s === "rejected"
+                      ? "已拒絕"
+                      : "全部"}
               </button>
             ))}
           </div>
@@ -129,36 +138,53 @@ export default function AdminCoachApplicationsPage() {
           {loading ? (
             <p className="text-gray-400">載入中...</p>
           ) : applications.length === 0 ? (
-            <p className="text-gray-500 bg-white rounded-xl p-10 text-center border">沒有資料</p>
+            <p className="text-gray-500 bg-white rounded-xl p-10 text-center border">
+              沒有資料
+            </p>
           ) : (
             <div className="space-y-4">
               {applications.map((app) => (
-                <div key={app.id} className="bg-white rounded-xl border border-gray-200 p-6">
+                <div
+                  key={app.id}
+                  className="bg-white rounded-xl border border-gray-200 p-6"
+                >
                   <div className="flex flex-col md:flex-row md:items-start gap-4">
                     {app.avatar && (
-                      <img src={app.avatar} alt="" className="w-16 h-16 rounded-full object-cover" />
+                      <img
+                        src={app.avatar}
+                        alt=""
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <h2 className="font-black text-lg">{app.name}</h2>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          app.status === "pending" ? "bg-yellow-100 text-yellow-800" :
-                          app.status === "approved" ? "bg-green-100 text-green-800" :
-                          "bg-gray-100 text-gray-600"
-                        }`}>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            app.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : app.status === "approved"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
                           {app.status}
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 mb-1">{app.title}</p>
                       <p className="text-xs text-gray-400 mb-3">
-                        會員 {app.applicant_name} · {app.applicant_email} · {app.city}
+                        會員 {app.applicant_name} · {app.applicant_email} ·{" "}
+                        {app.city}
                       </p>
-                      <p className="text-sm text-gray-700 line-clamp-2 mb-3">{app.excerpt}</p>
+                      <p className="text-sm text-gray-700 line-clamp-2 mb-3">
+                        {app.excerpt}
+                      </p>
                       <Link
                         href={`/admin/coach-applications/${app.id}`}
                         className="text-xs text-[#3157B5] font-bold inline-flex items-center gap-1 hover:underline"
                       >
-                        查看完整申請資料（slug：{app.slug}） <ExternalLink size={12} />
+                        查看完整申請資料（slug：{app.slug}）{" "}
+                        <ExternalLink size={12} />
                       </Link>
                       {app.status === "approved" && (
                         <Link

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bookmark, MapPin, Calendar, Users, X, Plus } from "lucide-react";
 import { getSavedRaw, toggleSavedSession } from "@/lib/savedSessions";
-import { formatFee, formatSessionDate, formatSessionRange, SKILL_LABELS } from "@/lib/playUtils";
+import { formatFee, formatSessionDate, formatSessionRange, getSkillLevelLabel } from "@/lib/playUtils";
 
 function formatLocation(s) {
   return s.location_name || s.location_address || "地點待定";
@@ -111,7 +111,7 @@ export default function SavedSessionsPanel() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users size={12} className="shrink-0 text-gray-400" />
-                    <span>{s.joined_count || 0} / {s.max_players} 人 · {SKILL_LABELS[s.skill_level] || "不限"}</span>
+                    <span>{s.joined_count || 0} / {s.max_players} 人 · {getSkillLevelLabel(s.skill_level)}</span>
                   </div>
                 </div>
 

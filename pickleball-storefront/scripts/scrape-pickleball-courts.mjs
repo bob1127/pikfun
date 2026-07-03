@@ -136,7 +136,7 @@ function mergeDedupe(courts) {
 async function scrapeAssociation() {
   console.log("Fetching pickleball.org.tw/stadium/ ...");
   const res = await fetch("https://pickleball.org.tw/stadium/", {
-    headers: { "User-Agent": "PikPie/1.0 (court directory)" },
+    headers: { "User-Agent": "PikFun/1.0 (court directory)" },
   });
   const html = await res.text();
   const tableMatch = html.match(/id="tablepress-1"[^>]*>([\s\S]*?)<\/table>/);
@@ -180,7 +180,7 @@ async function scrapeIPickleball() {
   while (page <= totalPages) {
     const url = `https://ipickleball.tw/wp-json/geodir/v2/places?per_page=100&page=${page}&status=publish`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "PikPie/1.0 (court directory)" },
+      headers: { "User-Agent": "PikFun/1.0 (court directory)" },
     });
     if (!res.ok) break;
 

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
+import { resolveLineProfile } from '@/lib/socialProfile';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -40,10 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const payloadBase64 = tokenData.id_token.split('.')[1];
     const decodedPayload = Buffer.from(payloadBase64, 'base64').toString('utf-8');
     const userInfo = JSON.parse(decodedPayload);
+    const profile = await resolveLineProfile(tokenData, userInfo);
 
-    console.log('1. 成功取得 LINE 使用者:', userInfo.email);
+    console.log('1. 成功取得 LINE 使用者:', profile.email, profile.name);
 
-    if (!userInfo.email) {
+    if (!profile.email) {
       return res.status(400).json({ error: 'LINE 未提供 Email，請確認 LINE 後台設定' });
     }
 
@@ -65,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const loginRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-publishable-api-key': API_KEY },
-      body: JSON.stringify({ email: userInfo.email, password: generatedPassword })
+      body: JSON.stringify({ email: profile.email, password: generatedPassword })
     });
 
     if (loginRes.ok) {
@@ -73,23 +75,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        const loginData = await loginRes.json();
        medusaToken = loginData.token;
     } else {
-       console.log('🟡 找不到此用戶，啟動 Medusa V2 兩段式自動註冊流程...');
-       
-       // ==========================================
-       // 🔥 Medusa V2 專屬註冊流程
-       // ==========================================
+       const loginErrorText = await loginRes.text().catch(() => '');
+       console.log('🟡 LINE 密碼登入未成功，啟動 Medusa V2 兩段式自動註冊流程...', loginErrorText);
 
        // 步驟 A: 註冊 Auth Identity (取得註冊用 Token)
        console.log('-> 步驟 A: 註冊 Auth Identity...');
        const authRegisterRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass/register`, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json', 'x-publishable-api-key': API_KEY },
-         body: JSON.stringify({ email: userInfo.email, password: generatedPassword })
+         body: JSON.stringify({ email: profile.email, password: generatedPassword })
        });
 
        if (!authRegisterRes.ok) {
          const errorData = await authRegisterRes.text();
          console.error('🔴 [Medusa V2 註冊 Auth 錯誤]', errorData);
+
+         if (/already exists/i.test(errorData)) {
+           return res.status(409).json({
+             error:
+               '此 Email 已有帳號（可能曾用 Email 密碼、Google 或其他方式註冊）。請改用原本的登入方式；若需綁定 LINE，請先以原方式登入後再設定。',
+           });
+         }
+
          throw new Error('Medusa Auth 註冊失敗');
        }
 
@@ -106,9 +113,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
            'Authorization': `Bearer ${registerToken}` // 🎯 破解 Unauthorized 的靈魂關鍵
          },
          body: JSON.stringify({
-           email: userInfo.email,
-           first_name: userInfo.name,
-           last_name: ' ' // LINE 只有一個名字
+           email: profile.email,
+           first_name: profile.name || userInfo.name || 'LINE User',
+           last_name: ' ',
+           metadata: profile.picture ? { avatar_url: profile.picture } : undefined,
          })
        });
 
@@ -124,7 +132,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        const finalLoginRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-publishable-api-key': API_KEY },
-          body: JSON.stringify({ email: userInfo.email, password: generatedPassword })
+          body: JSON.stringify({ email: profile.email, password: generatedPassword })
        });
        
        if (!finalLoginRes.ok) {
@@ -140,8 +148,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 【動作四】大功告成！將資料傳回前端
     return res.status(200).json({
       token: medusaToken,
-      name: userInfo.name,
-      picture: userInfo.picture
+      name: profile.name,
+      picture: profile.picture,
+      email: profile.email,
     });
 
   } catch (error: any) {

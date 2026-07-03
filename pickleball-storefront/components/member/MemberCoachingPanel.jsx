@@ -30,7 +30,9 @@ function StatusBadge({ status }) {
   };
   const s = map[status] || map.pending;
   return (
-    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.className}`}>
+    <span
+      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.className}`}
+    >
       {s.label}
     </span>
   );
@@ -44,7 +46,11 @@ function ClassRow({ cls, showEnrollments = false }) {
     >
       <div className="w-16 h-16 shrink-0 rounded-md overflow-hidden bg-gray-100">
         {cls.cover_image ? (
-          <img src={cls.cover_image} alt="" className="w-full h-full object-cover" />
+          <img
+            src={cls.cover_image}
+            alt=""
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-[#3157B5]/10 text-[#3157B5] font-black">
             {cls.coach_name?.charAt(0) || "C"}
@@ -56,7 +62,8 @@ function ClassRow({ cls, showEnrollments = false }) {
           {cls.title}
         </h4>
         <p className="text-xs text-gray-500 mt-0.5">
-          {formatClassDate(cls.starts_at)} · {formatClassRange(cls.starts_at, cls.ends_at)}
+          {formatClassDate(cls.starts_at)} ·{" "}
+          {formatClassRange(cls.starts_at, cls.ends_at)}
         </p>
         <div className="flex flex-wrap gap-2 mt-1.5">
           <span className="text-[10px] font-bold text-gray-600">
@@ -78,7 +85,10 @@ function ClassRow({ cls, showEnrollments = false }) {
           )}
         </div>
       </div>
-      <ChevronRight size={16} className="text-gray-300 group-hover:text-black shrink-0 self-center" />
+      <ChevronRight
+        size={16}
+        className="text-gray-300 group-hover:text-black shrink-0 self-center"
+      />
     </Link>
   );
 }
@@ -110,7 +120,9 @@ export default function MemberCoachingPanel({ email, memberId }) {
 
   if (!data) {
     return (
-      <div className="py-16 text-center text-gray-500 text-sm">無法載入教練資料</div>
+      <div className="py-16 text-center text-gray-500 text-sm">
+        無法載入教練資料
+      </div>
     );
   }
 
@@ -139,10 +151,14 @@ export default function MemberCoachingPanel({ email, memberId }) {
               <p className="text-[10px] font-bold tracking-widest uppercase text-[#3157B5] mb-1">
                 進駐教練
               </p>
-              <h3 className="text-lg font-black text-black">{coachProfile.name}</h3>
+              <h3 className="text-lg font-black text-black">
+                {coachProfile.name}
+              </h3>
               <p className="text-sm text-gray-500">{coachProfile.title}</p>
               {coachProfile.excerpt && (
-                <p className="text-xs text-gray-600 mt-2 line-clamp-2">{coachProfile.excerpt}</p>
+                <p className="text-xs text-gray-600 mt-2 line-clamp-2">
+                  {coachProfile.excerpt}
+                </p>
               )}
             </div>
             <div className="flex flex-wrap gap-2 shrink-0">
@@ -191,7 +207,9 @@ export default function MemberCoachingPanel({ email, memberId }) {
           <div>
             <p className="font-bold text-sm text-red-800">教練進駐申請未通過</p>
             {application.admin_note && (
-              <p className="text-xs text-red-700 mt-1">{application.admin_note}</p>
+              <p className="text-xs text-red-700 mt-1">
+                {application.admin_note}
+              </p>
             )}
             <Link
               href="/coaching/apply"
@@ -204,7 +222,7 @@ export default function MemberCoachingPanel({ email, memberId }) {
       ) : !isCoach ? (
         <div className="p-8 border border-dashed border-gray-200 text-center bg-gray-50">
           <GraduationCap size={32} className="mx-auto text-gray-400 mb-4" />
-          <p className="font-bold text-black mb-1">成為 PikPie 教練</p>
+          <p className="font-bold text-black mb-1">成為 PikFun 教練</p>
           <p className="text-xs text-gray-500 mb-4 max-w-sm mx-auto">
             開設課程、建立教練個人頁，讓更多球友找到你。
           </p>
@@ -230,9 +248,17 @@ export default function MemberCoachingPanel({ email, memberId }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label: "即將開課", value: stats.upcomingCount, icon: Calendar },
-            { label: "累計開課", value: stats.totalClasses, icon: GraduationCap },
+            {
+              label: "累計開課",
+              value: stats.totalClasses,
+              icon: GraduationCap,
+            },
             { label: "總報名人次", value: stats.totalEnrollments, icon: Users },
-            { label: "我報名的課", value: stats.enrolledCount, icon: CheckCircle },
+            {
+              label: "我報名的課",
+              value: stats.enrolledCount,
+              icon: CheckCircle,
+            },
           ].map(({ label, value, icon: Icon }) => (
             <div key={label} className="p-4 border border-gray-100 bg-white">
               <Icon size={16} className="text-gray-400 mb-2" />
@@ -294,7 +320,10 @@ export default function MemberCoachingPanel({ email, memberId }) {
             <h3 className="text-sm font-bold tracking-widest uppercase text-black">
               我開的課程
             </h3>
-            <Link href="/coaching/create" className="text-[10px] font-bold text-[#3157B5] hover:underline">
+            <Link
+              href="/coaching/create"
+              className="text-[10px] font-bold text-[#3157B5] hover:underline"
+            >
               + 新增
             </Link>
           </div>
@@ -310,7 +339,9 @@ export default function MemberCoachingPanel({ email, memberId }) {
             </div>
           ) : (
             <div className="py-8 text-center border border-dashed border-gray-200 mb-6">
-              <p className="text-xs text-gray-500 mb-3">目前沒有即將開始的課程</p>
+              <p className="text-xs text-gray-500 mb-3">
+                目前沒有即將開始的課程
+              </p>
               <Link
                 href="/coaching/create"
                 className="text-xs font-bold text-[#3157B5] hover:underline"
@@ -340,16 +371,20 @@ export default function MemberCoachingPanel({ email, memberId }) {
             <h3 className="text-sm font-bold tracking-widest uppercase text-black">
               我報名的課程
             </h3>
-            <Link href="/coaching" className="text-[10px] font-bold text-gray-400 hover:text-black">
+            <Link
+              href="/coaching"
+              className="text-[10px] font-bold text-gray-400 hover:text-black"
+            >
               探索更多
             </Link>
           </div>
           <div className="space-y-2">
-            {(enrolled.upcoming.length ? enrolled.upcoming : enrolled.all.slice(0, 5)).map(
-              (cls) => (
-                <ClassRow key={cls.id} cls={cls} />
-              )
-            )}
+            {(enrolled.upcoming.length
+              ? enrolled.upcoming
+              : enrolled.all.slice(0, 5)
+            ).map((cls) => (
+              <ClassRow key={cls.id} cls={cls} />
+            ))}
           </div>
         </section>
       )}

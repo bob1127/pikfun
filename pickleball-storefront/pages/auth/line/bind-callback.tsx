@@ -1,17 +1,39 @@
 import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
-import Link from "next/link";
+import { Loader2, XCircle, BellRing } from "lucide-react";
 import { useRouter } from "next/router";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import { fireCelebrationConfettiFromElement } from "@/lib/fireCelebrationConfetti";
-
-// ─── 填入官方帳號加好友連結（留空，之後在 .env.local 設定）──────────────
-// LINE_OA_FRIEND_URL 範例：https://line.me/R/ti/p/@你的OA帳號ID
-const LINE_OA_FRIEND_URL = process.env.NEXT_PUBLIC_LINE_OA_FRIEND_URL || "";
-// ──────────────────────────────────────────────────────────────────────────
+import LineFriendRequiredModal, {
+  LINE_OA_FRIEND_URL,
+} from "@/components/line/LineFriendRequiredModal";
+import JoinedSessionSummary from "@/components/play/JoinedSessionSummary";
+import {
+  StatusNotificationLayout,
+  StatusStepsBand,
+  StatusActionCard,
+  StatusPanel,
+} from "@/components/notifications/StatusNotificationLayout";
 
 type Status = "processing" | "done" | "error";
+
+const SUCCESS_STEPS = [
+  {
+    icon: "✓",
+    label: "LINE 帳號綁定完成",
+    desc: "你的 PikFun 會員已與 LINE 連結",
+  },
+  {
+    icon: "＋",
+    label: "加入官方好友",
+    desc: "加入後才能收到推播提醒",
+  },
+  {
+    icon: "🔔",
+    label: "活動前自動提醒",
+    desc: "前 1 天與 2 小時通知你",
+  },
+];
 
 export default function LineBindCallback() {
   const router = useRouter();
@@ -23,6 +45,9 @@ export default function LineBindCallback() {
   const [status, setStatus] = useState<Status>("processing");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [friendVerified, setFriendVerified] = useState(false);
+  const [showFriendModal, setShowFriendModal] = useState(false);
+  const [session, setSession] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -41,11 +66,9 @@ export default function LineBindCallback() {
       return;
     }
 
-    // state 格式：sessionId（可為空字串，純綁定模式）
     const sid = state && state !== "bind" ? state : null;
     setSessionId(sid);
 
-    // 等 Google / Email / LINE 登入狀態從 localStorage 載入完，避免誤判未登入
     if (userLoading) return;
 
     const customerEmail = userInfo?.email;
@@ -88,99 +111,180 @@ export default function LineBindCallback() {
     });
   }, [status]);
 
+  useEffect(() => {
+    if (status !== "done" || !userInfo?.email) return;
+
+    (async () => {
+      try {
+        const params = new URLSearchParams({ email: userInfo.email! });
+        const res = await fetch(`/api/line/friend-status?${params}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.friend_added) {
+          setFriendVerified(true);
+          setShowFriendModal(false);
+        } else if (LINE_OA_FRIEND_URL) {
+          setShowFriendModal(true);
+        }
+      } catch {
+        if (LINE_OA_FRIEND_URL) setShowFriendModal(true);
+      }
+    })();
+  }, [status, userInfo?.email]);
+
+  useEffect(() => {
+    if (!sessionId) return;
+
+    (async () => {
+      try {
+        const params = new URLSearchParams();
+        if (userInfo?.email) params.set("email", userInfo.email);
+        const res = await fetch(`/api/play-sessions/${sessionId}?${params}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setSession(data.session || null);
+      } catch {
+        setSession(null);
+      }
+    })();
+  }, [sessionId, userInfo?.email]);
+
   const backHref = sessionId ? `/play/${sessionId}` : "/member";
+
+  if (status === "processing") {
+    return (
+      <>
+        <Head>
+          <title>LINE 提醒設定 | PikFun</title>
+        </Head>
+        <StatusNotificationLayout
+          watermark="SETTING"
+          eyebrow="STATUS"
+          title="設定中…"
+          subtitle={
+            userLoading
+              ? "正在確認登入狀態，請稍候。"
+              : "正在綁定你的 LINE 帳號，完成後即可接收活動提醒。"
+          }
+        >
+          {session && (
+            <div className="mb-6">
+              <JoinedSessionSummary session={session} />
+            </div>
+          )}
+          <StatusPanel variant="loading">
+            <div className="flex items-center gap-4">
+              <Loader2 className="animate-spin text-white/80" size={28} />
+              <div>
+                <p className="text-sm font-bold">處理中</p>
+                <p className="mt-1 text-xs text-white/60">
+                  {userLoading ? "確認會員登入…" : "連結 LINE OAuth…"}
+                </p>
+              </div>
+            </div>
+          </StatusPanel>
+        </StatusNotificationLayout>
+      </>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <>
+        <Head>
+          <title>設定失敗 | PikFun</title>
+        </Head>
+        <StatusNotificationLayout
+          watermark="ERROR"
+          eyebrow="STATUS"
+          title="設定失敗"
+          subtitle={errorMsg}
+        >
+          <StatusPanel variant="error">
+            <div className="flex items-start gap-4">
+              <XCircle className="shrink-0 text-red-400" size={28} />
+              <div>
+                <p className="text-sm font-bold text-red-200">無法完成綁定</p>
+                <p className="mt-2 text-xs leading-relaxed text-white/65">
+                  請確認已登入 PikFun 會員，並重新從活動頁開啟 LINE 授權。
+                </p>
+              </div>
+            </div>
+          </StatusPanel>
+
+          <div className="mt-6">
+            <StatusActionCard
+              href={backHref}
+              icon={<XCircle size={18} className="text-red-300" />}
+              title="返回重試"
+              subtitle="回到活動頁重新設定 LINE 提醒"
+              accent="#ef4444"
+            />
+          </div>
+        </StatusNotificationLayout>
+      </>
+    );
+  }
 
   return (
     <>
       <Head>
-        <title>LINE 提醒設定 | PikFun</title>
+        <title>LINE 提醒已開啟 | PikFun</title>
       </Head>
 
-      <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-4 py-20">
-        <div
-          ref={successCardRef}
-          className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+      <div ref={successCardRef}>
+        <StatusNotificationLayout
+          watermark="REMIND"
+          eyebrow="SUCCESS"
+          title="LINE 提醒已開啟 ✅"
+          subtitle="活動前 1 天與 2 小時，PikFun 會透過 LINE 提醒你。"
         >
-          {/* 彩色頂條 */}
-          <div className="h-1.5 bg-gradient-to-r from-[#005caf] via-[#06C755] to-[#005caf]" />
+          {session && (
+            <div className="mb-6">
+              <JoinedSessionSummary session={session} />
+            </div>
+          )}
 
-          <div className="p-8 text-center">
-            {status === "processing" && (
-              <>
-                <Loader2
-                  className="animate-spin text-[#005caf] mx-auto mb-4"
-                  size={40}
-                />
-                <p className="font-bold text-gray-800 text-lg">設定中…</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  {userLoading ? "正在確認登入狀態…" : "正在綁定你的 LINE 帳號"}
+          <StatusStepsBand steps={SUCCESS_STEPS} />
+
+          <div className="mt-6 space-y-3">
+            {!friendVerified && LINE_OA_FRIEND_URL && (
+              <StatusPanel>
+                <p className="text-sm font-bold text-[#06C755]">
+                  請完成加入官方 LINE 好友
                 </p>
-              </>
+                <p className="mt-1 text-xs text-white/60">
+                  彈出視窗會引導你完成，加入後才能收到 LINE 推播提醒。
+                </p>
+              </StatusPanel>
             )}
 
-            {status === "done" && (
-              <>
-                <CheckCircle2
-                  className="text-[#06C755] mx-auto mb-4"
-                  size={48}
-                />
-                <p className="font-black text-gray-900 text-xl mb-1">
-                  LINE 提醒已開啟 ✅
-                </p>
-                <p className="text-sm text-gray-500 leading-relaxed mb-6">
-                  活動前 1 天與 2 小時
-                  <br />
-                  會透過 LINE 提醒你
-                </p>
-
-                {/* 加好友 CTA（最重要的一步） */}
-                {LINE_OA_FRIEND_URL ? (
-                  <a
-                    href={LINE_OA_FRIEND_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full py-4 rounded-full text-white font-bold text-sm mb-3 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: "#06C755" }}
-                  >
-                    📱 加入 PikPie 官方 LINE 好友
-                    <br />
-                    <span className="text-xs font-normal opacity-90">
-                      （加入後才能收到提醒）
-                    </span>
-                  </a>
-                ) : (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4 text-xs text-yellow-700">
-                    請設定 <code>NEXT_PUBLIC_LINE_OA_FRIEND_URL</code> 環境變數
-                  </div>
-                )}
-
-                <Link
-                  href={backHref}
-                  className="block text-sm text-[#005caf] font-bold hover:underline"
-                >
-                  返回活動頁
-                </Link>
-              </>
-            )}
-
-            {status === "error" && (
-              <>
-                <XCircle className="text-red-500 mx-auto mb-4" size={48} />
-                <p className="font-bold text-gray-900 text-lg mb-1">
-                  設定失敗
-                </p>
-                <p className="text-sm text-red-500 mb-6">{errorMsg}</p>
-                <Link
-                  href={backHref}
-                  className="block w-full py-3.5 rounded-full bg-[#005caf] text-white font-bold text-sm hover:opacity-90 transition-opacity"
-                >
-                  返回重試
-                </Link>
-              </>
-            )}
+            <StatusPanel>
+              <div className="flex items-start gap-3">
+                <BellRing size={18} className="mt-0.5 shrink-0 text-[#3D8FD9]" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/50">
+                    Email 備援
+                  </p>
+                  <p className="mt-1 text-sm text-white/75">
+                    Email 提醒也已排程，雙重通知更安心。
+                  </p>
+                </div>
+              </div>
+            </StatusPanel>
           </div>
-        </div>
-      </main>
+        </StatusNotificationLayout>
+      </div>
+
+      <LineFriendRequiredModal
+        open={showFriendModal && !friendVerified}
+        userEmail={userInfo?.email || ""}
+        backHref={backHref}
+        onVerified={() => {
+          setFriendVerified(true);
+          setShowFriendModal(false);
+        }}
+      />
     </>
   );
 }

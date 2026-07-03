@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Users,
-  CalendarDays,
   SlidersHorizontal,
   ArrowUpDown,
   X,
@@ -19,6 +18,13 @@ import {
 import { useUser } from "@/components/context/UserContext";
 import SessionCard from "@/components/play/SessionCard";
 import PlaySessionsMapModal from "@/components/play/PlaySessionsMapModal";
+import {
+  PlayHeroBanner,
+  PlayStatsBar,
+  PlayAlmostFullSection,
+  getAlmostFullSessions,
+  computePlayStats,
+} from "@/components/play/PlayEditorialSections";
 import TrapezoidTabs from "@/components/ui/TrapezoidTabs";
 import { SKILL_LABELS } from "@/lib/playUtils";
 
@@ -119,7 +125,7 @@ function Pagination({ page, total, pageSize, onChange }) {
   }
 
   return (
-    <div className="flex items-center justify-center gap-1 mt-12">
+    <div className="flex items-center justify-center gap-1 overflow-hidden mt-12">
       <button
         onClick={() => onChange(page - 1)}
         disabled={page === 1}
@@ -297,7 +303,7 @@ function SortDropdown({ value, onChange }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-1 w-52 bg-white border border-gray-200 shadow-xl z-50"
+            className="absolute right-0 top-full mt-1 w-52 bg-white border border-gray-200 z-50"
           >
             {SORT_OPTIONS.map((o) => (
               <button
@@ -421,6 +427,8 @@ export default function PlayListPage() {
 
   const displayed = applyLocalFilters(sessions, { ...filters, sortKey });
   const paginated = displayed.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const playStats = computePlayStats(sessions);
+  const almostFullSessions = getAlmostFullSessions(sessions);
 
   const activeFilterCount = [
     filters.skillLevel !== "all",
@@ -470,69 +478,25 @@ export default function PlayListPage() {
         loading={mapLoading}
       />
 
-      <main className="bg-[#F8FAFC] min-h-screen pt-24 pb-20">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-10">
-          {/* Hero */}
-          <div className="mb-10 md:mb-14">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col md:flex-row md:items-end justify-between gap-6"
-            >
-              <div>
-                <h1 className="text-3xl md:text-5xl font-black text-black mb-3">
-                  揪團打球
-                </h1>
-                <p className="text-gray-500 text-sm md:text-base max-w-lg leading-relaxed">
-                  瀏覽附近的匹克球揪團，查看時間、地點與目前人數，一鍵加入球友行列。
-                </p>
-              </div>
-              <button
-                onClick={handleCreateClick}
-                className="flex items-center justify-center gap-2 bg-[#F4596A] hover:bg-[#e04d5e] text-white font-bold px-6 py-3.5 rounded-full transition-colors shadow-lg shadow-[#F4596A]/25 shrink-0"
-              >
-                <Plus size={20} /> 我要開團
-              </button>
-            </motion.div>
-          </div>
+      <main
+        className="min-h-screen pb-20"
+        style={{ backgroundColor: "#F1F3F5" }}
+      >
+        <PlayHeroBanner
+          stats={playStats}
+          featuredSessions={almostFullSessions}
+        />
+        <PlayAlmostFullSection
+          sessions={almostFullSessions}
+          onCreateClick={handleCreateClick}
+          loading={loading}
+        />
+        <PlayStatsBar stats={playStats} />
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            {[
-              {
-                icon: CalendarDays,
-                label: "進行中揪團",
-                value: sessions.filter((s) => s.display_status === "open")
-                  .length,
-              },
-              {
-                icon: Users,
-                label: "總參與人次",
-                value: sessions.reduce((s, x) => s + (x.joined_count || 0), 0),
-              },
-              {
-                icon: SlidersHorizontal,
-                label: "可加入場次",
-                value: sessions.filter(
-                  (s) => !s.is_full && s.display_status !== "cancelled",
-                ).length,
-              },
-            ].map(({ icon: Icon, label, value }) => (
-              <div
-                key={label}
-                className="bg-white rounded-xl border border-gray-200 p-4 text-center"
-              >
-                <Icon size={18} className="text-[#3157B5] mx-auto mb-1.5" />
-                <div className="font-black text-black text-3xl md:text-4xl">
-                  {value}
-                </div>
-                <div className="text-[10px] text-gray-400 font-medium mt-0.5">
-                  {label}
-                </div>
-              </div>
-            ))}
-          </div>
-
+        <div
+          id="play-sessions-list"
+          className="max-w-[1400px] mx-auto px-6 md:px-10 pt-12 md:pt-16"
+        >
           {/* Tabs */}
           <div className="mb-0">
             <TrapezoidTabs
@@ -678,7 +642,7 @@ export default function PlayListPage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.25 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 lg:gap-x-10 lg:gap-y-16"
                 >
                   {paginated.map((s, i) => (
                     <SessionCard key={s.id} session={s} index={i} />

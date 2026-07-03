@@ -5,12 +5,43 @@ export const SKILL_LABELS = {
   advanced: "高階",
 };
 
+/** 開團表單：常見匹克球級數（DUPR 風格） */
+export const SKILL_RATING_PRESETS = [
+  "2.0",
+  "2.5",
+  "3.0",
+  "3.5",
+  "4.0",
+  "4.5",
+  "5.0",
+  "5.5+",
+];
+
+export const SKILL_BADGE_STYLE = {
+  background: "#e0f2fe",
+  borderColor: "#7dd3fc",
+  color: "#0369a1",
+};
+
+export function getSkillLevelLabel(value) {
+  if (!value || value === "all") return SKILL_LABELS.all;
+  if (SKILL_LABELS[value]) return SKILL_LABELS[value];
+  if (value === "5.5+") return "5.5 以上";
+  if (/^\d+(\.\d)?$/.test(value)) return `${value} 級`;
+  return value;
+}
+
 export const SKILL_COLORS = {
   all: "bg-[#3157B5]/10 text-[#3157B5]",
   beginner: "bg-green-100 text-green-700",
   intermediate: "bg-amber-100 text-amber-700",
   advanced: "bg-red-100 text-red-700",
 };
+
+export function getSkillLevelColor(value) {
+  if (SKILL_COLORS[value]) return SKILL_COLORS[value];
+  return "bg-sky-100 text-sky-700";
+}
 
 export function formatSessionDate(iso) {
   if (!iso) return "";
@@ -36,6 +67,23 @@ export function formatSessionRange(startsAt, endsAt) {
   const start = formatSessionTime(startsAt);
   if (!endsAt) return start;
   return `${start} – ${formatSessionTime(endsAt)}`;
+}
+
+/** 卡片用時間區間：18:00-19:00 */
+export function formatCardTimeRange(startsAt, endsAt) {
+  const start = formatSessionTime(startsAt);
+  if (!endsAt) return start;
+  return `${start}-${formatSessionTime(endsAt)}`;
+}
+
+/** 揪團卡片：2026.07.09 18:00-19:00 */
+export function formatCardDateTime(startsAt, endsAt) {
+  if (!startsAt) return "";
+  const d = new Date(startsAt);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}.${m}.${day} ${formatCardTimeRange(startsAt, endsAt)}`;
 }
 
 export const PAYMENT_METHODS = [

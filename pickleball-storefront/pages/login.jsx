@@ -109,7 +109,7 @@ export default function Login() {
     );
     const STATE = Math.random().toString(36).substring(7);
     localStorage.setItem("google_oauth_state", STATE);
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}&scope=email%20profile`;
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}&scope=openid%20email%20profile&prompt=select_account`;
   };
 
   const handleFacebookLogin = () => {
@@ -286,7 +286,6 @@ export default function Login() {
                   <h1 className="text-3xl font-bold tracking-widest uppercase mb-3">
                     {t("login.title")}
                   </h1>
-                  <p className="text-gray-500 text-sm">{t("login.subtitle")}</p>
                 </div>
 
                 <div className="flex flex-col gap-3 mb-8">
@@ -295,12 +294,12 @@ export default function Login() {
                     type="button"
                     onClick={handleLineLogin}
                     disabled={loading}
-                    className="flex items-center justify-center py-3.5 border border-[#06C755] bg-[#06C755] hover:bg-[#05b34c] transition-all rounded-sm group relative disabled:opacity-50"
+                    className="flex items-center justify-center py-3.5 border border-[#d9d9d9] bg-[#ffffff] hover:bg-gray-200  transition-all rounded-sm group relative disabled:opacity-50"
                   >
                     <div className="absolute left-6">
                       <LineIcon />
                     </div>
-                    <span className="text-sm font-bold text-white uppercase tracking-wide">
+                    <span className="text-sm font-bold text-[#584E49] uppercase tracking-wide">
                       Continue with LINE
                     </span>
                   </button>
@@ -309,7 +308,7 @@ export default function Login() {
                     type="button"
                     onClick={handleGoogleLogin}
                     disabled={loading}
-                    className="flex items-center justify-center py-3.5 border border-gray-300 hover:border-black hover:bg-gray-50 transition-all rounded-sm group relative disabled:opacity-50"
+                    className="flex items-center justify-center py-3.5 border border-gray-300   hover:bg-gray-200  transition-all rounded-sm group relative disabled:opacity-50"
                   >
                     <div className="absolute left-6">
                       <GoogleIcon />
@@ -323,12 +322,12 @@ export default function Login() {
                     type="button"
                     onClick={handleFacebookLogin}
                     disabled={loading}
-                    className="flex items-center justify-center py-3.5 border border-[#1877F2] bg-white hover:bg-blue-50 transition-all rounded-sm group relative disabled:opacity-50"
+                    className="flex items-center justify-center py-3.5 border border-[#d4d4d4] bg-white hover:bg-gray-200 transition-all rounded-sm group relative disabled:opacity-50"
                   >
                     <div className="absolute left-6">
                       <FacebookIcon />
                     </div>
-                    <span className="text-sm font-bold text-[#1877F2] uppercase tracking-wide">
+                    <span className="text-sm font-bold text-[#584E49] uppercase tracking-wide">
                       Continue with Facebook
                     </span>
                   </button>
@@ -410,7 +409,7 @@ export default function Login() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-[#ef4628] text-white font-bold uppercase tracking-widest py-4 mt-8 rounded-sm hover:bg-black transition-colors flex justify-center items-center"
+                    className="w-full bg-[#00A0E9] text-white font-bold uppercase tracking-widest py-4 mt-8 rounded-sm hover:bg-[#0047BA] transition-colors flex justify-center items-center"
                   >
                     {loading ? (
                       <Spinner colorClass="border-white" />

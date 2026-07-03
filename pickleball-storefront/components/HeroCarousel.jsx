@@ -16,7 +16,7 @@ const LOCAL_SLIDES = [
   {
     type: "image",
     src: "/images/index/hero-carousel/banner11.png", // 對應 public/images/index/hero-1.jpg
-    title: "PIKPIE COMMUNITY",
+    title: "PikFun COMMUNITY",
     category: "JOIN THE FACTION",
     alt: "Pickleball Community",
   },
@@ -395,7 +395,7 @@ const PickleballAnimation = () => {
             className="absolute inset-0 z-50 bg-black flex items-center justify-center"
           >
             <span className="text-white text-xs tracking-widest uppercase animate-pulse">
-              PIKPIE Loading...
+              PikFun Loading...
             </span>
           </motion.div>
         )}
@@ -431,7 +431,7 @@ const PickleballAnimation = () => {
           )}
 
           <footer>
-            <p>© 2026 PIKPIE</p>
+            <p>© 2026 PikFun</p>
             <p>Community & Marketplace</p>
           </footer>
         </div>

@@ -1,6 +1,7 @@
 // pages/index.js
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import Head from "next/head";
+import { getSiteUrl } from "@/lib/siteUrl";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Marquee from "react-marquee-slider";
@@ -86,8 +87,8 @@ export default function Home({
     return str.length > limit ? str.substring(0, limit) + "..." : str;
   };
 
-  // --- SEO 設定 (為 PIKPIE 調整) ---
-  const siteUrl = "https://www.PikFuncom.tw"; // 換成您的網域
+  // --- SEO 設定 (為 PikFun 調整) ---
+  const siteUrl = getSiteUrl();
   const siteTitle =
     "PikFun 匹克方 | 匹克球社群、商城、球場資訊、相關資訊｜致力於打造匹克球相關聚落";
   const siteDescription =
@@ -222,7 +223,7 @@ export default function Home({
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
-            className="whitespace-nowrap text-[#0f43e7] font-bold text-[13vw] leading-[0.8] tracking-tighter opacity-95 -ml-[3vw] select-none pointer-events-none"
+            className="whitespace-nowrap text-[#807977] font-bold text-[13vw] leading-[0.8] tracking-tighter opacity-95 -ml-[3vw] select-none pointer-events-none"
           >
             ing the Joy of Pickleball
           </motion.div>
@@ -254,7 +255,8 @@ export default function Home({
               className="w-full lg:w-[45%]"
             >
               <p className="text-gray-600 leading-[2.2] text-[14px] md:text-[15px] mb-12 text-justify">
-                我們整合購物、揪團、教練與學習內容，讓你一站搞定匹克球所需的一切。精選球拍與配件、快速找到球友與場次、專業教練一對一指導，還有規則教學與趣味小遊戲幫你輕鬆入門。不只是買裝備，更是加入一個持續成長的運動社群。PikFun 持續拓展服務，讓每位球友都能更輕鬆享受這項人人皆可上手的運動。
+                我們整合購物、揪團、教練與學習內容，讓你一站搞定匹克球所需的一切。精選球拍與配件、快速找到球友與場次、專業教練一對一指導，還有規則教學與趣味小遊戲幫你輕鬆入門。不只是買裝備，更是加入一個持續成長的運動社群。PikFun
+                持續拓展服務，讓每位球友都能更輕鬆享受這項人人皆可上手的運動。
               </p>
               <button className="bg-[#0f43e7] text-white px-12 py-4 rounded-full text-sm font-medium tracking-wider hover:bg-[#0c36b8] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                 全部服務
@@ -279,7 +281,7 @@ export default function Home({
               <div className="relative aspect-[4/5] w-full max-w-[500px] mx-auto lg:mr-auto overflow-hidden rounded-sm bg-gray-100">
                 {/* 請替換為你實際的圖片路徑 */}
                 <Image
-                  src="/images/office-worker.jpg"
+                  src="/images/c7a236bf6914a2675b66bada6c4bcbf4.jpg"
                   alt="匹克球場上揮拍"
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-[2s] ease-out"
@@ -313,7 +315,8 @@ export default function Home({
                 transition={{ delay: 0.2, duration: 0.8 }}
               >
                 <p className="text-gray-600 leading-[2.2] text-[14px] md:text-[15px] mb-12 text-justify">
-                  PikFun 相信，匹克球不只是一項運動，更是連結人與人的起點。從第一次握拍、第一次上手，到找到固定球友、定期開團，我們希望降低入門門檻，讓更多人在球場上相遇。無論你是剛接觸的新手，還是想找固定場次的老手，都能在這裡找到屬於自己的節奏。我們提供裝備選購、揪團開打、教練課程與學習資源，陪你從好奇到熱愛，一起在場上揮灑汗水、享受每一次擊球。
+                  PikFun
+                  相信，匹克球不只是一項運動，更是連結人與人的起點。從第一次握拍、第一次上手，到找到固定球友、定期開團，我們希望降低入門門檻，讓更多人在球場上相遇。無論你是剛接觸的新手，還是想找固定場次的老手，都能在這裡找到屬於自己的節奏。我們提供裝備選購、揪團開打、教練課程與學習資源，陪你從好奇到熱愛，一起在場上揮灑汗水、享受每一次擊球。
                 </p>
                 <button className="bg-[#0f43e7] text-white px-12 py-4 rounded-full text-sm font-medium tracking-wider hover:bg-[#0c36b8] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                   關於我們

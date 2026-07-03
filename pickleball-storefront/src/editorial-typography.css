@@ -1,7 +1,8 @@
 /* 全站編輯／博物館風排版（參考 Rekihaku + TRANSIT） */
 
 :root {
-  --font-sans: "Noto Sans TC", "Helvetica Neue", "Arial", sans-serif;
+  --font-sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+  --font-serif-display: "Playfair Display", "Noto Serif TC", Georgia, "Times New Roman", serif;
   --text-base: 1rem;
   --leading-body: 2.27;
   --letter-body: 0.0125em;
@@ -25,14 +26,21 @@ html.text-scale-xl {
   font-size: 125%;
 }
 
+.play-editorial-serif {
+  font-family: var(--font-serif-display);
+  font-weight: 400;
+  font-feature-settings: "lnum" 1;
+}
+
 body {
   font-family: var(--font-sans) !important;
   font-size: var(--text-base);
   line-height: var(--leading-body);
-  font-weight: 500;
-  letter-spacing: var(--letter-body);
+  font-weight: 400;
+  letter-spacing: 0.04em;
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* —— 文章列表頁 —— */

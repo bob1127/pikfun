@@ -716,7 +716,7 @@
       "title": "Shopping Guide",
       "subtitle_desktop": "Please read before buying",
       "subtitle_mobile": "購物須知與服務條款",
-      "footer_note": "Thank you for choosing kesh-de1"
+      "footer_note": "Thank you for choosing PikFun"
     },
     "sections": [
       {
@@ -946,7 +946,7 @@
         "id": "section-7",
         "title": "七、退貨與退款流程",
         "items": [
-          { "subtitle": "聯繫客服", "content": "建議於到貨後 3 日內完成檢查。如有需求，請聯繫客服 contact@kesh-de1.com 並提供訂單編號及相關照片或開箱影片。" },
+          { "subtitle": "聯繫客服", "content": "建議於到貨後 3 日內完成檢查。如有需求，請聯繫客服 contact@pikfun.com.tw 並提供訂單編號及相關照片或開箱影片。" },
           { "subtitle": "驗收退款", "content": "經確認商品及防偽扣狀態符合退貨條件後，將辦理退款。" },
           { "subtitle": "轉帳付款", "content": "約 3–7 個工作天內匯入指定帳戶。" },
           { "subtitle": "線上刷卡", "content": "辦理線上刷退，入帳時間依各家銀行作業時間為準（約 3–14 個工作天）。" },
@@ -977,7 +977,7 @@
         "items": [
           { "subtitle": "公司名稱", "content": "凱仕國際精品有限公司（KÉSH LUXURY CO. LTD.）" },
           { "subtitle": "統一編號", "content": "60329329" },
-          { "subtitle": "客服信箱", "content": "contact@kesh-de1.com" }
+          { "subtitle": "客服信箱", "content": "contact@pikfun.com.tw" }
         ]
       }
     ]

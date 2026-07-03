@@ -80,9 +80,11 @@ export default function Footer() {
           <div className="mb-8 md:mb-0">
             {/* Logo 替代文字/圖示 (可換成您的 Image 元件) */}
             <div className="mb-4">
-              <h2 className="text-3xl font-black tracking-widest text-[#e8e8e8]">
-                PIKPIE
-              </h2>
+              <img
+                src="/images/logo-white.png"
+                className="max-w-[85px]"
+                alt=""
+              />
               <p className="text-[10px] tracking-[0.2em] text-[#999999] mt-1 uppercase">
                 Taiwan No.1 Pickleball Community
               </p>
@@ -183,7 +185,7 @@ export default function Footer() {
               服務條款
             </Link>
           </div>
-          <p>Copyright © PIKPIE All rights reserved.</p>
+          <p>Copyright © PikFun All rights reserved.</p>
         </div>
       </div>
     </footer>

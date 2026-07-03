@@ -1,10 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import Link from "next/link";
-import {
-  fetchPostsByCategorySlug,
-  WP_CATEGORY,
-} from "@/lib/wordpress";
+import { fetchPostsByCategorySlug, WP_CATEGORY } from "@/lib/wordpress";
 import { FontSizeToolbar } from "@/components/blog/FontSizeContext";
 import BlogList from "@/components/blog/BlogList";
 
@@ -26,7 +23,7 @@ export default function BlogIndex({ posts, categoryKey, title }) {
   return (
     <>
       <Head>
-        <title>{title} | PikPie</title>
+        <title>{title} | PikFun</title>
       </Head>
 
       <FontSizeToolbar />

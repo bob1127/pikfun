@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import Head from "next/head";
+import { getSiteUrl } from "@/lib/siteUrl";
 import ParallaxImage from "../components/ParallaxImage";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -34,7 +35,7 @@ export default function About() {
   const spiritItems = t("about.spirit_items", { returnObjects: true });
   const guaranteeItems = t("about.guarantee_items", { returnObjects: true });
 
-  const siteUrl = "https://www.kesh-de1.com";
+  const siteUrl = getSiteUrl();
 
   // --- 結構化資料 (JSON-LD) ---
   const jsonLd = {

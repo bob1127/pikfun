@@ -11,6 +11,23 @@ const NAV_ITEMS = [
   { key: "beginner", label: "新手班", icon: BookOpen },
 ];
 
+function MenuLink({ active, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full flex items-center gap-2 py-2.5 text-left text-sm transition-colors group ${
+        active ? "text-[#3366CC] font-bold" : "text-gray-600 hover:text-[#1a2d4a]"
+      }`}
+    >
+      <span className={`text-[#3366CC] text-xs ${active ? "opacity-100" : "opacity-50 group-hover:opacity-80"}`}>
+        →
+      </span>
+      <span className="flex-1">{children}</span>
+    </button>
+  );
+}
+
 export default function CoachingSidebar({
   searchQuery,
   onSearchChange,
@@ -29,11 +46,34 @@ export default function CoachingSidebar({
   const skillTags = Object.entries(SKILL_LABELS);
 
   return (
-    <aside className="lg:border-l lg:border-dashed lg:border-gray-300 lg:pl-8">
+    <aside className="lg:w-[260px] xl:w-[280px] shrink-0 lg:border-r lg:border-gray-200 lg:pr-8 lg:mr-8">
+      {/* Menu — 圖2 左側選單 */}
+      <nav className="mb-10">
+        <p className="text-xs font-bold text-[#1a2d4a] mb-4 tracking-wide">Menu</p>
+        <ul className="space-y-0.5">
+          {NAV_ITEMS.map(({ key, label }) => (
+            <li key={key}>
+              <MenuLink active={classType === key} onClick={() => onClassTypeChange(key)}>
+                {label}
+              </MenuLink>
+            </li>
+          ))}
+          <li>
+            <Link
+              href="/coaching/apply"
+              className="w-full flex items-center gap-2 py-2.5 text-left text-sm text-gray-600 hover:text-[#3366CC] transition-colors group"
+            >
+              <span className="text-[#3366CC] text-xs opacity-50 group-hover:opacity-80">→</span>
+              <span>教練進駐申請</span>
+            </Link>
+          </li>
+        </ul>
+      </nav>
+
       {/* Search */}
-      <div className="mb-8">
-        <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase mb-3">
-          Keyword
+      <div className="mb-8 pb-8 border-b border-gray-200">
+        <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">
+          Search
         </p>
         <div className="relative">
           <input
@@ -41,8 +81,8 @@ export default function CoachingSidebar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSearchSubmit?.()}
-            placeholder="課程、教練、球場、地址、城市..."
-            className="w-full border border-gray-300 rounded-full px-4 py-2.5 pr-16 text-sm focus:outline-none focus:border-black transition-colors bg-white"
+            placeholder="課程、教練、球場..."
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 pr-16 text-sm focus:outline-none focus:border-[#3366CC] transition-colors bg-white"
           />
           {searchQuery && (
             <button
@@ -57,32 +97,29 @@ export default function CoachingSidebar({
           <button
             type="button"
             onClick={onSearchSubmit}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#3366CC]"
             aria-label="搜尋"
           >
             <Search size={16} />
           </button>
         </div>
-        <p className="text-[10px] text-gray-400 mt-2">
-          輸入即時搜尋 · 支援城市簡稱（如台中、台北）
-        </p>
 
         {cityTags.length > 0 && (
           <div className="mt-4">
-            <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase mb-2">
-              依縣市（{cityTags.length}）
+            <p className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase mb-2">
+              依縣市
             </p>
-            <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
+            <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
               {cityTags.map(({ full, label, search }) => (
                 <button
                   key={full}
                   type="button"
                   onClick={() => onQuickTag?.(search)}
                   title={full}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-colors ${
+                  className={`text-[10px] font-bold px-2 py-1 rounded-md border transition-colors ${
                     appliedSearch === search
-                      ? "bg-black text-white border-black"
-                      : "border-gray-300 text-gray-600 hover:border-black hover:text-black bg-white"
+                      ? "bg-[#3366CC] text-white border-[#3366CC]"
+                      : "border-gray-200 text-gray-600 hover:border-[#3366CC] hover:text-[#3366CC] bg-white"
                   }`}
                 >
                   {label}
@@ -94,7 +131,7 @@ export default function CoachingSidebar({
 
         {extraTags.length > 0 && (
           <div className="mt-3">
-            <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase mb-2">
+            <p className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase mb-2">
               快速篩選
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -103,10 +140,10 @@ export default function CoachingSidebar({
                   key={tag}
                   type="button"
                   onClick={() => onQuickTag?.(tag)}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-colors ${
+                  className={`text-[10px] font-bold px-2 py-1 rounded-md border transition-colors ${
                     appliedSearch === tag
-                      ? "bg-[#3157B5] text-white border-[#3157B5]"
-                      : "border-gray-300 text-gray-600 hover:border-[#3157B5] hover:text-[#3157B5] bg-white"
+                      ? "bg-[#3366CC] text-white border-[#3366CC]"
+                      : "border-gray-200 text-gray-600 hover:border-[#3366CC] hover:text-[#3366CC] bg-white"
                   }`}
                 >
                   {tag}
@@ -117,48 +154,19 @@ export default function CoachingSidebar({
         )}
       </div>
 
-      {/* Nav */}
-      <nav className="mb-8">
-        <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase mb-3">
-          課程類型
-        </p>
-        <ul className="divide-y divide-gray-200">
-          {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
-            <li key={key}>
-              <button
-                type="button"
-                onClick={() => onClassTypeChange(key)}
-                className={`w-full flex items-center gap-3 py-3.5 text-left text-sm font-bold transition-colors group ${
-                  classType === key ? "text-black" : "text-gray-600 hover:text-black"
-                }`}
-              >
-                <Icon size={16} className="shrink-0 opacity-60" />
-                <span className="flex-1">{label}</span>
-                <ChevronRight
-                  size={14}
-                  className={`shrink-0 transition-transform ${
-                    classType === key ? "text-black" : "text-gray-300 group-hover:translate-x-0.5"
-                  }`}
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Tags */}
+      {/* 程度 */}
       <div className="mb-8">
-        <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase mb-3">
+        <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">
           程度篩選
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
             onClick={() => onSkillLevelChange("all")}
             className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-colors ${
               skillLevel === "all"
-                ? "bg-black text-white border-black"
-                : "border-gray-300 text-gray-600 hover:border-black hover:text-black"
+                ? "bg-[#1a2d4a] text-white border-[#1a2d4a]"
+                : "border-gray-200 text-gray-600 hover:border-[#3366CC] hover:text-[#3366CC] bg-white"
             }`}
           >
             全部
@@ -170,8 +178,8 @@ export default function CoachingSidebar({
               onClick={() => onSkillLevelChange(key)}
               className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-colors ${
                 skillLevel === key
-                  ? "bg-black text-white border-black"
-                  : "border-gray-300 text-gray-600 hover:border-black hover:text-black"
+                  ? "bg-[#1a2d4a] text-white border-[#1a2d4a]"
+                  : "border-gray-200 text-gray-600 hover:border-[#3366CC] hover:text-[#3366CC] bg-white"
               }`}
             >
               {label}
@@ -180,24 +188,17 @@ export default function CoachingSidebar({
         </div>
       </div>
 
-      {/* Featured */}
+      {/* 推薦課程 */}
       {featuredClasses.length > 0 && (
         <div>
-          <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase mb-1">
-            推薦課程 👍
+          <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">
+            推薦課程
           </p>
-          <div>
+          <div className="border border-gray-200 rounded-lg px-3 bg-white">
             {featuredClasses.slice(0, 4).map((cls) => (
               <ClassCard key={cls.id} cls={cls} compact />
             ))}
           </div>
-          <Link
-            href="/coaching/create"
-            className="mt-4 flex items-center justify-center gap-2 w-full bg-black text-white text-xs font-bold py-3 rounded-md hover:bg-gray-800 transition-colors"
-          >
-            我要開課
-            <ChevronRight size={14} />
-          </Link>
         </div>
       )}
     </aside>

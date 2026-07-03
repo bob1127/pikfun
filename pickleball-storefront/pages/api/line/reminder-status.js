@@ -36,6 +36,7 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     line_bound: Boolean(profile?.line_user_id),
+    friend_added: Boolean(profile?.friend_added),
     line_reminder_enabled: lineReminderEnabled,
     /** 前端：已加入揪團且尚未排 LINE 提醒時顯示按鈕 */
     show_line_prompt: !lineReminderEnabled,

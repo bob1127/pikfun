@@ -17,7 +17,8 @@ function categoryKeyFromNames(names = []) {
   if (names.some((n) => n.includes("球拍") || n.includes("裝備")))
     return "racketsEquipment";
   if (names.some((n) => n.includes("運動知識"))) return "knowledge";
-  if (names.some((n) => n.includes("球場") || n.includes("活動"))) return "active";
+  if (names.some((n) => n.includes("球場") || n.includes("活動")))
+    return "active";
   return "active";
 }
 
@@ -50,7 +51,7 @@ export default function BlogPost({
   return (
     <>
       <Head>
-        <title>{title} | PikPie</title>
+        <title>{title} | PikFun</title>
         <meta name="description" content={base.excerpt} />
       </Head>
 

@@ -3,11 +3,11 @@
 
 -- ==============================================================
 -- 1. user_line_profiles
---    記錄每個 PikPie 會員（以 email 為 key）的 LINE 綁定資訊
+--    記錄每個 PikFun 會員（以 email 為 key）的 LINE 綁定資訊
 -- ==============================================================
 create table if not exists public.user_line_profiles (
   id            uuid        primary key default gen_random_uuid(),
-  customer_email text        not null unique,   -- PikPie 會員信箱（登入用）
+  customer_email text        not null unique,   -- PikFun 會員信箱（登入用）
   line_user_id  text        not null,           -- LINE sub（推播用）
   display_name  text,                           -- LINE 顯示名稱（選填）
   picture_url   text,                           -- LINE 頭像（選填）

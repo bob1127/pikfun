@@ -34,7 +34,7 @@ export default function Home({ chanelProducts }) {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "KÉSH de¹ 凱仕國際精品",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.cieman.com.tw",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.pikfun.com.tw",
   };
 
   const jsonLdItemList = {

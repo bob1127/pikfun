@@ -3,41 +3,23 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bookmark, X, ChevronRight } from "lucide-react";
-import { SKILL_LABELS, formatFee, formatSessionRange } from "@/lib/playUtils";
+import {
+  Bookmark,
+  X,
+  ChevronRight,
+  Clock,
+  MapPin,
+  Users,
+  CircleDollarSign,
+} from "lucide-react";
+import {
+  getSkillLevelLabel,
+  formatFee,
+  formatCardDateTime,
+} from "@/lib/playUtils";
 import { toggleSavedSession, isSaved } from "@/lib/savedSessions";
+import SessionCardImageCarousel from "@/components/play/SessionCardImageCarousel";
 
-/* ── helpers ─────────────────────────────────────── */
-function HostAvatar({ name, avatar }) {
-  if (avatar)
-    return (
-      <img
-        src={avatar}
-        alt={name}
-        className="w-10 h-10 rounded-full object-cover border border-gray-100 shrink-0"
-      />
-    );
-  return (
-    <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-sm shrink-0">
-      {name?.charAt(0) || "?"}
-    </div>
-  );
-}
-
-function formatRelativeTime(iso) {
-  if (!iso) return "";
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "剛剛";
-  if (mins < 60) return `${mins} 分鐘前`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} 小時前`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} 天前`;
-  return `${Math.floor(days / 30)} 個月前`;
-}
-
-/* ── Save Toast ──────────────────────────────────── */
 function SaveToast({ show, saved, onClose }) {
   useEffect(() => {
     if (!show) return;
@@ -104,43 +86,70 @@ function SaveToast({ show, saved, onClose }) {
   );
 }
 
-/* ══════════════════════════════════════════════════
-   SessionCard
-══════════════════════════════════════════════════ */
+function getStatusMeta(session) {
+  const isCancelled = session.display_status === "cancelled";
+  const isFull = session.is_full && !isCancelled;
+  const isJoined = session.my_status === "joined";
+  const isWaitlist = session.my_status === "waitlist";
+
+  if (isCancelled) return { label: "已取消", tone: "muted" };
+  if (isJoined) return { label: "已加入", tone: "dark" };
+  if (isWaitlist) return { label: "候補中", tone: "purple" };
+  if (isFull) return { label: "已額滿", tone: "muted" };
+  if (session.spots_left === 1) return { label: "差一人成團", tone: "urgent" };
+  return { label: "報名受付中", tone: "blue" };
+}
+
+function InfoRow({ icon: Icon, label, value, valueClass = "" }) {
+  return (
+    <div className="psc-row">
+      <span className="psc-row-label">
+        <Icon size={14} strokeWidth={1.75} className="psc-row-icon" />
+        {label}
+      </span>
+      <span className="psc-row-dots" aria-hidden="true" />
+      <span className={`psc-row-value ${valueClass}`}>{value}</span>
+    </div>
+  );
+}
+
 export default function SessionCard({ session, index = 0 }) {
   const [saved, setSaved] = useState(false);
   const [toast, setToast] = useState(false);
   const [toastSaved, setToastSaved] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
     setSaved(isSaved(session.id));
   }, [session.id]);
 
   const isCancelled = session.display_status === "cancelled";
+  const status = getStatusMeta(session);
+  const skill = getSkillLevelLabel(session.skill_level);
+  const showSkill = skill && skill !== "不限程度";
+
+  const joined = session.joined_count || 0;
+  const max = session.max_players || 4;
+  const spotsLeft = session.spots_left ?? Math.max(0, max - joined);
   const isFull = session.is_full && !isCancelled;
-  const isJoined = session.my_status === "joined";
-  const isWaitlist = session.my_status === "waitlist";
+  const feeText = formatFee(session.fee_per_person, session.payment_method);
+  const isFree = feeText === "免費";
+  const location =
+    session.location_name || session.location_address || "地點待定";
+  const timeText = formatCardDateTime(session.starts_at, session.ends_at);
 
-  const ctaLabel = isCancelled
-    ? "已取消"
-    : isJoined
-      ? "已加入"
-      : isWaitlist
-        ? "候補中"
-        : isFull
-          ? "已額滿"
-          : "立即加入";
-
-  const ctaDisabled = isCancelled || isFull || isJoined || isWaitlist;
-
-  const tags = [
-    SKILL_LABELS[session.skill_level] || "不限程度",
-    `${session.joined_count || 0}/${session.max_players} 人`,
-    formatSessionRange(session.starts_at, session.ends_at),
-  ];
-  if (session.spots_left <= 2 && !isFull && !isCancelled) {
-    tags.push(`剩 ${session.spots_left} 位`);
-  }
+  const peopleValue = (
+    <>
+      <strong className="psc-val-people">{joined}</strong>
+      <span className="psc-val-people-sep"> / </span>
+      {max} 人
+      {!isFull && !isCancelled && spotsLeft <= 2 && (
+        <span className="psc-val-people-hint">
+          {spotsLeft === 1 ? "（差 1 位）" : `（剩 ${spotsLeft} 位）`}
+        </span>
+      )}
+    </>
+  );
 
   const handleSave = useCallback(
     (e) => {
@@ -150,108 +159,316 @@ export default function SessionCard({ session, index = 0 }) {
       setSaved(nowSaved);
       setToastSaved(nowSaved);
       setToast(false);
-      // micro delay so AnimatePresence re-mounts
       setTimeout(() => setToast(true), 20);
     },
-    [session]
+    [session],
   );
 
   const closeToast = useCallback(() => setToast(false), []);
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
+      <motion.article
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.4) }}
-        className={`relative group h-full ${isCancelled ? "opacity-60" : ""}`}
+        transition={{ duration: 0.25, delay: Math.min(index * 0.025, 0.2) }}
+        className={`psc-card${isCancelled ? " psc-card--cancelled" : ""}`}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
-        {/* Full-card link */}
         <Link
           href={`/play/${session.id}`}
-          className="flex flex-col h-full bg-white rounded-[1.25rem] shadow-[0_2px_16px_rgba(15,23,42,0.06)] border border-gray-100/80 p-6 hover:shadow-[0_4px_28px_rgba(15,23,42,0.10)] hover:border-gray-200 transition-all duration-300"
+          className="psc-card-link"
           aria-label={session.title}
         >
-          {/* Header */}
-          <div className="flex items-start justify-between mb-4">
-            <HostAvatar name={session.host_name} avatar={session.host_avatar} />
-            {/* Save button (intercepts click) */}
-            <button
-              type="button"
-              onClick={handleSave}
-              className={`relative z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold transition-colors ${
-                saved
-                  ? "bg-gray-100 border-gray-200 text-gray-900"
-                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-              aria-label={saved ? "取消收藏" : "收藏揪團"}
-            >
-              <Bookmark
-                size={13}
-                className={saved ? "fill-gray-900 text-gray-900" : "text-gray-500"}
-              />
-              {saved ? "已收藏" : "收藏"}
-            </button>
+          <div className="psc-media">
+            <SessionCardImageCarousel session={session} isHovered={hovered} />
           </div>
 
-          {/* Host + time */}
-          <p className="text-sm text-gray-500 mb-2">
-            <span className="font-semibold text-gray-900">{session.host_name}</span>
-            <span className="mx-1.5 text-gray-300">·</span>
-            <span>{formatRelativeTime(session.created_at || session.starts_at)}</span>
-          </p>
-
-          {/* Title */}
-          <h3 className="text-xl font-bold text-gray-900 leading-snug line-clamp-2 mb-4 group-hover:text-gray-700 transition-colors">
-            {session.title}
-          </h3>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-6 flex-1">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium"
-              >
-                {tag}
+          <div className="psc-body">
+            <div className="psc-title-row">
+              <h3 className="psc-title">{session.title}</h3>
+              <span className={`psc-badge psc-badge--${status.tone}`}>
+                {status.label}
               </span>
-            ))}
-            {isJoined && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-900 text-white text-xs font-medium">
-                已加入
-              </span>
-            )}
-            {isWaitlist && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium">
-                候補中
-              </span>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="flex items-end justify-between gap-4 mt-auto pt-1">
-            <div className="min-w-0">
-              <p className="font-bold text-gray-900 text-base leading-tight">
-                {formatFee(session.fee_per_person, session.payment_method)}
-              </p>
-              <p className="text-sm text-gray-400 mt-1 truncate">
-                {session.location_name || session.location_address || "地點待定"}
-              </p>
             </div>
-            <span
-              className={`shrink-0 inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                ctaDisabled
-                  ? "bg-gray-100 text-gray-400"
-                  : "bg-gray-900 text-white group-hover:bg-gray-800"
-              }`}
-            >
-              {ctaLabel}
-            </span>
+
+            <div className="psc-info-block">
+              <p className="psc-info-heading">揪團資訊</p>
+              <div className="psc-info-list">
+                <InfoRow
+                  icon={Users}
+                  label="人數"
+                  value={peopleValue}
+                  valueClass="psc-val--people"
+                />
+                <InfoRow
+                  icon={Clock}
+                  label="時間"
+                  value={timeText}
+                  valueClass="psc-val--time"
+                />
+                <InfoRow
+                  icon={MapPin}
+                  label="地點"
+                  value={location}
+                  valueClass="psc-val--place"
+                />
+                <InfoRow
+                  icon={CircleDollarSign}
+                  label="費用"
+                  value={feeText}
+                  valueClass={isFree ? "psc-val--fee is-free" : "psc-val--fee"}
+                />
+              </div>
+            </div>
+
+            {showSkill && (
+              <div className="psc-tags">
+                <span className="psc-tag">{skill}</span>
+              </div>
+            )}
           </div>
         </Link>
-      </motion.div>
+
+        <button
+          type="button"
+          onClick={handleSave}
+          className={`psc-save${saved ? " psc-save--active" : ""}${hovered || saved ? " psc-save--visible" : ""}`}
+          aria-label={saved ? "取消收藏" : "收藏揪團"}
+        >
+          <Bookmark size={16} className={saved ? "fill-current" : ""} strokeWidth={1.75} />
+        </button>
+      </motion.article>
 
       <SaveToast show={toast} saved={toastSaved} onClose={closeToast} />
+
+      <style jsx>{`
+        .psc-card {
+          position: relative;
+        }
+        .psc-card--cancelled {
+          opacity: 0.5;
+        }
+        .psc-card-link {
+          display: block;
+          text-decoration: none;
+          color: inherit;
+          background: transparent;
+        }
+        .psc-card-link:focus-visible .psc-title {
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+        .psc-media {
+          position: relative;
+          aspect-ratio: 16 / 9;
+          background: #dde3ea;
+          overflow: hidden;
+        }
+        .psc-body {
+          padding: 16px 0 0;
+        }
+        .psc-title-row {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+        .psc-title {
+          margin: 0;
+          flex: 1;
+          min-width: 0;
+          font-size: 16px;
+          font-weight: 700;
+          line-height: 1.65;
+          color: #1a2332;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .psc-badge {
+          flex-shrink: 0;
+          padding: 3px 9px;
+          border-radius: 2px;
+          font-size: 10px;
+          font-weight: 700;
+          line-height: 1.35;
+          letter-spacing: 0.04em;
+          white-space: nowrap;
+        }
+        .psc-badge--blue {
+          background: #2563eb;
+          color: #fff;
+        }
+        .psc-badge--urgent {
+          background: #005caf;
+          color: #fff;
+        }
+        .psc-badge--muted {
+          background: #b8c4d0;
+          color: #fff;
+        }
+        .psc-badge--dark {
+          background: #334155;
+          color: #fff;
+        }
+        .psc-badge--purple {
+          background: #7c3aed;
+          color: #fff;
+        }
+        .psc-info-block {
+          margin: 0;
+        }
+        .psc-info-heading {
+          margin: 0 0 10px;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.12em;
+          color: #1e4976;
+          text-transform: uppercase;
+        }
+        .psc-info-list {
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+        }
+        .psc-row {
+          display: flex;
+          align-items: baseline;
+          gap: 0;
+          min-width: 0;
+        }
+        .psc-row-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          flex-shrink: 0;
+          font-size: 12px;
+          font-weight: 600;
+          color: #5a6a7e;
+          letter-spacing: 0.02em;
+        }
+        .psc-row-icon {
+          color: #2a6f8a;
+          flex-shrink: 0;
+        }
+        .psc-row-dots {
+          flex: 1;
+          min-width: 8px;
+          margin: 0 6px;
+          border-bottom: 1px dotted #c5d0db;
+          align-self: center;
+          height: 0;
+          transform: translateY(-2px);
+        }
+        .psc-row-value {
+          flex-shrink: 0;
+          max-width: 58%;
+          text-align: right;
+          font-size: 12px;
+          line-height: 1.45;
+          color: #1a2332;
+          font-weight: 600;
+        }
+        .psc-row-value.psc-val--people :global(.psc-val-people) {
+          font-size: 18px;
+          font-weight: 800;
+          color: #005caf;
+          letter-spacing: -0.02em;
+        }
+        .psc-row-value.psc-val--people :global(.psc-val-people-sep) {
+          font-size: 12px;
+          font-weight: 500;
+          color: #94a3b8;
+        }
+        .psc-row-value.psc-val--people :global(.psc-val-people-hint) {
+          display: block;
+          margin-top: 1px;
+          font-size: 10px;
+          font-weight: 700;
+          color: #2563eb;
+        }
+        .psc-row-value.psc-val--time {
+          font-variant-numeric: tabular-nums;
+          font-weight: 700;
+          color: #1e4976;
+        }
+        .psc-row-value.psc-val--place {
+          font-weight: 600;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          display: block;
+          max-width: 100%;
+        }
+        .psc-row-value.psc-val--fee {
+          font-weight: 800;
+          color: #1a2332;
+        }
+        .psc-row-value.psc-val--fee.is-free {
+          color: #2563eb;
+        }
+        .psc-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 14px;
+        }
+        .psc-tag {
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 12px;
+          border-radius: 999px;
+          background: #eff6ff;
+          color: #1d4ed8;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          line-height: 1.3;
+        }
+        .psc-save {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          z-index: 20;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          padding: 0;
+          border: none;
+          background: transparent;
+          color: rgba(255, 255, 255, 0.88);
+          cursor: pointer;
+          opacity: 0;
+          filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+          transition: opacity 0.2s ease;
+        }
+        .psc-save--visible {
+          opacity: 1;
+        }
+        .psc-save--active {
+          color: #fff;
+        }
+        @media (min-width: 1024px) {
+          .psc-body {
+            padding-top: 18px;
+          }
+          .psc-title {
+            font-size: 17px;
+          }
+          .psc-row-value {
+            font-size: 13px;
+          }
+          .psc-row-value :global(.psc-val-people) {
+            font-size: 20px;
+          }
+        }
+      `}</style>
     </>
   );
 }

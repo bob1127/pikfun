@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 
-const STORAGE_KEY = "pikpie-text-scale";
+const STORAGE_KEY = "PikFun-text-scale";
 
 const FontSizeContext = createContext({
   scale: "standard",
@@ -66,11 +66,7 @@ export function FontSizeToolbar() {
   ];
 
   return (
-    <div
-      className="editorial-font-toolbar"
-      role="group"
-      aria-label="字級大小"
-    >
+    <div className="editorial-font-toolbar" role="group" aria-label="字級大小">
       {options.map((opt) => (
         <button
           key={opt.id}

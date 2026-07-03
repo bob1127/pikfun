@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -304,12 +305,16 @@ const ReviewCard = ({
                 編輯
               </button>
             )}
-            {isAdmin && !review._optimistic && (
-              confirmDelete ? (
+            {isAdmin &&
+              !review._optimistic &&
+              (confirmDelete ? (
                 <span className="flex items-center gap-1">
                   <span className="text-xs text-gray-500">確定刪除？</span>
                   <button
-                    onClick={() => { onDelete(review.id); setConfirmDelete(false); }}
+                    onClick={() => {
+                      onDelete(review.id);
+                      setConfirmDelete(false);
+                    }}
                     className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-2 py-0.5 rounded transition-colors"
                   >
                     確定
@@ -329,8 +334,7 @@ const ReviewCard = ({
                 >
                   <Trash2 size={13} />
                 </button>
-              )
-            )}
+              ))}
           </div>
         </div>
 
@@ -519,9 +523,7 @@ const ReviewModal = ({ review, initialMediaIndex, onClose, onVote }) => {
 };
 
 // ─── 評論區主元件 ─────────────────────────────────────────────
-const ADMIN_EMAILS_CLIENT = (
-  process.env.NEXT_PUBLIC_ADMIN_EMAILS || ""
-)
+const ADMIN_EMAILS_CLIENT = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || "")
   .split(",")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
@@ -786,8 +788,8 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
               unhelpful_count: unhelpful,
               my_vote: nextVote,
             }
-          : r
-      )
+          : r,
+      ),
     );
     if (modalReview?.id === id) {
       setModalReview((prev) =>
@@ -798,7 +800,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
               unhelpful_count: unhelpful,
               my_vote: nextVote,
             }
-          : prev
+          : prev,
       );
     }
 
@@ -815,12 +817,10 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
       if (!res.ok) {
         const err = await res.json();
         setReviews((prev) =>
-          prev.map((r) => (r.id === id ? { ...r, ...snapshot } : r))
+          prev.map((r) => (r.id === id ? { ...r, ...snapshot } : r)),
         );
         if (modalReview?.id === id) {
-          setModalReview((prev) =>
-            prev ? { ...prev, ...snapshot } : prev
-          );
+          setModalReview((prev) => (prev ? { ...prev, ...snapshot } : prev));
         }
         alert(err.error || "投票失敗");
       } else {
@@ -834,8 +834,8 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                   unhelpful_count: data.unhelpful_count,
                   my_vote: data.my_vote,
                 }
-              : r
-          )
+              : r,
+          ),
         );
         if (modalReview?.id === id) {
           setModalReview((prev) =>
@@ -846,18 +846,16 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                   unhelpful_count: data.unhelpful_count,
                   my_vote: data.my_vote,
                 }
-              : prev
+              : prev,
           );
         }
       }
     } catch {
       setReviews((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, ...snapshot } : r))
+        prev.map((r) => (r.id === id ? { ...r, ...snapshot } : r)),
       );
       if (modalReview?.id === id) {
-        setModalReview((prev) =>
-          prev ? { ...prev, ...snapshot } : prev
-        );
+        setModalReview((prev) => (prev ? { ...prev, ...snapshot } : prev));
       }
       alert("網路錯誤，請稍後再試。");
     }
@@ -1661,99 +1659,187 @@ export default function ProductDetail({ product }) {
   return (
     <>
       <Head>
-        <title>{product.title} | PikPie</title>
+        <title>{product.title} | PikFun</title>
         <meta
           name="description"
           content={product.description?.substring(0, 160) || product.title}
         />
       </Head>
 
-      <main className="bg-white text-black min-h-screen pt-5 md:pt-20 pb-10">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-10">
-          <div className="flex flex-col md:flex-row gap-10 lg:gap-16 items-start">
-            {/* 左側：圖片區 */}
-            <div className="w-full md:w-[55%] md:sticky md:top-32 z-10 relative">
-              <button
-                onClick={() => setIsZoomEnabled(!isZoomEnabled)}
-                className={`absolute top-4 right-4 z-20 p-2.5 rounded-full shadow-md transition-all duration-300 ${isZoomEnabled ? "bg-[#e31837] text-white" : "bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white"}`}
-                title={isZoomEnabled ? "關閉放大鏡" : "開啟放大鏡"}
-              >
-                {isZoomEnabled ? <ZoomOut size={20} /> : <ZoomIn size={20} />}
-              </button>
-
-              <Swiper
-                spaceBetween={10}
-                navigation={true}
-                thumbs={{
-                  swiper:
-                    thumbsSwiper && !thumbsSwiper.destroyed
-                      ? thumbsSwiper
-                      : null,
-                }}
-                modules={[FreeMode, Navigation, Thumbs]}
-                className="w-full aspect-square bg-gray-50 mb-4 rounded-sm"
-              >
-                {product.images?.map((img, idx) => (
-                  <SwiperSlide key={idx}>
-                    <div
-                      className={`relative w-full h-full overflow-hidden ${isZoomEnabled ? "cursor-crosshair" : "cursor-default"}`}
-                      onMouseEnter={() => isZoomEnabled && setIsHovered(true)}
-                      onMouseLeave={() => {
-                        setIsHovered(false);
-                        setCursorPos({ x: 50, y: 50 });
-                      }}
-                      onMouseMove={handleMouseMove}
+      <main className="bg-white text-black min-h-screen product-detail-page">
+        <div className="max-w-[1440px] mx-auto">
+          <div className="flex flex-col lg:flex-row lg:items-start">
+            {/* 左側：圖片區 — sticky、主圖高度 = 視窗 - navbar */}
+            <div className="product-gallery-sticky w-full lg:w-[58%] shrink-0">
+              <div className="product-gallery-inner flex gap-2 md:gap-3 w-full min-h-[50vh] lg:min-h-0">
+                {/* 小圖：主圖左側直向排列 */}
+                <Swiper
+                  onSwiper={setThumbsSwiper}
+                  direction="vertical"
+                  spaceBetween={8}
+                  slidesPerView={4}
+                  freeMode={true}
+                  watchSlidesProgress={true}
+                  modules={[FreeMode, Thumbs]}
+                  className="w-24 sm:w-28 md:w-32 lg:w-36 h-full shrink-0 product-thumb-swiper-vertical"
+                >
+                  {product.images?.map((img, idx) => (
+                    <SwiperSlide
+                      key={idx}
+                      className="cursor-pointer opacity-50 [&.swiper-slide-thumb-active]:opacity-100 rounded-sm overflow-hidden"
                     >
-                      <Image
-                        src={img}
-                        alt={product.title}
-                        fill
-                        className="object-cover transition-transform duration-200 ease-out"
-                        style={{
-                          transform:
-                            isHovered && isZoomEnabled
-                              ? "scale(2.5)"
-                              : "scale(1)",
-                          transformOrigin: `${cursorPos.x}% ${cursorPos.y}%`,
-                        }}
-                        priority={idx === 0}
-                        unoptimized
-                      />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+                      <div className="relative w-full h-full bg-gray-50">
+                        <Image
+                          src={img}
+                          alt={`${product.title} 縮圖 ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
 
-              <Swiper
-                onSwiper={setThumbsSwiper}
-                spaceBetween={10}
-                slidesPerView={4}
-                freeMode={true}
-                watchSlidesProgress={true}
-                modules={[FreeMode, Navigation, Thumbs]}
-                className="w-full h-24 md:h-28 thumb-swiper"
-              >
-                {product.images?.map((img, idx) => (
-                  <SwiperSlide
-                    key={idx}
-                    className="cursor-pointer opacity-50 [&.swiper-slide-thumb-active]:opacity-100"
+                {/* 主圖 */}
+                <div className="flex-1 min-w-0 h-full relative">
+                  <button
+                    onClick={() => setIsZoomEnabled(!isZoomEnabled)}
+                    className={`absolute top-4 right-4 z-20 p-2.5 rounded-full shadow-md transition-all duration-300 ${isZoomEnabled ? "bg-[#e31837] text-white" : "bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white"}`}
+                    title={isZoomEnabled ? "關閉放大鏡" : "開啟放大鏡"}
                   >
-                    <div className="relative w-full h-full bg-white">
-                      <Image
-                        src={img}
-                        alt="thumb"
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+                    {isZoomEnabled ? (
+                      <ZoomOut size={20} />
+                    ) : (
+                      <ZoomIn size={20} />
+                    )}
+                  </button>
+
+                  <Swiper
+                    spaceBetween={10}
+                    navigation={true}
+                    thumbs={{
+                      swiper:
+                        thumbsSwiper && !thumbsSwiper.destroyed
+                          ? thumbsSwiper
+                          : null,
+                    }}
+                    modules={[FreeMode, Navigation, Thumbs]}
+                    className="w-full h-full bg-gray-50"
+                  >
+                    {product.images?.map((img, idx) => (
+                      <SwiperSlide key={idx}>
+                        <div
+                          className={`relative w-full h-full overflow-hidden ${isZoomEnabled ? "cursor-crosshair" : "cursor-default"}`}
+                          onMouseEnter={() =>
+                            isZoomEnabled && setIsHovered(true)
+                          }
+                          onMouseLeave={() => {
+                            setIsHovered(false);
+                            setCursorPos({ x: 50, y: 50 });
+                          }}
+                          onMouseMove={handleMouseMove}
+                        >
+                          <Image
+                            src={img}
+                            alt={product.title}
+                            fill
+                            className="object-cover transition-transform duration-200 ease-out"
+                            style={{
+                              transform:
+                                isHovered && isZoomEnabled
+                                  ? "scale(2.5)"
+                                  : "scale(1)",
+                              transformOrigin: `${cursorPos.x}% ${cursorPos.y}%`,
+                            }}
+                            priority={idx === 0}
+                            unoptimized
+                          />
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              </div>
+
+              {/* 麵包屑（手機：圖下方） */}
+              <nav
+                className="lg:hidden px-6 py-4 border-t border-gray-100 text-[12px] text-gray-400 tracking-wide flex flex-wrap items-center gap-x-1.5 gap-y-1"
+                aria-label="麵包屑"
+              >
+                <Link href="/" className="hover:text-black transition-colors">
+                  首頁
+                </Link>
+                <span className="text-gray-300" aria-hidden>
+                  /
+                </span>
+                <Link
+                  href="/category/all"
+                  className="hover:text-black transition-colors"
+                >
+                  商品
+                </Link>
+                {product.collectionHandle && product.brand && (
+                  <>
+                    <span className="text-gray-300" aria-hidden>
+                      /
+                    </span>
+                    <Link
+                      href={`/category/${product.collectionHandle}`}
+                      className="hover:text-black transition-colors"
+                    >
+                      {product.brand}
+                    </Link>
+                  </>
+                )}
+                <span className="text-gray-300" aria-hidden>
+                  /
+                </span>
+                <span className="text-gray-600 line-clamp-1">
+                  {product.title}
+                </span>
+              </nav>
             </div>
 
-            {/* 右側：商品資訊 */}
-            <div className="w-full md:w-[45%] pb-10">
+            {/* 右側：商品資訊（可捲動） */}
+            <div className="w-full lg:w-[42%] lg:flex-1 px-6 md:px-8 lg:px-10 py-8 lg:py-10 pb-10 min-w-0">
+              {/* 麵包屑（桌面：右欄上方） */}
+              <nav
+                className="hidden lg:flex mb-6 pb-4 border-b border-gray-100 text-[13px] text-gray-400 tracking-wide flex-wrap items-center gap-x-1.5 gap-y-1"
+                aria-label="麵包屑"
+              >
+                <Link href="/" className="hover:text-black transition-colors">
+                  首頁
+                </Link>
+                <span className="text-gray-300" aria-hidden>
+                  /
+                </span>
+                <Link
+                  href="/category/all"
+                  className="hover:text-black transition-colors"
+                >
+                  商品
+                </Link>
+                {product.collectionHandle && product.brand && (
+                  <>
+                    <span className="text-gray-300" aria-hidden>
+                      /
+                    </span>
+                    <Link
+                      href={`/category/${product.collectionHandle}`}
+                      className="hover:text-black transition-colors"
+                    >
+                      {product.brand}
+                    </Link>
+                  </>
+                )}
+                <span className="text-gray-300" aria-hidden>
+                  /
+                </span>
+                <span className="text-gray-600 line-clamp-1">
+                  {product.title}
+                </span>
+              </nav>
               <div className="mb-6 border-b border-gray-100 pb-6">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                   {product.brand}
@@ -1820,11 +1906,13 @@ export default function ProductDetail({ product }) {
           </div>
 
           {/* 評論區 */}
-          <ProductReviews
-            productId={product.id}
-            productTitle={product.title}
-            productThumbnail={product.thumbnail}
-          />
+          <div className="px-6 md:px-8 lg:px-10">
+            <ProductReviews
+              productId={product.id}
+              productTitle={product.title}
+              productThumbnail={product.thumbnail}
+            />
+          </div>
         </div>
       </main>
     </>
@@ -1893,7 +1981,8 @@ export async function getStaticProps({ params }) {
       currency: "TWD",
       sku: raw.variants?.[0]?.sku || "",
       variantId: raw.variants?.[0]?.id || null,
-      brand: raw.collection?.title || "PikPie",
+      brand: raw.collection?.title || "PikFun",
+      collectionHandle: raw.collection?.handle || null,
       weight: raw.variants?.[0]?.weight || raw.weight || 0,
       thumbnail: raw.thumbnail || raw.images?.[0]?.url || "",
       images:

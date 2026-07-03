@@ -75,10 +75,10 @@ export default function PartnersSection() {
       ========================================== */}
       <div className="relative z-10 pt-20 pb-12 md:pt-28 md:pb-16 px-6 text-center flex flex-col items-center flex-1 justify-center">
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-widest mb-6 drop-shadow-lg">
-          什麼是 PIKPIE？
+          什麼是 PikFun？
         </h2>
         <p className="text-white/95 text-sm md:text-base leading-relaxed tracking-wider max-w-2xl mb-12 drop-shadow-md font-medium">
-          PIKPIE，旨在解決全台匹克球友的痛點。
+          PikFun，旨在解決全台匹克球友的痛點。
           <br className="hidden md:block" />
           我們匯聚了最專業的球場主、最具規模的裝備商家與認證教練，
           <br className="hidden md:block" />
