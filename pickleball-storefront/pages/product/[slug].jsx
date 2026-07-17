@@ -660,17 +660,29 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
   const uploadFilesToStorage = async (files) => {
     const urls = [];
     for (const f of files) {
-      const ext = f.file.name.split(".").pop();
-      const path = `${productId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage
-        .from("review-media")
-        .upload(path, f.file, { contentType: f.type, upsert: false });
-      if (error) {
-        console.error("上傳失敗:", error.message);
+      const fileBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(f.file);
+      });
+      const res = await fetch("/api/media/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folder: "review-media",
+          subfolder: productId,
+          fileBase64,
+          fileName: f.file.name,
+          contentType: f.type,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.error("上傳失敗:", data.error || res.statusText);
         continue;
       }
-      const { data } = supabase.storage.from("review-media").getPublicUrl(path);
-      if (data?.publicUrl) urls.push(data.publicUrl);
+      if (data?.url) urls.push(data.url);
     }
     return urls;
   };
@@ -708,9 +720,9 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
     setSelectedFiles([]);
 
     try {
-      // 上傳媒體到 Supabase Storage
+      // 上傳媒體到 Cloudflare R2
       const mediaUrls =
-        selectedFiles.length > 0 ? await uploadFilesToStorage(savedFiles) : [];
+        savedFiles.length > 0 ? await uploadFilesToStorage(savedFiles) : [];
 
       const res = await fetch(`/api/reviews?product_id=${productId}`, {
         method: "POST",

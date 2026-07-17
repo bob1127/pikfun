@@ -54,10 +54,9 @@ export default function ConfettiButton({
         }
       } catch (err) {
         setPhase("error");
-        // brief flash then reset
+        // brief flash then reset — 不往外拋，避免 Next.js Unhandled Runtime Error
         resetTimer.current = setTimeout(() => setPhase("idle"), 1500);
-        // bubble up so caller can show its own alert if needed
-        throw err;
+        console.warn("[ConfettiButton]", err?.message || err);
       }
     },
     [phase, disabled, onClick, fireConfetti, resetAfter]

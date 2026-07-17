@@ -51,13 +51,19 @@ export async function registerCoachMediaAsset({
 export function extractCoachMediaUrls(html, bucket = COACH_MEDIA_BUCKET) {
   if (!html) return [];
   const urls = new Set();
-  const re = new RegExp(
-    `https?://[^"'\\s]+/storage/v1/object/public/${bucket}/[^"'\\s]+`,
-    "gi"
-  );
-  let match;
-  while ((match = re.exec(html)) !== null) {
-    urls.add(match[0]);
+  const patterns = [
+    new RegExp(
+      `https?://[^"'\\s]+/storage/v1/object/public/${bucket}/[^"'\\s]+`,
+      "gi",
+    ),
+    // Cloudflare R2 公開網址（key 含 coach-media/）
+    /https?:\/\/[^"'\s]+\/coach-media\/[^"'\s]+/gi,
+  ];
+  for (const re of patterns) {
+    let match;
+    while ((match = re.exec(html)) !== null) {
+      urls.add(match[0]);
+    }
   }
   return [...urls];
 }

@@ -43,11 +43,17 @@ AUTH_CORS=https://www.pikfun.com.tw,https://pikfun-admin.vercel.app
 
 MEDUSA_BACKEND_URL=https://你的服務.up.railway.app
 
-# Supabase Storage（商品圖）
-S3_BUCKET=medusa-images
-S3_REGION=ap-northeast-1
-S3_ENDPOINT=https://你的專案.storage.supabase.co/storage/v1/s3
-S3_FILE_URL=https://你的專案.supabase.co/storage/v1/object/public/medusa-images
+# Supabase Storage（商品圖）── 建議改 Cloudflare R2（見下方）
+# S3_BUCKET=medusa-images
+# S3_REGION=ap-northeast-1
+# S3_ENDPOINT=https://你的專案.storage.supabase.co/storage/v1/s3
+# S3_FILE_URL=https://你的專案.supabase.co/storage/v1/object/public/medusa-images
+
+# Cloudflare R2（商品圖／影片）—— 與既有 S3_* 變數相容，只需改值
+S3_BUCKET=pikfun-medusa
+S3_REGION=auto
+S3_ENDPOINT=https://你的ACCOUNT_ID.r2.cloudflarestorage.com
+S3_FILE_URL=https://media.pikfun.com.tw
 S3_ACCESS_KEY_ID=
 S3_SECRET_ACCESS_KEY=
 
@@ -137,6 +143,61 @@ Redeploy 前台。
 
 ---
 
+## 三點五、Cloudflare R2（媒體檔：商品圖／評論／社群／教練）
+
+還沒上線建議一次切完。資料庫仍用 Supabase；**只有檔案**改放 R2。
+
+### A. Cloudflare 後台（先做這步）
+
+1. [dash.cloudflare.com](https://dash.cloudflare.com) → **R2** → 開通
+2. **Create bucket**（建議兩個）  
+   - `pikfun-media` → 給 storefront（留言、評論、頭像、教練）  
+   - `pikfun-medusa` → 給 Medusa 商品圖／影片  
+3. 進入 bucket → **Settings** → **Public access**  
+   - 建議接 **Custom Domain**（例如 `media.pikfun.com.tw`）  
+   - 或暫時用 **R2.dev subdomain**
+4. **R2 → Manage R2 API Tokens** → Create  
+   - Permission：Object Read & Write（涵蓋上述 buckets）  
+   - 記下：`Access Key ID`、`Secret Access Key`、`Account ID`
+
+### B. Storefront `.env.local`（＋ Vercel）
+
+```env
+R2_ACCOUNT_ID=你的_account_id
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=pikfun-media
+R2_PUBLIC_URL=https://media.pikfun.com.tw
+# 可選；預設會用 https://ACCOUNT_ID.r2.cloudflarestorage.com
+# R2_ENDPOINT=
+# R2_REGION=auto
+```
+
+上傳 API 已改走 `lib/r2.js`（社群圖、評論媒體、頭像、教練封面／媒體）。
+
+### C. Medusa `.env`（＋ Railway）
+
+沿用既有 `S3_*`，只改成 R2 值（程式不用改）：
+
+```env
+S3_BUCKET=pikfun-medusa
+S3_REGION=auto
+S3_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
+S3_FILE_URL=https://media.pikfun.com.tw
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+```
+
+若商品與前台共用同一個公開網域，可把 Medusa 檔案放到子路徑，例如 `S3_FILE_URL=https://media.pikfun.com.tw` 且 bucket 內用 prefix；最簡單是**兩個 bucket、兩個 custom domain**，或一個 domain 對應一個 bucket。
+
+### D. 驗證
+
+1. 重啟 storefront / Medusa  
+2. Medusa Admin 上傳一張商品圖 → 網址應是 `S3_FILE_URL/...`  
+3. 前台留言或評論上傳圖片 → 網址應是 `R2_PUBLIC_URL/...`
+
+---
+
 ## 四、檢查清單
 
 - [ ] Supabase 專案已 Resume，DATABASE_URL 正確
@@ -144,6 +205,8 @@ Redeploy 前台。
 - [ ] Railway 網域可開：`https://xxx.up.railway.app/health` 回 200
 - [ ] Vercel 後台可登入：`https://pikfun-admin.vercel.app`
 - [ ] 前台商品頁能載入（代表 Publishable Key + CORS 正確）
+- [ ] R2 buckets + API Token 已建立，`R2_*` / `S3_*` 已填
+- [ ] Medusa 上傳商品圖成功；前台上傳評論／留言圖成功
 
 ---
 
@@ -157,3 +220,6 @@ Redeploy 前台。
 
 **Q: 後台登入後 API 錯誤？**  
 檢查 `vercel.json` 的 Railway 網址是否正確，以及 `MEDUSA_BACKEND_URL` 是否一致。
+
+**Q: R2 上傳成功但圖片 404？**  
+代表 bucket 尚未公開：請綁 Custom Domain，或啟用 r2.dev 公開網址，並確認 `R2_PUBLIC_URL` / `S3_FILE_URL` 與此一致（不要用 `*.r2.cloudflarestorage.com` 當公開網址）。

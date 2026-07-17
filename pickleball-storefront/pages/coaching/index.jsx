@@ -318,11 +318,9 @@ export default function CoachingListPage() {
           </button>
         </section>
 
-        {/* 進駐教練 */}
-        <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-          <div id="featured-coaches">
-            <FeaturedCoachesSection />
-          </div>
+        {/* 進駐教練紹介 */}
+        <div id="featured-coaches">
+          <FeaturedCoachesSection />
         </div>
 
         <CoachingRecruitFooter

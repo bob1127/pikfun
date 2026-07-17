@@ -13,7 +13,9 @@ import { ReactLenis } from "@studio-freight/react-lenis";
 
 export default function Layout({ children }) {
   const router = useRouter();
-  const disableLenis = router.pathname.startsWith("/product/");
+  const isStandalonePage = router.pathname === "/about-pikfun";
+  const disableLenis =
+    router.pathname.startsWith("/product/") || isStandalonePage;
 
   useEffect(() => {
     AOS.init({
@@ -107,7 +109,7 @@ export default function Layout({ children }) {
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
 
@@ -137,16 +139,18 @@ export default function Layout({ children }) {
         />
       </Head>
 
-      <Navbar />
+      {!isStandalonePage && <Navbar />}
       <CartSidebar />
 
       {disableLenis ? (
-        <div className="flex flex-col justify-between">
+        <div className={isStandalonePage ? "" : "flex flex-col justify-between"}>
           <main>{children}</main>
-          <div>
-            <Banner />
-            <Footer />
-          </div>
+          {!isStandalonePage && (
+            <div>
+              <Banner />
+              <Footer />
+            </div>
+          )}
         </div>
       ) : (
       <ReactLenis root>

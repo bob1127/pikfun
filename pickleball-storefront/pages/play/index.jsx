@@ -479,7 +479,7 @@ export default function PlayListPage() {
       />
 
       <main
-        className="min-h-screen pb-20"
+        className="min-h-screen pb-20 overflow-x-hidden"
         style={{ backgroundColor: "#F1F3F5" }}
       >
         <PlayHeroBanner

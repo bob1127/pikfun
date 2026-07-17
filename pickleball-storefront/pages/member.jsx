@@ -16,12 +16,15 @@ import {
   Landmark,
   GraduationCap,
   Bookmark,
+  PenSquare,
+  User,
 } from "lucide-react";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import MemberCoachingPanel from "../components/member/MemberCoachingPanel";
 import SavedSessionsPanel from "../components/member/SavedSessionsPanel";
 import MemberSettingsPanel from "../components/member/MemberSettingsPanel";
+import MemberAuthorProfilePanel from "../components/member/MemberAuthorProfilePanel";
 
 const formatMoney = (v) =>
   Number.isNaN(Number(v)) ? "0" : Math.round(Number(v)).toLocaleString();
@@ -152,6 +155,11 @@ export default function MemberProfile() {
       icon: <Bookmark size={16} />,
     },
     {
+      id: "author",
+      label: "作者資訊",
+      icon: <User size={16} />,
+    },
+    {
       id: "orders",
       label: t("member.tabs.orders", "我的訂單"),
       icon: <ShoppingBag size={16} />,
@@ -227,6 +235,15 @@ export default function MemberProfile() {
                     )}
                   </button>
                 ))}
+                <Link
+                  href="/member/posts"
+                  className="flex items-center gap-4 w-full text-left px-4 py-3 text-xs tracking-widest uppercase transition-all duration-300 text-gray-500 hover:bg-gray-50 hover:text-black"
+                >
+                  <span className="opacity-60">
+                    <PenSquare size={16} />
+                  </span>
+                  我的投稿
+                </Link>
                 <div className="pt-6 mt-6 border-t border-gray-100">
                   <button
                     onClick={logout}
@@ -360,6 +377,17 @@ export default function MemberProfile() {
                   exit={{ opacity: 0, y: -10 }}
                 >
                   <MemberSettingsPanel />
+                </motion.div>
+              )}
+
+              {activeTab === "author" && (
+                <motion.div
+                  key="author"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  <MemberAuthorProfilePanel />
                 </motion.div>
               )}
 

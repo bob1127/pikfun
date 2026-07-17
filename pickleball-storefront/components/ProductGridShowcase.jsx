@@ -346,14 +346,14 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
         if (isLoadMore) setIsLoadingMore(true);
         else setIsLoading(true);
 
-        let url = `${BACKEND_URL}/store/products?limit=${limit}&offset=${currentOffset}&fields=id,title,handle,thumbnail,metadata,*variants,*variants.prices`;
+        let url = `${BACKEND_URL}/store/products?limit=${limit}&offset=${currentOffset}&fields=id,title,handle,thumbnail,metadata,*variants,*variants.prices,*collection,*tags`;
         if (tabId !== "all") url += `&collection_id[]=${tabId}`;
 
         const res = await fetch(url, { headers });
         if (!res.ok) throw new Error("API 請求失敗");
         const data = await res.json();
 
-        const formatted = (data.products || []).map((p) => {
+        const formatted = (data.products || []).map((p, i) => {
           const variantPrices = p.variants?.[0]?.prices || [];
           const priceObj =
             variantPrices.find(
@@ -365,12 +365,53 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
               : priceObj.amount
             : 0;
 
+          const brand =
+            p.collection?.metadata?.[`title_${metaLang}`] ||
+            p.collection?.title ||
+            "PikFun";
+          const rank = (p.metadata?.rank || "").toString().trim();
+          const rawTags = (p.tags || [])
+            .map((t) => t.value || t)
+            .filter(Boolean);
+          const metaTags = String(p.metadata?.tags || "")
+            .split(/[,，#\s]+/)
+            .map((t) => t.trim())
+            .filter(Boolean);
+          const fallbackTags = [brand, p.metadata?.rank, "匹克球拍"].filter(
+            Boolean,
+          );
+          const tags = (
+            rawTags.length ? rawTags : metaTags.length ? metaTags : fallbackTags
+          ).slice(0, 4);
+
+          const label =
+            p.metadata?.badge ||
+            p.metadata?.label ||
+            (rank ? rank.toUpperCase() : "") ||
+            (i % 4 === 0
+              ? "HOT"
+              : i % 4 === 1
+                ? "NEW"
+                : i % 4 === 2
+                  ? "熱銷"
+                  : "精選");
+
+          const subtitle =
+            p.metadata?.[`subtitle_${metaLang}`] ||
+            p.metadata?.subtitle ||
+            p.metadata?.model ||
+            brand;
+
           return {
             id: p.id,
             title: p.metadata?.[`title_${metaLang}`] || p.title,
+            subtitle,
             slug: p.handle,
             price: `${symbol}${Math.round(amount).toLocaleString()}`,
             image: p.thumbnail || "/images/placeholder.jpg",
+            label,
+            tags,
+            brand,
           };
         });
 
@@ -399,8 +440,7 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
   return (
     <div className="shop-section">
       <header className="shop-header">
-        <h3 className="shop-title">PICKLEBALL PADDLES</h3>
-        <p className="topics-lead max-w-xl mx-auto mt-4">熱銷精選球拍/裝備</p>
+        <h3 className="shop-title">熱銷精選球拍/裝備</h3>
       </header>
 
       {collections.length > 1 && (
@@ -430,18 +470,38 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
                 className="shop-card group"
               >
                 <div className="shop-card-img">
+                  {product.label && (
+                    <span className="shop-card-label">{product.label}</span>
+                  )}
                   <Image
                     src={product.image}
                     alt={product.title}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain p-5 md:p-6 transition-transform duration-500 group-hover:scale-[1.03]"
                     unoptimized
                     sizes="(max-width:640px) 50vw, 25vw"
                   />
                 </div>
-                <h4 className="shop-card-title">{product.title}</h4>
-                <p className="shop-card-price">{product.price}</p>
-                <span className="shop-card-btn">立即購買</span>
+
+                <div className="shop-card-body">
+                  <h4 className="shop-card-title">{product.title}</h4>
+                  {product.subtitle && (
+                    <p className="shop-card-subtitle">{product.subtitle}</p>
+                  )}
+                  {product.tags?.length > 0 && (
+                    <p className="shop-card-tags">
+                      {product.tags.map((tag) => (
+                        <span key={tag}>
+                          #{String(tag).replace(/^#/, "")}{" "}
+                        </span>
+                      ))}
+                    </p>
+                  )}
+                  <p className="shop-card-price">
+                    {product.price}
+                    <span className="shop-card-tax">（含稅）</span>
+                  </p>
+                </div>
               </Link>
             ))}
           </div>
@@ -765,34 +825,33 @@ export default function ProductGridShowcase({ topicPosts = [] }) {
         }
         .shop-header {
           text-align: center;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
         }
         .shop-title {
-          font-size: clamp(1.75rem, 4vw, 2.5rem);
+          font-size: clamp(1.35rem, 3.5vw, 1.85rem);
           font-weight: 800;
-          letter-spacing: 0.06em;
-          color: #000;
+          letter-spacing: 0.02em;
+          color: #111;
         }
         .shop-tabs {
           display: flex;
           flex-wrap: wrap;
           justify-content: center;
-          gap: 0.5rem 1.25rem;
-          margin-bottom: 2rem;
+          gap: 0.5rem 1.5rem;
+          margin-bottom: 2.25rem;
           padding-bottom: 1rem;
-          border-bottom: 1px solid #e5e7eb;
+          border-bottom: 1px solid #e8eaed;
         }
         .shop-tab {
-          font-size: 0.75rem;
-          font-weight: 700;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
+          font-size: 0.875rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
           color: #999;
           background: none;
           border: none;
           cursor: pointer;
-          padding: 0.25rem 0;
-          border-bottom: 2px solid transparent;
+          padding: 0.35rem 0.15rem;
+          border-bottom: 3px solid transparent;
           transition:
             color 0.2s,
             border-color 0.2s;
@@ -801,77 +860,117 @@ export default function ProductGridShowcase({ topicPosts = [] }) {
           color: ${C.border};
         }
         .shop-tab.is-active {
-          color: ${C.border};
+          color: #111;
           border-bottom-color: ${C.border};
         }
         .shop-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 1.25rem 1rem;
+          gap: 1.75rem 1rem;
         }
         @media (min-width: 768px) {
           .shop-grid {
             grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
+            gap: 2.25rem 1.5rem;
           }
         }
         @media (min-width: 1024px) {
           .shop-grid {
             grid-template-columns: repeat(4, 1fr);
-            gap: 1.75rem;
+            gap: 2.5rem 1.75rem;
           }
         }
         .shop-card {
           display: flex;
           flex-direction: column;
-          align-items: center;
-          text-align: center;
+          align-items: stretch;
+          text-align: left;
           text-decoration: none;
           color: inherit;
         }
         .shop-card-img {
           position: relative;
           width: 100%;
-          aspect-ratio: 4 / 5;
-          background: #f5f5f5;
-          border: 2px solid ${C.border};
-          border-radius: 12px;
+          aspect-ratio: 1 / 1;
+          background: #f3f4f6;
+          border-radius: 18px;
           overflow: hidden;
-          margin-bottom: 0.75rem;
+          margin-bottom: 1rem;
+        }
+        .shop-card-label {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          z-index: 2;
+          display: inline-flex;
+          align-items: center;
+          max-width: calc(100% - 24px);
+          padding: 4px 8px;
+          background: rgba(255, 255, 255, 0.92);
+          border: 1px solid #1f2937;
+          border-radius: 2px;
+          color: #111;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .shop-card-body {
+          display: flex;
+          flex-direction: column;
+          gap: 0.3rem;
+          padding: 0 0.15rem;
         }
         .shop-card-title {
-          font-size: 0.8125rem;
-          font-weight: 700;
+          font-size: 0.9375rem;
+          font-weight: 800;
           color: #111;
+          line-height: 1.45;
+          margin: 0;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .shop-card-subtitle {
+          margin: 0;
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: #6b7280;
           line-height: 1.4;
-          margin: 0 0 0.35rem;
-          width: 100%;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .shop-card-tags {
+          margin: 0.15rem 0 0;
+          font-size: 0.6875rem;
+          font-weight: 500;
+          color: #9ca3af;
+          line-height: 1.55;
+          letter-spacing: 0.01em;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
         .shop-card-price {
-          font-size: 0.75rem;
-          font-weight: 700;
-          color: ${C.label};
-          letter-spacing: 0.08em;
-          margin: 0 0 0.65rem;
-        }
-        .shop-card-btn {
-          display: block;
-          width: 100%;
-          padding: 0.65rem;
-          background: ${C.border};
-          color: #fff;
-          font-size: 0.6875rem;
+          margin: 0.55rem 0 0;
+          font-size: 0.9375rem;
           font-weight: 800;
-          letter-spacing: 0.12em;
-          border-radius: 6px;
-          transition: background 0.2s;
+          color: #111;
+          letter-spacing: 0.02em;
+          line-height: 1.3;
         }
-        .shop-card:hover .shop-card-btn {
-          background: ${C.label};
+        .shop-card-tax {
+          margin-left: 0.25rem;
+          font-size: 0.6875rem;
+          font-weight: 500;
+          color: #9ca3af;
         }
         .shop-loading,
         .shop-empty {

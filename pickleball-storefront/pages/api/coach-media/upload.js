@@ -1,30 +1,32 @@
-import { createClient } from "@supabase/supabase-js";
 import { assertCoachOwner } from "@/lib/coachOwnerAuth";
 import {
   COACH_MEDIA_LIMITS,
-  COACH_MEDIA_BUCKET,
 } from "@/lib/coachMediaLimits";
 import {
   getCoachMediaUsage,
   registerCoachMediaAsset,
 } from "@/lib/coachMediaAssets";
+import {
+  bufferFromBase64,
+  buildObjectKey,
+  isR2Configured,
+  uploadToR2,
+} from "@/lib/r2";
 
 export const config = {
   api: { bodyParser: { sizeLimit: "35mb" } },
 };
 
-function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) throw new Error("Supabase 未設定");
-  return createClient(url, key);
-}
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  if (!isR2Configured()) {
+    return res.status(500).json({
+      error:
+        "R2 尚未設定：請在 .env.local 填入 R2_* 變數（見 DEPLOYMENT.md）",
+    });
   }
 
   const {
@@ -35,7 +37,7 @@ export default async function handler(req, res) {
     fileName,
     contentType,
     mediaType,
-  } = req.body;
+  } = req.body || {};
 
   if (!slug || !email || !fileBase64 || !mediaType) {
     return res.status(400).json({ error: "缺少必要參數" });
@@ -62,9 +64,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const supabase = getSupabase();
-    const base64Data = fileBase64.replace(/^data:[^;]+;base64,/, "");
-    const buffer = Buffer.from(base64Data, "base64");
+    const buffer = bufferFromBase64(fileBase64);
 
     if (buffer.length > limits.maxFileBytes) {
       return res.status(400).json({
@@ -72,43 +72,31 @@ export default async function handler(req, res) {
       });
     }
 
-    const ext = (fileName?.split(".").pop() || (type === "video" ? "mp4" : "jpg"))
-      .replace(/[^a-z0-9]/gi, "")
-      .toLowerCase();
-    const path = `${slug}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const key = buildObjectKey(
+      `coach-media/${slug}`,
+      fileName,
+      type === "video" ? "mp4" : "jpg",
+    );
 
-    const { error: uploadError } = await supabase.storage
-      .from(COACH_MEDIA_BUCKET)
-      .upload(path, buffer, { contentType, upsert: false });
-
-    if (uploadError) {
-      const isRls =
-        uploadError.message?.includes("row-level security") ||
-        uploadError.message?.includes("RLS");
-      return res.status(500).json({
-        error: isRls
-          ? "上傳失敗：請在 Supabase 執行 supabase/coach_profile_editor.sql，或設定 SUPABASE_SERVICE_ROLE_KEY"
-          : `上傳失敗：${uploadError.message}`,
-      });
-    }
-
-    const { data: urlData } = supabase.storage
-      .from(COACH_MEDIA_BUCKET)
-      .getPublicUrl(path);
+    const { url, key: storedKey } = await uploadToR2({
+      key,
+      body: buffer,
+      contentType,
+    });
 
     await registerCoachMediaAsset({
       coachId: coachRow.id,
       slug,
       mediaType: type,
-      filePath: path,
-      publicUrl: urlData.publicUrl,
+      filePath: storedKey,
+      publicUrl: url,
       byteSize: buffer.length,
     });
 
     const newUsage = await getCoachMediaUsage(coachRow.id);
 
     return res.status(200).json({
-      url: urlData.publicUrl,
+      url,
       mediaType: type,
       usage: newUsage,
     });

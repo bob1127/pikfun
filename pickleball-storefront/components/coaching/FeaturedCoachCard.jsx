@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ThumbsUp } from "lucide-react";
+import { ChevronRight, ThumbsUp } from "lucide-react";
+
+const BLUE = "#005caf";
 
 export default function FeaturedCoachCard({
   coach,
@@ -8,6 +10,48 @@ export default function FeaturedCoachCard({
   variant = "grid",
 }) {
   const href = `/coaching/coach/${coach.slug}`;
+  const subtitle =
+    coach.subtitle ||
+    coach.featured_label ||
+    coach.tags?.[0] ||
+    coach.region ||
+    "PikFun 認證教練";
+
+  if (variant === "portrait") {
+    return (
+      <Link href={href} className="group block">
+        <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[#eef1f5] mb-4">
+          <img
+            src={coach.cover_image || coach.avatar}
+            alt={coach.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+          <div
+            className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            style={{ backgroundColor: `${BLUE}33` }}
+            aria-hidden
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 mb-1.5">
+          <h3 className="font-bold text-base md:text-lg text-black leading-snug truncate transition-colors duration-300 group-hover:text-[#005caf]">
+            {coach.name}
+          </h3>
+          <span
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white transition-transform duration-300 group-hover:scale-105"
+            style={{ backgroundColor: BLUE }}
+            aria-hidden
+          >
+            <ChevronRight size={14} strokeWidth={2.5} />
+          </span>
+        </div>
+
+        <p className="text-sm text-gray-500 leading-snug transition-colors duration-300 group-hover:text-[#005caf] group-hover:underline group-hover:underline-offset-4 group-hover:decoration-[#005caf]">
+          {subtitle}
+        </p>
+      </Link>
+    );
+  }
 
   if (variant === "sidebar") {
     return (

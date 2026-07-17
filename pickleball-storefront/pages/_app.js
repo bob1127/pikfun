@@ -1,5 +1,6 @@
 // pages/_app.js
-import "../src/globals.css"; 
+import "../src/globals.css";
+import "@/components/about-pikfun/about-pikfun.css";
 import { NextUIProvider } from "@nextui-org/react";
 import { appWithTranslation } from "next-i18next";
 import { GoogleOAuthProvider } from '@react-oauth/google'; 

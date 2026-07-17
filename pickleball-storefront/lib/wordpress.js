@@ -32,14 +32,40 @@ export function formatWpDate(iso) {
   return `${y}.${m}.${day}`;
 }
 
-function getFeaturedImage(post) {
+function getFeaturedImage(post, { preferLarge = false } = {}) {
   const media = post?._embedded?.["wp:featuredmedia"]?.[0];
-  return (
-    media?.source_url ||
-    media?.media_details?.sizes?.medium_large?.source_url ||
-    media?.media_details?.sizes?.medium?.source_url ||
-    PLACEHOLDER_IMAGE
-  );
+  if (!media) return PLACEHOLDER_IMAGE;
+
+  const sizes = media?.media_details?.sizes || {};
+  const candidates = [];
+
+  if (media.source_url) {
+    candidates.push({
+      url: media.source_url,
+      width: Number(media?.media_details?.width) || 0,
+    });
+  }
+
+  for (const size of Object.values(sizes)) {
+    if (!size?.source_url) continue;
+    candidates.push({
+      url: size.source_url,
+      width: Number(size.width) || 0,
+    });
+  }
+
+  if (!candidates.length) return PLACEHOLDER_IMAGE;
+
+  // Hero／大圖：選最寬的；列表卡也可給較大圖避免糊
+  candidates.sort((a, b) => b.width - a.width);
+  const best = candidates[0];
+
+  // Jetpack Photon 有時會帶小尺寸參數，盡量回原圖
+  if (preferLarge && media.source_url) {
+    return media.source_url;
+  }
+
+  return best.url || media.source_url || PLACEHOLDER_IMAGE;
 }
 
 function getCategoryNames(post) {
@@ -67,7 +93,7 @@ export function mapPostToBase(post) {
     content: post.content?.rendered || "",
     date: post.date,
     dateFormatted: formatWpDate(post.date),
-    image: getFeaturedImage(post),
+    image: getFeaturedImage(post, { preferLarge: true }),
     categories,
     tags,
     link: post.link,
@@ -209,6 +235,44 @@ export async function fetchPostBySlug(slug, { lang } = {}) {
 
   const posts = await res.json();
   return posts?.[0] || null;
+}
+
+/** 最新消息頁：抓全部已發佈文章（不分分類） */
+export async function fetchAllPosts({ perPage = 50 } = {}) {
+  const params = new URLSearchParams({
+    per_page: String(perPage),
+    orderby: "date",
+    order: "desc",
+    _embed: "1",
+    status: "publish",
+  });
+
+  const url = `${WP_BASE}/wp-json/wp/v2/posts?${params.toString()}`;
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`WordPress API ${res.status}`);
+
+  const posts = await res.json();
+  return Array.isArray(posts) ? posts : [];
+}
+
+export async function fetchNewsPosts({ perPage = 50 } = {}) {
+  return fetchAllPosts({ perPage });
+}
+
+/** /news 列表卡片格式 */
+export function mapPostToNewsCard(post) {
+  const base = mapPostToBase(post);
+  return {
+    id: base.id,
+    source: "wordpress",
+    slug: base.slug,
+    title: base.title,
+    excerpt: base.excerpt,
+    date: base.dateFormatted,
+    rawDate: base.date,
+    image: base.image,
+    categories: base.categories,
+  };
 }
 
 export async function fetchHomeWpPosts() {

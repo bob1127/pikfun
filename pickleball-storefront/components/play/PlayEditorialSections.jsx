@@ -163,7 +163,7 @@ export function PlayHeroBanner({ stats, featuredSessions = [] }) {
 
   return (
     <>
-      <section className="relative w-full bg-[#F1F3F5]">
+      <section className="relative w-full overflow-x-hidden bg-[#F1F3F5]">
         <h1 className="sr-only">揪團打球</h1>
 
         <style>{`
@@ -173,10 +173,11 @@ export function PlayHeroBanner({ stats, featuredSessions = [] }) {
           }
           .play-hero-marquee-track {
             animation: play-hero-marquee 180s linear infinite;
+            will-change: transform;
           }
         `}</style>
 
-        <div className="relative">
+        <div className="relative overflow-x-hidden">
           <div className="relative h-[38vh] min-h-[260px] md:h-[48vh] md:min-h-[340px] lg:h-[52vh] overflow-x-hidden">
             <motion.div
               className="flex h-full"
@@ -208,7 +209,7 @@ export function PlayHeroBanner({ stats, featuredSessions = [] }) {
           </div>
 
           <div
-            className="relative pointer-events-none select-none -mt-8 md:-mt-24 z-10"
+            className="relative overflow-hidden pointer-events-none select-none -mt-8 md:-mt-24 z-10"
             aria-hidden
           >
             <div className="flex w-max play-hero-marquee-track">
@@ -393,26 +394,26 @@ export function PlayStatsBar({ stats }) {
       className="border-y border-[#e2e5e8]"
       style={{ backgroundColor: PAGE_BG }}
     >
-      <div className="max-w-[1400px] mx-auto px-5 md:px-10">
-        <div className="grid grid-cols-1 sm:grid-cols-3">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-10">
+        <div className="grid grid-cols-3">
           {items.map((item, i) => (
             <div
               key={item.label}
-              className={`flex flex-col items-center justify-center py-10 md:py-14 px-4 ${
-                i > 0 ? "sm:border-l sm:border-[#d0d0d0]" : ""
-              } ${i > 0 ? "border-t sm:border-t-0 border-[#e0e0e0]" : ""}`}
+              className={`flex flex-col items-center justify-center py-7 md:py-14 px-2 md:px-4 ${
+                i > 0 ? "border-l border-[#d0d0d0]" : ""
+              }`}
             >
-              <p className="text-[11px] md:text-xs text-black/80 tracking-[0.12em] mb-3 md:mb-4 font-medium">
+              <p className="text-[10px] md:text-xs text-black/80 tracking-[0.08em] md:tracking-[0.12em] mb-2 md:mb-4 font-medium text-center leading-snug">
                 {item.label}
               </p>
-              <div className="flex items-end gap-1">
+              <div className="flex items-end gap-0.5 md:gap-1">
                 <span
                   className="play-editorial-serif text-black leading-none"
-                  style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
+                  style={{ fontSize: "clamp(1.75rem, 7vw, 4.5rem)" }}
                 >
                   {formatStatNumber(item.value)}
                 </span>
-                <span className="play-editorial-serif text-black/70 text-sm md:text-base pb-1 md:pb-1.5">
+                <span className="play-editorial-serif text-black/70 text-[11px] md:text-base pb-0.5 md:pb-1.5">
                   {item.unit}
                 </span>
               </div>

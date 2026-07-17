@@ -3,15 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Bookmark,
-  X,
-  ChevronRight,
-  Clock,
-  MapPin,
-  Users,
-  CircleDollarSign,
-} from "lucide-react";
+import { Bookmark, X, ChevronRight } from "lucide-react";
 import {
   getSkillLevelLabel,
   formatFee,
@@ -100,17 +92,27 @@ function getStatusMeta(session) {
   return { label: "報名受付中", tone: "blue" };
 }
 
-function InfoRow({ icon: Icon, label, value, valueClass = "" }) {
-  return (
-    <div className="psc-row">
-      <span className="psc-row-label">
-        <Icon size={14} strokeWidth={1.75} className="psc-row-icon" />
-        {label}
-      </span>
-      <span className="psc-row-dots" aria-hidden="true" />
-      <span className={`psc-row-value ${valueClass}`}>{value}</span>
-    </div>
-  );
+function buildSessionTags(session) {
+  const tags = [];
+  const skill = getSkillLevelLabel(session.skill_level);
+  if (skill && skill !== "不限程度") tags.push(skill);
+
+  const feeText = formatFee(session.fee_per_person, session.payment_method);
+  tags.push(feeText === "免費" ? "免費" : feeText.replace("NT$ ", "NT$"));
+
+  const timeText = formatCardDateTime(session.starts_at, session.ends_at);
+  if (timeText) tags.push(timeText);
+
+  const isCancelled = session.display_status === "cancelled";
+  const joined = session.joined_count || 0;
+  const max = session.max_players || 4;
+  const spotsLeft = session.spots_left ?? Math.max(0, max - joined);
+  if (!session.is_full && !isCancelled) {
+    if (spotsLeft === 1) tags.push("差一人成團");
+    else tags.push(`剩 ${spotsLeft} 位`);
+  }
+
+  return tags.slice(0, 4);
 }
 
 export default function SessionCard({ session, index = 0 }) {
@@ -118,6 +120,7 @@ export default function SessionCard({ session, index = 0 }) {
   const [toast, setToast] = useState(false);
   const [toastSaved, setToastSaved] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [carousel, setCarousel] = useState({ active: 0, count: 0 });
 
   useEffect(() => {
     setSaved(isSaved(session.id));
@@ -125,31 +128,14 @@ export default function SessionCard({ session, index = 0 }) {
 
   const isCancelled = session.display_status === "cancelled";
   const status = getStatusMeta(session);
-  const skill = getSkillLevelLabel(session.skill_level);
-  const showSkill = skill && skill !== "不限程度";
-
-  const joined = session.joined_count || 0;
-  const max = session.max_players || 4;
-  const spotsLeft = session.spots_left ?? Math.max(0, max - joined);
-  const isFull = session.is_full && !isCancelled;
-  const feeText = formatFee(session.fee_per_person, session.payment_method);
-  const isFree = feeText === "免費";
   const location =
     session.location_name || session.location_address || "地點待定";
-  const timeText = formatCardDateTime(session.starts_at, session.ends_at);
+  const hostName = session.host_name || "團主";
+  const tags = buildSessionTags(session);
 
-  const peopleValue = (
-    <>
-      <strong className="psc-val-people">{joined}</strong>
-      <span className="psc-val-people-sep"> / </span>
-      {max} 人
-      {!isFull && !isCancelled && spotsLeft <= 2 && (
-        <span className="psc-val-people-hint">
-          {spotsLeft === 1 ? "（差 1 位）" : `（剩 ${spotsLeft} 位）`}
-        </span>
-      )}
-    </>
-  );
+  const handleCarouselState = useCallback((state) => {
+    setCarousel(state);
+  }, []);
 
   const handleSave = useCallback(
     (e) => {
@@ -182,52 +168,47 @@ export default function SessionCard({ session, index = 0 }) {
           aria-label={session.title}
         >
           <div className="psc-media">
-            <SessionCardImageCarousel session={session} isHovered={hovered} />
+            <SessionCardImageCarousel
+              session={session}
+              isHovered={hovered}
+              hideDots
+              onStateChange={handleCarouselState}
+            />
           </div>
 
           <div className="psc-body">
-            <div className="psc-title-row">
-              <h3 className="psc-title">{session.title}</h3>
-              <span className={`psc-badge psc-badge--${status.tone}`}>
-                {status.label}
-              </span>
+            <div className="psc-meta-row">
+              <div className="psc-meta-left">
+                <span className="psc-meta-label">團主</span>
+                <span className="psc-meta-sep">|</span>
+                <span className="psc-meta-value">{hostName}</span>
+                <span className={`psc-pill psc-pill--${status.tone}`}>
+                  {status.label}
+                </span>
+              </div>
+
+              {carousel.count > 1 && (
+                <div className="psc-dots" aria-hidden="true">
+                  {Array.from({ length: carousel.count }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`psc-dot${i === carousel.active ? " psc-dot--active" : ""}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="psc-info-block">
-              <p className="psc-info-heading">揪團資訊</p>
-              <div className="psc-info-list">
-                <InfoRow
-                  icon={Users}
-                  label="人數"
-                  value={peopleValue}
-                  valueClass="psc-val--people"
-                />
-                <InfoRow
-                  icon={Clock}
-                  label="時間"
-                  value={timeText}
-                  valueClass="psc-val--time"
-                />
-                <InfoRow
-                  icon={MapPin}
-                  label="地點"
-                  value={location}
-                  valueClass="psc-val--place"
-                />
-                <InfoRow
-                  icon={CircleDollarSign}
-                  label="費用"
-                  value={feeText}
-                  valueClass={isFree ? "psc-val--fee is-free" : "psc-val--fee"}
-                />
-              </div>
-            </div>
+            <h3 className="psc-title">{session.title}</h3>
 
-            {showSkill && (
-              <div className="psc-tags">
-                <span className="psc-tag">{skill}</span>
-              </div>
-            )}
+            <div className="psc-tags-row">
+              <span className="psc-category">( {location} )</span>
+              {tags.map((tag) => (
+                <span key={tag} className="psc-hash-tag">
+                  #{tag}
+                </span>
+              ))}
+            </div>
           </div>
         </Link>
 
@@ -248,7 +229,7 @@ export default function SessionCard({ session, index = 0 }) {
           position: relative;
         }
         .psc-card--cancelled {
-          opacity: 0.5;
+          opacity: 0.55;
         }
         .psc-card-link {
           display: block;
@@ -267,167 +248,112 @@ export default function SessionCard({ session, index = 0 }) {
           overflow: hidden;
         }
         .psc-body {
-          padding: 16px 0 0;
+          padding: 14px 0 0;
         }
-        .psc-title-row {
+        .psc-meta-row {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           justify-content: space-between;
-          gap: 10px;
-          margin-bottom: 16px;
+          gap: 12px;
+          margin-bottom: 12px;
+          min-height: 24px;
+        }
+        .psc-meta-left {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-wrap: wrap;
+          min-width: 0;
+        }
+        .psc-meta-label,
+        .psc-meta-sep,
+        .psc-meta-value {
+          font-size: 12px;
+          line-height: 1.4;
+          color: #6b7280;
+        }
+        .psc-meta-value {
+          color: #374151;
+          font-weight: 500;
+          max-width: 120px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .psc-pill {
+          display: inline-flex;
+          align-items: center;
+          padding: 2px 10px;
+          border-radius: 999px;
+          font-size: 10px;
+          font-weight: 700;
+          line-height: 1.5;
+          letter-spacing: 0.02em;
+          white-space: nowrap;
+        }
+        .psc-pill--blue {
+          background: #2563eb;
+          color: #fff;
+        }
+        .psc-pill--urgent {
+          background: #2563eb;
+          color: #fff;
+        }
+        .psc-pill--muted {
+          background: #9ca3af;
+          color: #fff;
+        }
+        .psc-pill--dark {
+          background: #374151;
+          color: #fff;
+        }
+        .psc-pill--purple {
+          background: #7c3aed;
+          color: #fff;
+        }
+        .psc-dots {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          flex-shrink: 0;
+        }
+        .psc-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 999px;
+          background: #d1d5db;
+          transition: background 0.2s ease;
+        }
+        .psc-dot--active {
+          background: #2563eb;
         }
         .psc-title {
-          margin: 0;
-          flex: 1;
-          min-width: 0;
-          font-size: 16px;
-          font-weight: 700;
-          line-height: 1.65;
-          color: #1a2332;
+          margin: 0 0 12px;
+          font-size: 17px;
+          font-weight: 800;
+          line-height: 1.55;
+          color: #111827;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        .psc-badge {
-          flex-shrink: 0;
-          padding: 3px 9px;
-          border-radius: 2px;
-          font-size: 10px;
-          font-weight: 700;
-          line-height: 1.35;
-          letter-spacing: 0.04em;
-          white-space: nowrap;
-        }
-        .psc-badge--blue {
-          background: #2563eb;
-          color: #fff;
-        }
-        .psc-badge--urgent {
-          background: #005caf;
-          color: #fff;
-        }
-        .psc-badge--muted {
-          background: #b8c4d0;
-          color: #fff;
-        }
-        .psc-badge--dark {
-          background: #334155;
-          color: #fff;
-        }
-        .psc-badge--purple {
-          background: #7c3aed;
-          color: #fff;
-        }
-        .psc-info-block {
-          margin: 0;
-        }
-        .psc-info-heading {
-          margin: 0 0 10px;
-          font-size: 12px;
-          font-weight: 800;
-          letter-spacing: 0.12em;
-          color: #1e4976;
-          text-transform: uppercase;
-        }
-        .psc-info-list {
-          display: flex;
-          flex-direction: column;
-          gap: 7px;
-        }
-        .psc-row {
-          display: flex;
-          align-items: baseline;
-          gap: 0;
-          min-width: 0;
-        }
-        .psc-row-label {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          flex-shrink: 0;
-          font-size: 12px;
-          font-weight: 600;
-          color: #5a6a7e;
-          letter-spacing: 0.02em;
-        }
-        .psc-row-icon {
-          color: #2a6f8a;
-          flex-shrink: 0;
-        }
-        .psc-row-dots {
-          flex: 1;
-          min-width: 8px;
-          margin: 0 6px;
-          border-bottom: 1px dotted #c5d0db;
-          align-self: center;
-          height: 0;
-          transform: translateY(-2px);
-        }
-        .psc-row-value {
-          flex-shrink: 0;
-          max-width: 58%;
-          text-align: right;
-          font-size: 12px;
-          line-height: 1.45;
-          color: #1a2332;
-          font-weight: 600;
-        }
-        .psc-row-value.psc-val--people :global(.psc-val-people) {
-          font-size: 18px;
-          font-weight: 800;
-          color: #005caf;
-          letter-spacing: -0.02em;
-        }
-        .psc-row-value.psc-val--people :global(.psc-val-people-sep) {
-          font-size: 12px;
-          font-weight: 500;
-          color: #94a3b8;
-        }
-        .psc-row-value.psc-val--people :global(.psc-val-people-hint) {
-          display: block;
-          margin-top: 1px;
-          font-size: 10px;
-          font-weight: 700;
-          color: #2563eb;
-        }
-        .psc-row-value.psc-val--time {
-          font-variant-numeric: tabular-nums;
-          font-weight: 700;
-          color: #1e4976;
-        }
-        .psc-row-value.psc-val--place {
-          font-weight: 600;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          display: block;
-          max-width: 100%;
-        }
-        .psc-row-value.psc-val--fee {
-          font-weight: 800;
-          color: #1a2332;
-        }
-        .psc-row-value.psc-val--fee.is-free {
-          color: #2563eb;
-        }
-        .psc-tags {
+        .psc-tags-row {
           display: flex;
           flex-wrap: wrap;
-          gap: 6px;
-          margin-top: 14px;
+          align-items: baseline;
+          gap: 8px 10px;
+          line-height: 1.6;
         }
-        .psc-tag {
-          display: inline-flex;
-          align-items: center;
-          padding: 4px 12px;
-          border-radius: 999px;
-          background: #eff6ff;
-          color: #1d4ed8;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.02em;
-          line-height: 1.3;
+        .psc-category {
+          font-size: 12px;
+          color: #6b7280;
+          white-space: nowrap;
+        }
+        .psc-hash-tag {
+          font-size: 12px;
+          color: #9ca3af;
+          white-space: nowrap;
         }
         .psc-save {
           position: absolute;
@@ -456,16 +382,13 @@ export default function SessionCard({ session, index = 0 }) {
         }
         @media (min-width: 1024px) {
           .psc-body {
-            padding-top: 18px;
+            padding-top: 16px;
           }
           .psc-title {
-            font-size: 17px;
+            font-size: 18px;
           }
-          .psc-row-value {
-            font-size: 13px;
-          }
-          .psc-row-value :global(.psc-val-people) {
-            font-size: 20px;
+          .psc-meta-value {
+            max-width: 160px;
           }
         }
       `}</style>

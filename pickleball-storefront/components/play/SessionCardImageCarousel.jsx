@@ -18,7 +18,12 @@ function buildPhotosUrl(session) {
   return `/api/places/photos?${params}`;
 }
 
-export default function SessionCardImageCarousel({ session, isHovered = false }) {
+export default function SessionCardImageCarousel({
+  session,
+  isHovered = false,
+  hideDots = false,
+  onStateChange,
+}) {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(0);
@@ -52,6 +57,10 @@ export default function SessionCardImageCarousel({ session, isHovered = false })
     session.latitude,
     session.longitude,
   ]);
+
+  useEffect(() => {
+    onStateChange?.({ active, count: photos.length });
+  }, [active, photos.length, onStateChange]);
 
   useEffect(() => {
     if (!isHovered || photos.length <= 1) return undefined;
@@ -108,7 +117,7 @@ export default function SessionCardImageCarousel({ session, isHovered = false })
         ))}
       </motion.div>
 
-      {photos.length > 1 && isHovered && (
+      {!hideDots && photos.length > 1 && isHovered && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
           {photos.map((src, i) => (
             <span
