@@ -189,7 +189,9 @@ export default function NewsDetail({
                   ? `${post.authorRole} · ${post.authorName}`
                   : "PikFun News"}
               </p>
-              <p className="text-xs font-mono mt-4 text-gray-500">{post.date}</p>
+              <p className="text-xs font-mono mt-4 text-gray-500">
+                {post.date}
+              </p>
             </div>
             <div className="w-full md:w-[280px] text-xs text-gray-500 space-y-4 pt-2">
               <div className="space-y-1 border-l-2 border-gray-100 pl-4">
@@ -342,9 +344,7 @@ export async function getStaticProps({ params }) {
     }
 
     const merged = await fetchMergedNewsFeed({ perPage: 24 });
-    const recentPosts = merged
-      .filter((p) => p.slug !== slug)
-      .slice(0, 4);
+    const recentPosts = merged.filter((p) => p.slug !== slug).slice(0, 4);
 
     return {
       props: {

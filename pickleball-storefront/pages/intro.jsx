@@ -175,7 +175,6 @@ function scrollByCard(scroller, dir) {
   scroller.scrollBy({ left: dir * step, behavior: "smooth" });
 }
 
-
 function IntroContent() {
   const [industry, setIndustry] = useState("全業種");
   const [campaignIndex, setCampaignIndex] = useState(0);
@@ -649,7 +648,9 @@ function IntroContent() {
           height: 100%;
           object-fit: cover;
           object-position: center;
-          transition: transform 0.55s ease, filter 0.35s ease;
+          transition:
+            transform 0.55s ease,
+            filter 0.35s ease;
         }
 
         .sq-tile-overlay {
