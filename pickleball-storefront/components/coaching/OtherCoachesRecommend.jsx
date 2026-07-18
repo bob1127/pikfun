@@ -2,18 +2,25 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const ACCENT = "#3366CC";
 
 function CoachRecommendCard({ coach }) {
+  const { t } = useTranslation("coaching");
   const href = `/coaching/coach/${coach.slug}`;
-  const badge = coach.featured_label || coach.region || "教練";
+  const badge =
+    coach.featured_label || coach.region || t("featured.other_coaches.fallback_badge");
   const metaLeft =
-    coach.city || coach.title?.split("·").pop()?.trim() || "台灣";
+    coach.city ||
+    coach.title?.split("·").pop()?.trim() ||
+    t("featured.other_coaches.fallback_meta_left");
   const metaRight =
     coach.subtitle?.slice(0, 12) ||
-    (coach.tags?.[0] ? coach.tags[0] : "匹克球教練");
+    (coach.tags?.[0]
+      ? coach.tags[0]
+      : t("featured.other_coaches.fallback_meta_right"));
 
   return (
     <Link
@@ -72,6 +79,7 @@ export default function OtherCoachesRecommend({
   excludeCoachName = "",
   sectionId = "section-other-coaches",
 }) {
+  const { t } = useTranslation("coaching");
   const scrollRef = useRef(null);
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,7 +114,7 @@ export default function OtherCoachesRecommend({
       className="scroll-mt-28 py-16 md:py-20 border-t border-gray-200"
     >
       <h2 className="text-2xl md:text-3xl font-bold text-[#1a2d4a] mb-10">
-        其他教練推薦
+        {t("featured.other_coaches.title")}
       </h2>
 
       <div
@@ -125,7 +133,7 @@ export default function OtherCoachesRecommend({
             onClick={() => scroll(-1)}
             className="flex h-9 w-9 items-center justify-center rounded-full text-white transition-opacity hover:opacity-85"
             style={{ backgroundColor: ACCENT }}
-            aria-label="上一組"
+            aria-label={t("featured.other_coaches.prev_aria")}
           >
             <ChevronLeft size={18} strokeWidth={2.5} />
           </button>
@@ -134,7 +142,7 @@ export default function OtherCoachesRecommend({
             onClick={() => scroll(1)}
             className="flex h-9 w-9 items-center justify-center rounded-full text-white transition-opacity hover:opacity-85"
             style={{ backgroundColor: ACCENT }}
-            aria-label="下一組"
+            aria-label={t("featured.other_coaches.next_aria")}
           >
             <ChevronRight size={18} strokeWidth={2.5} />
           </button>
@@ -144,7 +152,7 @@ export default function OtherCoachesRecommend({
           href="/coaching#featured-coaches"
           className="inline-flex items-center gap-3 text-sm font-bold text-[#1a2d4a] hover:text-[#3366CC] transition-colors group"
         >
-          預覽全部
+          {t("featured.other_coaches.view_all")}
           <span
             className="flex h-10 w-10 items-center justify-center rounded-full text-white group-hover:scale-105 transition-transform"
             style={{ backgroundColor: ACCENT }}

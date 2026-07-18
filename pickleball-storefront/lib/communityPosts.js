@@ -8,21 +8,52 @@ const supabase = createClient(
 
 export const communitySupabase = supabase;
 
-export const AUTHOR_ROLE_LABEL = {
-  coach: "教練",
-  court_owner: "球場主",
-  organizer: "活動主揪",
+// 角色與分類的顯示用文字（依語系切換），儲存值（key）維持不變，不影響資料庫與篩選邏輯
+const AUTHOR_ROLE_LABEL_I18N = {
+  coach: { "zh-TW": "教練", en: "Coach" },
+  court_owner: { "zh-TW": "球場主", en: "Court Owner" },
+  organizer: { "zh-TW": "活動主揪", en: "Organizer" },
 };
 
-export const CATEGORY_OPTIONS = [
-  { value: "active", label: "揪團／臨打" },
-  { value: "event", label: "賽事活動" },
-  { value: "knowledge", label: "知識攻略" },
-  { value: "course", label: "課程開課" },
-];
+const DEFAULT_AUTHOR_ROLE_LABEL = { "zh-TW": "PikFun 夥伴", en: "PikFun Partner" };
 
-export function categoryLabel(value) {
-  return CATEGORY_OPTIONS.find((c) => c.value === value)?.label || "最新消息";
+/** 向後相容：預設（zh-TW）角色顯示文字 */
+export const AUTHOR_ROLE_LABEL = Object.fromEntries(
+  Object.entries(AUTHOR_ROLE_LABEL_I18N).map(([key, val]) => [key, val["zh-TW"]]),
+);
+
+export function getAuthorRoleLabel(role, locale = "zh-TW") {
+  const entry = AUTHOR_ROLE_LABEL_I18N[role];
+  if (!entry) return DEFAULT_AUTHOR_ROLE_LABEL[locale] || DEFAULT_AUTHOR_ROLE_LABEL["zh-TW"];
+  return entry[locale] || entry["zh-TW"];
+}
+
+const CATEGORY_LABEL_I18N = {
+  active: { "zh-TW": "揪團／臨打", en: "Group Play / Drop-in" },
+  event: { "zh-TW": "賽事活動", en: "Tournaments & Events" },
+  knowledge: { "zh-TW": "知識攻略", en: "Tips & Guides" },
+  course: { "zh-TW": "課程開課", en: "Courses & Coaching" },
+};
+
+const DEFAULT_CATEGORY_LABEL = { "zh-TW": "最新消息", en: "News" };
+
+/** 向後相容：預設（zh-TW）分類選項，label 為字串 */
+export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABEL_I18N).map(
+  ([value, labelByLocale]) => ({ value, label: labelByLocale["zh-TW"] }),
+);
+
+/** 依語系取得分類選項（value 保持不變，僅 label 依語系切換） */
+export function getCategoryOptions(locale = "zh-TW") {
+  return Object.entries(CATEGORY_LABEL_I18N).map(([value, labelByLocale]) => ({
+    value,
+    label: labelByLocale[locale] || labelByLocale["zh-TW"],
+  }));
+}
+
+export function categoryLabel(value, locale = "zh-TW") {
+  const entry = CATEGORY_LABEL_I18N[value];
+  if (!entry) return DEFAULT_CATEGORY_LABEL[locale] || DEFAULT_CATEGORY_LABEL["zh-TW"];
+  return entry[locale] || entry["zh-TW"];
 }
 
 function slugifyBase(input) {
@@ -117,7 +148,7 @@ const PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1626224580190-8e7949364676?q=80&w=800&auto=format&fit=crop";
 
 /** 統一映射成跟 WordPress 一致的新聞卡片格式，供 /news 合併顯示 */
-export function mapCommunityPostToNewsCard(post) {
+export function mapCommunityPostToNewsCard(post, locale = "zh-TW") {
   const dateSrc = post.published_at || post.created_at;
   return {
     id: `community-${post.id}`,
@@ -128,13 +159,13 @@ export function mapCommunityPostToNewsCard(post) {
     image: post.cover_image || PLACEHOLDER_IMAGE,
     date: formatCommunityDate(dateSrc),
     rawDate: dateSrc,
-    categories: [categoryLabel(post.category)],
+    categories: [categoryLabel(post.category, locale)],
     authorName: post.author_name,
-    authorRole: AUTHOR_ROLE_LABEL[post.author_role] || "PikFun 夥伴",
+    authorRole: getAuthorRoleLabel(post.author_role, locale),
   };
 }
 
-export function mapCommunityPostToDetail(post) {
+export function mapCommunityPostToDetail(post, locale = "zh-TW") {
   return {
     id: `community-${post.id}`,
     postId: post.id,
@@ -145,10 +176,10 @@ export function mapCommunityPostToDetail(post) {
     excerpt: post.excerpt || stripHtmlToExcerpt(post.content_html, 160),
     image: post.cover_image || PLACEHOLDER_IMAGE,
     date: formatCommunityDate(post.published_at || post.created_at),
-    categories: [categoryLabel(post.category)],
+    categories: [categoryLabel(post.category, locale)],
     categoryKey: post.category || "active",
     authorName: post.author_name,
-    authorRole: AUTHOR_ROLE_LABEL[post.author_role] || "PikFun 夥伴",
+    authorRole: getAuthorRoleLabel(post.author_role, locale),
     authorEmail: post.author_email,
     authorAvatar: post.author_avatar || null,
   };

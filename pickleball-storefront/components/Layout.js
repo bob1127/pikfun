@@ -26,54 +26,28 @@ export default function Layout({ children }) {
     });
   }, []);
 
-  // === SEO & 結構化資料設定 ===
+  // === SEO & 結構化資料設定（依語系切換） ===
   const siteUrl = getSiteUrl();
-  const siteName = "KÉSH de¹ 凱仕國際精品";
-  const siteTitle = "KÉSH de¹ 凱仕國際精品｜台中二手精品買賣 ";
-  const siteDescription =
-    "KÉSH de¹ 凱仕國際精品位於台中，專營 Hermès、Chanel、Louis Vuitton、Dior 等國際精品品牌，提供二手精品買賣、 所有商品皆經專業鑑定與品況分級，僅販售 100% 正品。";
-  const siteImage = `${siteUrl}/default-og-image.jpg`; 
-  const storePhone = "0938-535-870";
+  const isEn = router.locale === "en";
+  const siteName = isEn ? "PikFun" : "PikFun 匹克方";
+  const siteTitle = isEn
+    ? "PikFun | Pickleball Community, Shop, Courts & Coaching"
+    : "PikFun 匹克方｜匹克球社群、商城、球場資訊、教練課程";
+  const siteDescription = isEn
+    ? "Taiwan's largest pickleball community and information platform. Search courts, join group play, shop gear, connect with coaches, and chat with fellow players."
+    : "全台最大的匹克球社群與資訊平台。提供球場搜尋、揪團臨打、裝備選購、教練媒合與球友討論交流等全方位服務。";
+  const siteImage = `${siteUrl}/images/logo/logo.png`;
+  const ogLocale = isEn ? "en_US" : "zh_TW";
 
-  // 🔥 補回完整的店家結構化資料
   const orgJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Store",
+    "@type": "Organization",
     name: siteName,
     url: siteUrl,
-    image: siteImage,
-    telephone: storePhone,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "中清路一段 428 號",
-      addressLocality: "台中市北區",
-      addressRegion: "台中市",
-      postalCode: "404",
-      addressCountry: "TW",
-    },
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ],
-        opens: "13:00",
-        closes: "20:00",
-      },
-    ],
-    sameAs: [
-      "https://www.instagram.com/hello.cieman",
-    ],
-    priceRange: "$$-$$$$",
+    logo: siteImage,
     description: siteDescription,
   };
 
-  // 🔥 補回完整的網站結構化資料
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -93,8 +67,15 @@ export default function Layout({ children }) {
      <Head>
         <title>{siteTitle}</title>
         <meta name="description" content={siteDescription} />
-        <meta name="keywords" content="KÉSH de¹, 凱仕國際精品, 台中精品, 二手精品,  Hermès, Chanel, Louis Vuitton, Dior, Gucci, Loewe, Celine, YSL, Goyard" />
-        <meta name="author" content="KÉSH de¹ Boutique" />
+        <meta
+          name="keywords"
+          content={
+            isEn
+              ? "PikFun, Pickleball, Taiwan pickleball, courts, open play, coaching, gear"
+              : "PikFun, 匹克方, 匹克球, Pickleball, 匹克球場, 匹克球拍, 匹克球教練, 揪團, 匹克球課程"
+          }
+        />
+        <meta name="author" content={siteName} />
 
         {/* PikFun favicon — PNG 優先，避免舊 KESH ico 快取 */}
         <link rel="icon" type="image/png" sizes="32x32" href={`/icon-32.png?v=${faviconVersion}`} key="icon32" />
@@ -113,8 +94,8 @@ export default function Layout({ children }) {
           rel="stylesheet"
         />
 
-        {/* 🔥 加入了 key 的 OG Tags，確保商品頁能正確覆蓋 */}
-        <meta property="og:locale" content="zh_TW" />
+        {/* 加入了 key 的 OG Tags，確保商品頁能正確覆蓋 */}
+        <meta property="og:locale" content={ogLocale} />
         <meta property="og:type" content="website" key="ogtype" />
         <meta property="og:title" content={siteTitle} key="ogtitle" />
         <meta property="og:description" content={siteDescription} key="ogdesc" />

@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import { ThumbsUp, ChevronRight, Plus } from "lucide-react";
 import {
-  CLASS_TYPE_LABELS,
   CLASS_TYPE_COLORS,
-  SKILL_LABELS,
+  getClassTypeLabel,
+  getSkillLabel,
   formatClassDate,
   formatClassRange,
   formatPrice,
@@ -25,26 +26,27 @@ function hashGradient(id) {
 }
 
 function StatusBadges({ cls, isCancelled, isFull, showPopular }) {
+  const { t } = useTranslation("coaching");
   return (
     <>
       {showPopular && (
         <span className="absolute top-3 left-3 flex items-center gap-1 bg-[#3366CC] text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-          <ThumbsUp size={11} /> 熱門
+          <ThumbsUp size={11} /> {t("card.popular_badge")}
         </span>
       )}
       {isFull && !isCancelled && (
         <span className="absolute top-3 left-3 bg-[#1a2d4a]/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-          已額滿
+          {t("card.full_badge")}
         </span>
       )}
       {cls.my_status === "enrolled" && (
         <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#3366CC]/10 text-[#3366CC] border border-[#3366CC]/20">
-          已報名
+          {t("card.enrolled_badge")}
         </span>
       )}
       {cls.my_status === "waitlist" && (
         <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
-          候補中
+          {t("card.waitlist_badge")}
         </span>
       )}
     </>
@@ -52,6 +54,7 @@ function StatusBadges({ cls, isCancelled, isFull, showPopular }) {
 }
 
 function MetaTags({ cls }) {
+  const { t } = useTranslation("coaching");
   return (
     <div className="flex flex-wrap gap-2 mt-3">
       <span className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-gray-200 text-gray-600 bg-white">
@@ -63,13 +66,13 @@ function MetaTags({ cls }) {
       <span
         className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${CLASS_TYPE_COLORS[cls.class_type] || "bg-gray-100 text-gray-600"}`}
       >
-        {CLASS_TYPE_LABELS[cls.class_type] || cls.class_type}
+        {getClassTypeLabel(cls.class_type, t) || cls.class_type}
       </span>
       <span className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-gray-200 text-gray-600 bg-white">
-        {SKILL_LABELS[cls.skill_level] || "不限程度"}
+        {getSkillLabel(cls.skill_level, t) || t("enums.skill.all")}
       </span>
       <span className="text-[11px] font-bold text-[#3366CC]">
-        {formatPrice(cls.price_per_person)}
+        {formatPrice(cls.price_per_person, t)}
       </span>
     </div>
   );
@@ -77,10 +80,14 @@ function MetaTags({ cls }) {
 
 /** 圖1 TOBILA 風格：橫向大卡片 */
 function HorizontalCard({ cls, index, isCancelled, isFull, showPopular, gradient }) {
+  const { t } = useTranslation("coaching");
   const href = `/coaching/${cls.id}`;
   const excerpt =
     cls.description?.replace(/\s+/g, " ").trim().slice(0, 120) ||
-    `${cls.coach_name || "教練"} 開設的${CLASS_TYPE_LABELS[cls.class_type] || "課程"}，歡迎報名。`;
+    t("card.fallback_excerpt", {
+      coach: cls.coach_name || t("card.coach_fallback", { defaultValue: "教練" }),
+      type: getClassTypeLabel(cls.class_type, t) || t("card.fallback_type"),
+    });
 
   return (
     <motion.article
@@ -117,7 +124,7 @@ function HorizontalCard({ cls, index, isCancelled, isFull, showPopular, gradient
         <div className="flex flex-1 flex-col justify-between p-6 md:p-8 md:pl-6 min-w-0">
           <div>
             <p className="text-[10px] font-bold tracking-[0.25em] text-[#3366CC] uppercase mb-2">
-              {CLASS_TYPE_LABELS[cls.class_type] || "Course"}
+              {getClassTypeLabel(cls.class_type, t) || "Course"}
             </p>
             <Link href={href}>
               <h3 className="text-xl md:text-2xl font-bold text-[#1a2d4a] leading-snug tracking-tight group-hover:text-[#3366CC] transition-colors">
@@ -140,14 +147,14 @@ function HorizontalCard({ cls, index, isCancelled, isFull, showPopular, gradient
               href={href}
               className="inline-flex items-center gap-2 bg-[#1a2d4a] hover:bg-[#0f1f35] text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors"
             >
-              課程詳情
+              {t("card.detail_btn")}
               <ChevronRight size={15} />
             </Link>
             <Link
               href={href}
               className="inline-flex items-center gap-2 bg-[#3366CC] hover:bg-[#2855aa] text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors"
             >
-              立即報名
+              {t("card.enroll_btn")}
               <Plus size={15} />
             </Link>
           </div>
@@ -158,6 +165,7 @@ function HorizontalCard({ cls, index, isCancelled, isFull, showPopular, gradient
 }
 
 export default function ClassCard({ cls, index = 0, compact = false, layout = "horizontal" }) {
+  const { t } = useTranslation("coaching");
   const isCancelled = cls.display_status === "cancelled";
   const isFull = cls.is_full && !isCancelled;
   const spotsLeft = cls.spots_left ?? 0;
@@ -233,7 +241,7 @@ export default function ClassCard({ cls, index = 0, compact = false, layout = "h
           <StatusBadges cls={cls} isCancelled={isCancelled} isFull={isFull} showPopular={showPopular} />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
             <span className="text-white font-bold text-sm tracking-wide">
-              {formatPrice(cls.price_per_person)}
+              {formatPrice(cls.price_per_person, t)}
             </span>
           </div>
         </div>

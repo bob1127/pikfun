@@ -1,7 +1,9 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "next-i18next";
 import { commaToArray, linesToArray } from "@/lib/coachProfileFields";
 
 export function useCoachSectionEdit({ slug, userInfo, onCoachUpdate }) {
+  const { t } = useTranslation("coaching");
   const [activeSection, setActiveSection] = useState(null);
   const [draft, setDraft] = useState({});
   const [saving, setSaving] = useState(false);
@@ -21,7 +23,7 @@ export function useCoachSectionEdit({ slug, userInfo, onCoachUpdate }) {
 
   const patchCoach = useCallback(
     async (payload) => {
-      if (!userInfo?.email) throw new Error("請先登入");
+      if (!userInfo?.email) throw new Error(t("errors.login_required"));
       setSaving(true);
       setError("");
       try {
@@ -35,7 +37,7 @@ export function useCoachSectionEdit({ slug, userInfo, onCoachUpdate }) {
           }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "儲存失敗");
+        if (!res.ok) throw new Error(data.error || t("errors.save_failed"));
         onCoachUpdate?.(data.coach);
         cancelEdit();
         return data.coach;
@@ -46,7 +48,7 @@ export function useCoachSectionEdit({ slug, userInfo, onCoachUpdate }) {
         setSaving(false);
       }
     },
-    [slug, userInfo, onCoachUpdate, cancelEdit]
+    [slug, userInfo, onCoachUpdate, cancelEdit, t]
   );
 
   const isEditing = useCallback(

@@ -1,6 +1,8 @@
 import React from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { fetchPostsByCategorySlug, WP_CATEGORY } from "@/lib/wordpress";
 import { FontSizeToolbar } from "@/components/blog/FontSizeContext";
 import BlogList from "@/components/blog/BlogList";
@@ -14,6 +16,7 @@ function resolveCategoryKey(queryCategory) {
 }
 
 export default function BlogIndex({ posts, categoryKey, title }) {
+  const { t } = useTranslation("blog");
   const otherEntries = Object.entries(WP_CATEGORY).filter(
     ([key]) => key !== categoryKey,
   );
@@ -30,8 +33,8 @@ export default function BlogIndex({ posts, categoryKey, title }) {
 
       <main className="editorial-page">
         <div className="editorial-container">
-          <nav className="editorial-breadcrumb" aria-label="麵包屑">
-            <Link href="/">首頁</Link>
+          <nav className="editorial-breadcrumb" aria-label={t("breadcrumbAria")}>
+            <Link href="/">{t("breadcrumbHome")}</Link>
             <span aria-hidden> &gt; </span>
             <span>{title}</span>
           </nav>
@@ -43,11 +46,10 @@ export default function BlogIndex({ posts, categoryKey, title }) {
             categoryKey={categoryKey}
             categoryLabel={title}
             listBackHref="/"
-            listBackLabel="返回首頁"
           />
 
           <p className="text-center mt-12 text-sm text-[var(--color-text-muted)]">
-            瀏覽其他分類：
+            {t("browseOtherCategory")}
             <Link
               href={`/blog?category=${otherMeta.slug}`}
               className="ml-2 text-[var(--color-accent-blue)] underline underline-offset-4"
@@ -61,7 +63,8 @@ export default function BlogIndex({ posts, categoryKey, title }) {
   );
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ locale, query }) {
+  const i18n = await serverSideTranslations(locale ?? "zh-TW", ["blog", "common"]);
   const categoryKey = resolveCategoryKey(query.category);
   const meta = WP_CATEGORY[categoryKey];
 
@@ -71,6 +74,7 @@ export async function getServerSideProps({ query }) {
     });
     return {
       props: {
+        ...i18n,
         posts,
         categoryKey,
         title: meta.label,
@@ -79,6 +83,7 @@ export async function getServerSideProps({ query }) {
   } catch {
     return {
       props: {
+        ...i18n,
         posts: [],
         categoryKey,
         title: meta.label,

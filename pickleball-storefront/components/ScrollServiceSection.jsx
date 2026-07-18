@@ -3,9 +3,10 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ExternalLink } from "lucide-react";
+import { useTranslation } from "next-i18next";
 
 // --- 單一文字區塊元件 (進階滾動淡入淡出) ---
-const FeatureBlock = ({ number, title, description, btnText }) => {
+const FeatureBlock = ({ number, title, description, btnText, exploreText }) => {
   const blockRef = useRef(null);
 
   // 當元素的頂部碰到視窗下方 90% 開始動畫，底部碰到上方 10% 結束
@@ -49,7 +50,7 @@ const FeatureBlock = ({ number, title, description, btnText }) => {
           href="#"
           className="text-sm text-white/50 hover:text-white underline underline-offset-4 tracking-wider transition-colors duration-300"
         >
-          探索更多匹克球資訊
+          {exploreText}
         </a>
       </div>
     </motion.div>
@@ -59,6 +60,7 @@ const FeatureBlock = ({ number, title, description, btnText }) => {
 // --- 主元件 ---
 export default function ScrollServiceSection() {
   const containerRef = useRef(null);
+  const { t } = useTranslation("home");
 
   // 監聽整個大區塊的滾動，控制背景影片的淡出
   const { scrollYProgress } = useScroll({
@@ -69,27 +71,16 @@ export default function ScrollServiceSection() {
   const videoOpacity = useTransform(scrollYProgress, [0.85, 1], [1, 0]);
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
-  // 🔥 替換為匹克球介紹與趨勢統計資料
-  const pickleballFeatures = [
-    {
-      num: "01",
-      title: "新世代的國民運動",
-      desc: "匹克球 (Pickleball) 完美結合了網球、羽毛球與桌球的元素，在相當於羽毛球大小的場地上，使用專用的複合材質球拍與塑膠穿孔球進行對戰。不僅上手門檻低，更兼具高度的競技與趣味性，無論是運動新手或資深運動員都能迅速體會其中的魅力。",
-      btnText: "了解規則",
-    },
-    {
-      num: "02",
-      title: "連續三年成長率 NO.1",
-      desc: "根據 SFIA（美國體育和健身產業協會）的最新統計，匹克球已連續數年蟬聯「全美發展最快運動」榜首，光是美國參與人數就突破 3,600 萬人次。這股熱潮正迅速席捲全球，亞洲與台灣的參與人數與專屬場館也正呈現爆發性的指數級成長。",
-      btnText: "市場趨勢",
-    },
-    {
-      num: "03",
-      title: "跨越世代的社交體驗",
-      desc: "匹克球不僅是一項體育運動，更是建立社群連結的絕佳橋樑。較小的場地拉近了玩家間的距離，讓比賽中充滿了歡笑與互動。它打破了年齡與體能的限制，讓祖孫同樂、跨世代交友成為日常，是現代人釋放壓力與拓展社交圈的最佳選擇。",
-      btnText: "尋找球友",
-    },
-  ];
+  // 匹克球介紹與趨勢統計資料（自 home.json 讀取）
+  const trendItems = t("trends.items", { returnObjects: true });
+  const pickleballFeatures = (Array.isArray(trendItems) ? trendItems : []).map(
+    (item, i) => ({
+      num: String(i + 1).padStart(2, "0"),
+      title: item.title,
+      desc: item.desc,
+      btnText: item.btn,
+    })
+  );
 
   return (
     <div ref={containerRef} className="relative bg-[#0f43e7] font-sans w-full">
@@ -132,6 +123,7 @@ export default function ScrollServiceSection() {
               title={feature.title}
               description={feature.desc}
               btnText={feature.btnText}
+              exploreText={t("trends.explore_link")}
             />
           ))}
         </div>

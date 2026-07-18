@@ -23,11 +23,24 @@ export const SKILL_BADGE_STYLE = {
   color: "#0369a1",
 };
 
-export function getSkillLevelLabel(value) {
-  if (!value || value === "all") return SKILL_LABELS.all;
-  if (SKILL_LABELS[value]) return SKILL_LABELS[value];
-  if (value === "5.5+") return "5.5 以上";
-  if (/^\d+(\.\d)?$/.test(value)) return `${value} 級`;
+/** 依 t() 取得程度標籤（i18n），未提供 t 時回退中文 */
+export function getSkillLabels(t) {
+  if (!t) return SKILL_LABELS;
+  return {
+    all: t("skill.all"),
+    beginner: t("skill.beginner"),
+    intermediate: t("skill.intermediate"),
+    advanced: t("skill.advanced"),
+  };
+}
+
+export function getSkillLevelLabel(value, t) {
+  const labels = getSkillLabels(t);
+  if (!value || value === "all") return labels.all;
+  if (labels[value]) return labels[value];
+  if (value === "5.5+") return t ? t("skill.above", { value: "5.5" }) : "5.5 以上";
+  if (/^\d+(\.\d)?$/.test(value))
+    return t ? t("skill.level_suffix", { value }) : `${value} 級`;
   return value;
 }
 
@@ -43,47 +56,47 @@ export function getSkillLevelColor(value) {
   return "bg-sky-100 text-sky-700";
 }
 
-export function formatSessionDate(iso) {
+export function formatSessionDate(iso, locale = "zh-TW") {
   if (!iso) return "";
   const d = new Date(iso);
-  return d.toLocaleDateString("zh-TW", {
+  return d.toLocaleDateString(locale, {
     month: "long",
     day: "numeric",
     weekday: "short",
   });
 }
 
-export function formatSessionTime(iso) {
+export function formatSessionTime(iso, locale = "zh-TW") {
   if (!iso) return "";
   const d = new Date(iso);
-  return d.toLocaleTimeString("zh-TW", {
+  return d.toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   });
 }
 
-export function formatSessionRange(startsAt, endsAt) {
-  const start = formatSessionTime(startsAt);
+export function formatSessionRange(startsAt, endsAt, locale = "zh-TW") {
+  const start = formatSessionTime(startsAt, locale);
   if (!endsAt) return start;
-  return `${start} – ${formatSessionTime(endsAt)}`;
+  return `${start} – ${formatSessionTime(endsAt, locale)}`;
 }
 
 /** 卡片用時間區間：18:00-19:00 */
-export function formatCardTimeRange(startsAt, endsAt) {
-  const start = formatSessionTime(startsAt);
+export function formatCardTimeRange(startsAt, endsAt, locale = "zh-TW") {
+  const start = formatSessionTime(startsAt, locale);
   if (!endsAt) return start;
-  return `${start}-${formatSessionTime(endsAt)}`;
+  return `${start}-${formatSessionTime(endsAt, locale)}`;
 }
 
 /** 揪團卡片：2026.07.09 18:00-19:00 */
-export function formatCardDateTime(startsAt, endsAt) {
+export function formatCardDateTime(startsAt, endsAt, locale = "zh-TW") {
   if (!startsAt) return "";
   const d = new Date(startsAt);
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day} ${formatCardTimeRange(startsAt, endsAt)}`;
+  return `${y}.${m}.${day} ${formatCardTimeRange(startsAt, endsAt, locale)}`;
 }
 
 export const PAYMENT_METHODS = [
@@ -98,15 +111,36 @@ export const PAYMENT_LABELS = Object.fromEntries(
   PAYMENT_METHODS.map((m) => [m.value, m.label])
 );
 
-export function formatFee(fee, paymentMethod) {
-  if (!fee || fee === 0 || paymentMethod === "free") return "免費";
-  return `NT$ ${Number(fee).toLocaleString()}/人`;
+/** 依 t() 取得付款方式選項（i18n），未提供 t 時回退中文 */
+export function getPaymentMethods(t) {
+  if (!t) return PAYMENT_METHODS;
+  return [
+    { value: "free", label: t("payment.free") },
+    { value: "cash", label: t("payment.cash") },
+    { value: "transfer", label: t("payment.transfer") },
+    { value: "line_pay", label: t("payment.line_pay") },
+    { value: "other", label: t("payment.other") },
+  ];
 }
 
-export function buildGoogleMapsEmbedUrl(locationName, locationAddress) {
+export function getPaymentLabel(paymentMethod, t) {
+  const methods = getPaymentMethods(t);
+  const match = methods.find((m) => m.value === paymentMethod);
+  return match ? match.label : paymentMethod;
+}
+
+export function formatFee(fee, paymentMethod, t) {
+  if (!fee || fee === 0 || paymentMethod === "free")
+    return t ? t("common.free") : "免費";
+  const amount = `NT$ ${Number(fee).toLocaleString()}`;
+  if (t) return `${amount}/${t("common.person_unit")}`;
+  return `${amount}/人`;
+}
+
+export function buildGoogleMapsEmbedUrl(locationName, locationAddress, locale = "zh-TW") {
   const query = [locationName, locationAddress].filter(Boolean).join(" ");
   if (!query.trim()) return null;
-  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&hl=zh-TW&z=16&output=embed`;
+  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&hl=${locale}&z=16&output=embed`;
 }
 
 export function buildGoogleMapsLink(locationName, locationAddress) {
@@ -202,25 +236,30 @@ export function getEndsAtBounds(startsAt) {
   return { min: toLocalDatetimeValue(min), max: toLocalDatetimeValue(endOfLocalDay(start)) };
 }
 
-export function validateSessionTimes(startsAt, endsAt) {
+/**
+ * 驗證開團時間。
+ * 提供 t() 時回傳已翻譯訊息；未提供 t 時回傳中文訊息或 errors.* 鍵名可自行翻譯。
+ */
+export function validateSessionTimes(startsAt, endsAt, t) {
+  const tr = (key, fallback) => (t ? t(key) : fallback);
   const start = parseLocalDatetime(startsAt);
-  if (!start) return "開始時間格式不正確";
-  if (start <= new Date()) return "開始時間必須在未來";
+  if (!start) return tr("errors.startTimeInvalid", "開始時間格式不正確");
+  if (start <= new Date()) return tr("errors.startInPast", "開始時間必須在未來");
 
   if (!endsAt) return null;
 
   const end = parseLocalDatetime(endsAt);
-  if (!end) return "結束時間格式不正確";
-  if (!sameLocalDay(start, end)) return "結束時間必須與開始時間同一天";
-  if (end <= start) return "結束時間必須晚於開始時間";
+  if (!end) return tr("errors.endTimeInvalid", "結束時間格式不正確");
+  if (!sameLocalDay(start, end))
+    return tr("errors.endNotSameDay", "結束時間必須與開始時間同一天");
+  if (end <= start) return tr("errors.endBeforeStart", "結束時間必須晚於開始時間");
   return null;
 }
 
-export function enrichPaymentFields(session) {
+export function enrichPaymentFields(session, t) {
   if (!session) return session;
   return {
     ...session,
-    payment_method_label:
-      PAYMENT_LABELS[session.payment_method] || session.payment_method,
+    payment_method_label: getPaymentLabel(session.payment_method, t),
   };
 }

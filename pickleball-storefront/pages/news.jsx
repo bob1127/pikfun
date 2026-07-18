@@ -4,9 +4,11 @@ import { getSiteUrl } from "@/lib/siteUrl";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { fetchMergedNewsFeed } from "@/lib/newsFeed";
 
-const HeroPost = ({ post }) => {
+const HeroPost = ({ post, t }) => {
   if (!post) return null;
 
   return (
@@ -34,7 +36,9 @@ const HeroPost = ({ post }) => {
         <div className="absolute bottom-0 left-0 md:left-auto md:right-[10%] md:bottom-[10%] w-full md:w-[500px] bg-[#005caf]/90 text-white p-8 md:p-12 backdrop-blur-sm transition-all duration-300">
           <div className="flex justify-between items-start mb-4 border-b border-white/30 pb-4">
             <span className="text-xs font-bold tracking-[0.2em] uppercase">
-              {post.source === "community" ? "夥伴投稿" : "Latest"}
+              {post.source === "community"
+                ? t("hero.badgeCommunity")
+                : t("hero.badgeLatest")}
             </span>
             <span className="text-sm font-mono">{post.date}</span>
           </div>
@@ -45,7 +49,7 @@ const HeroPost = ({ post }) => {
             {post.excerpt}
           </p>
           <div className="mt-6 flex items-center gap-2 text-xs font-bold tracking-widest uppercase">
-            閱讀更多
+            {t("hero.readMore")}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -67,7 +71,7 @@ const HeroPost = ({ post }) => {
   );
 };
 
-const NewsCard = ({ post, index }) => {
+const NewsCard = ({ post, index, t }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -92,7 +96,7 @@ const NewsCard = ({ post, index }) => {
         <div className="flex flex-col flex-grow border-t border-gray-200 pt-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-[10px] font-bold text-[#005caf] uppercase tracking-widest">
-              {post.categories?.[0] || "最新消息"}
+              {post.categories?.[0] || t("card.defaultCategory")}
             </span>
           </div>
           <h3 className="text-lg font-bold text-gray-900 leading-snug mb-3 group-hover:text-[#005caf] transition-colors line-clamp-2">
@@ -103,7 +107,7 @@ const NewsCard = ({ post, index }) => {
           </p>
           <div className="mt-auto flex items-center justify-between">
             <span className="inline-block border-b border-black pb-0.5 text-[10px] font-bold tracking-widest uppercase group-hover:border-[#005caf] group-hover:text-[#005caf] transition-colors">
-              查看詳情
+              {t("card.viewDetails")}
             </span>
             {post.source === "community" && post.authorName && (
               <span className="text-[10px] text-gray-400">
@@ -118,6 +122,7 @@ const NewsCard = ({ post, index }) => {
 };
 
 export default function NewsPage({ posts = [] }) {
+  const { t } = useTranslation("news");
   const heroPost = posts.length > 0 ? posts[0] : null;
   const gridPosts = posts.length > 1 ? posts.slice(1) : [];
   const siteUrl = getSiteUrl();
@@ -136,11 +141,8 @@ export default function NewsPage({ posts = [] }) {
   return (
     <>
       <Head>
-        <title>最新消息 | PikFun 匹克方</title>
-        <meta
-          name="description"
-          content="PikFun 最新消息、球場活動資訊與匹克球運動知識攻略。"
-        />
+        <title>{t("meta.title")}</title>
+        <meta name="description" content={t("meta.description")} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaItemList) }}
@@ -151,15 +153,15 @@ export default function NewsPage({ posts = [] }) {
         <div className="max-w-[1440px] mx-auto px-6 md:px-10 mb-12 flex flex-col md:flex-row md:items-end justify-between border-b border-gray-200 pb-6">
           <div>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-2">
-              最新消息
+              {t("list.pageTitle")}
             </h1>
             <p className="text-sm text-gray-500 tracking-widest">
-              News · Events · Tips
+              {t("list.pageSubtitle")}
             </p>
           </div>
           <div className="hidden md:block text-right">
             <p className="text-xs font-mono text-gray-400">
-              更新於 {new Date().toLocaleDateString("zh-TW")}
+              {t("list.updatedAt")} {new Date().toLocaleDateString("zh-TW")}
             </p>
           </div>
         </div>
@@ -167,15 +169,15 @@ export default function NewsPage({ posts = [] }) {
         <div className="max-w-[1440px] mx-auto px-6 md:px-10">
           {posts.length === 0 ? (
             <div className="text-center py-20 text-gray-500">
-              目前尚無文章，請至 WordPress 發布活動或知識文章。
+              {t("list.empty")}
             </div>
           ) : (
             <>
-              <HeroPost post={heroPost} />
+              <HeroPost post={heroPost} t={t} />
               {gridPosts.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
                   {gridPosts.map((post, index) => (
-                    <NewsCard key={post.id} post={post} index={index} />
+                    <NewsCard key={post.id} post={post} index={index} t={t} />
                   ))}
                 </div>
               )}
@@ -187,13 +189,13 @@ export default function NewsPage({ posts = [] }) {
           <div className="w-full h-[1px] bg-gray-200" />
           <div className="flex justify-between items-center py-6">
             <span className="text-[10px] text-gray-400 uppercase tracking-widest">
-              PikFun Official
+              {t("list.officialLabel")}
             </span>
             <Link
               href="/category"
               className="text-[10px] font-bold uppercase tracking-widest hover:text-[#005caf]"
             >
-              前往商城
+              {t("list.goToShop")}
             </Link>
           </div>
         </div>
@@ -202,18 +204,20 @@ export default function NewsPage({ posts = [] }) {
   );
 }
 
-export async function getStaticProps() {
+export async function getStaticProps({ locale }) {
+  const i18n = await serverSideTranslations(locale ?? "zh-TW", ["news", "common"]);
+
   try {
-    const posts = await fetchMergedNewsFeed({ perPage: 24 });
+    const posts = await fetchMergedNewsFeed({ perPage: 24, locale: locale ?? "zh-TW" });
 
     return {
-      props: { posts },
+      props: { ...i18n, posts },
       revalidate: 60,
     };
   } catch (error) {
     console.error("News list fetch error:", error);
     return {
-      props: { posts: [] },
+      props: { ...i18n, posts: [] },
       revalidate: 60,
     };
   }

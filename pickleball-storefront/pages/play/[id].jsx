@@ -5,6 +5,8 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
   ArrowLeft,
   Users,
@@ -54,11 +56,11 @@ function buildLineBindUrl(sessionId, currentOrigin) {
 }
 
 /** 加入成功後 / 已加入但未開 LINE 提醒時顯示 */
-function LineReminderCard({ sessionId, userEmail, isReturning = false }) {
+function LineReminderCard({ t, sessionId, userEmail, isReturning = false }) {
   const handleClick = () => {
     const url = buildLineBindUrl(sessionId, window.location.origin);
     if (!url) {
-      alert("LINE Channel ID 未設定，請聯絡管理員");
+      alert(t("detail.line.channel_missing"));
       return;
     }
     window.location.href = url;
@@ -77,14 +79,16 @@ function LineReminderCard({ sessionId, userEmail, isReturning = false }) {
         <BellRing size={22} className="text-white/90 shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <p className="font-bold text-white text-[16px]">
-            {isReturning ? "尚未開啟 LINE 提醒" : "開啟活動提醒（推薦）"}
+            {isReturning
+              ? t("detail.line.title_returning")
+              : t("detail.line.title_new")}
           </p>
           <p className="text-[14px] text-white/80 mt-1 font-bold leading-relaxed">
-            活動前 1 天與 2 小時，PikFun 會透過 LINE 提醒你
-            {isReturning ? "。現在設定也來得及。" : ""}
+            {t("detail.line.desc")}
+            {isReturning ? t("detail.line.desc_returning_suffix") : ""}
           </p>
           <p className="text-[12px] text-white/65 mt-2.5 leading-relaxed">
-            Email 提醒已排程（{userEmail}）・點此一鍵開啟 LINE 通知
+            {t("detail.line.email_note", { email: userEmail })}
           </p>
         </div>
         <svg
@@ -100,20 +104,20 @@ function LineReminderCard({ sessionId, userEmail, isReturning = false }) {
   );
 }
 
-function LineReminderEnabledBadge() {
+function LineReminderEnabledBadge({ t }) {
   return (
     <p className="mb-4 flex items-center gap-2 text-sm text-[#06C755] font-medium">
       <BellRing size={16} />
-      LINE 提醒已開啟，活動前會通知你
+      {t("detail.line.enabled")}
     </p>
   );
 }
 
-function statusLabel(session, isCancelled, isPast) {
-  if (isCancelled) return "已取消";
-  if (isPast) return "已結束";
-  if (session.is_full) return "已額滿";
-  return `招募中 · 剩 ${session.spots_left} 位`;
+function statusLabel(session, isCancelled, isPast, t) {
+  if (isCancelled) return t("status.cancelled");
+  if (isPast) return t("status.ended");
+  if (session.is_full) return t("status.full");
+  return t("status.recruiting_spots", { count: session.spots_left });
 }
 
 function InfoRow({ label, children }) {
@@ -126,6 +130,7 @@ function InfoRow({ label, children }) {
 }
 
 function SessionActions({
+  t,
   session,
   isCancelled,
   isPast,
@@ -159,7 +164,7 @@ function SessionActions({
           ) : (
             <UserPlus size={18} />
           )}
-          加入揪團
+          {t("detail.actions.join")}
         </button>
       )}
       {canWaitlistJoin && (
@@ -174,7 +179,7 @@ function SessionActions({
           ) : (
             <UserPlus size={18} />
           )}
-          加入候補
+          {t("detail.actions.join_waitlist")}
         </button>
       )}
       {canLeave && (
@@ -185,7 +190,9 @@ function SessionActions({
           className="pld-btn pld-btn-outline"
         >
           <UserMinus size={18} />
-          {session.my_status === "waitlist" ? "退出候補" : "退出揪團"}
+          {session.my_status === "waitlist"
+            ? t("detail.actions.leave_waitlist")
+            : t("detail.actions.leave")}
         </button>
       )}
       {session.is_host && (
@@ -195,14 +202,14 @@ function SessionActions({
           disabled={actionLoading}
           className="pld-btn pld-btn-ghost"
         >
-          <XCircle size={18} /> 取消揪團
+          <XCircle size={18} /> {t("detail.actions.cancel_session")}
         </button>
       )}
     </div>
   );
 }
 
-function ParticipantRow({ p, isHost }) {
+function ParticipantRow({ t, p, isHost }) {
   return (
     <div className="pld-participant">
       {p.participant_avatar ? (
@@ -218,7 +225,11 @@ function ParticipantRow({ p, isHost }) {
       )}
       <div className="pld-participant-info">
         <span className="pld-participant-name">{p.participant_name}</span>
-        {isHost && <span className="pld-participant-host">團主</span>}
+        {isHost && (
+          <span className="pld-participant-host">
+            {t("card.host_label")}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -227,6 +238,8 @@ function ParticipantRow({ p, isHost }) {
 export default function PlayDetailPage() {
   const router = useRouter();
   const { id } = router.query;
+  const { t, i18n } = useTranslation("play");
+  const locale = i18n.language || "zh-TW";
   const { userInfo, loading: userLoading } = useUser();
 
   const [session, setSession] = useState(null);
@@ -264,7 +277,10 @@ export default function PlayDetailPage() {
     try {
       const params = new URLSearchParams();
       if (userInfo?.email) params.set("email", userInfo.email);
-      const res = await fetch(`/api/play-sessions/${id}?${params}`);
+      const token = localStorage.getItem("medusa_auth_token");
+      const res = await fetch(`/api/play-sessions/${id}?${params}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSession(data.session);
@@ -324,7 +340,7 @@ export default function PlayDetailPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "操作失敗");
+        alert(data.error || t("errors.actionFailed"));
         return;
       }
       if (data.message) setMessage(data.message);
@@ -350,7 +366,7 @@ export default function PlayDetailPage() {
   if (loading) {
     return (
       <main className="min-h-screen pt-24 flex items-center justify-center text-gray-400">
-        <Loader2 className="animate-spin mr-2" size={20} /> 載入中...
+        <Loader2 className="animate-spin mr-2" size={20} /> {t("detail.loading")}
       </main>
     );
   }
@@ -358,9 +374,9 @@ export default function PlayDetailPage() {
   if (!session) {
     return (
       <main className="min-h-screen pt-24 text-center">
-        <p className="text-gray-500 mb-4">找不到此揪團</p>
+        <p className="text-gray-500 mb-4">{t("detail.not_found")}</p>
         <Link href="/play" className="text-[#3157B5] font-bold underline">
-          返回列表
+          {t("detail.back_to_list")}
         </Link>
       </main>
     );
@@ -391,20 +407,20 @@ export default function PlayDetailPage() {
     session.location_name,
     session.location_address,
   );
-  const statusText = statusLabel(session, isCancelled, isPast);
+  const statusText = statusLabel(session, isCancelled, isPast, t);
   const showStickyCta =
     !isCancelled && !isPast && (canJoin || canWaitlistJoin || canLeave);
 
   const handleJoin = (e) => patchAction("join", e?.currentTarget);
   const handleLeave = () => patchAction("leave");
   const handleCancel = () => {
-    if (confirm("確定要取消此揪團嗎？")) patchAction("cancel");
+    if (confirm(t("detail.confirm_cancel"))) patchAction("cancel");
   };
 
   return (
     <>
       <Head>
-        <title>{session.title} | 揪團打球 | PikFun</title>
+        <title>{session.title} | {t("seo.detail_title_suffix")}</title>
       </Head>
 
       <AnimatePresence>
@@ -424,12 +440,12 @@ export default function PlayDetailPage() {
               className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl text-center"
             >
               <h3 className="text-xl font-bold text-black mb-2">
-                尚未註冊或登入會員嗎？
+                {t("detail.login_prompt.title")}
               </h3>
               <p className="text-gray-500 text-sm mb-7 leading-relaxed">
-                加入揪團需要先成為 PikFun 會員。
+                {t("detail.login_prompt.desc1")}
                 <br />
-                註冊後即可一鍵加入球友行列。
+                {t("detail.login_prompt.desc2")}
               </p>
               <div className="flex flex-col gap-3">
                 <button
@@ -437,21 +453,21 @@ export default function PlayDetailPage() {
                   onClick={goToRegister}
                   className="w-full bg-[#F4596A] text-white py-3 rounded-full text-sm font-bold hover:bg-[#e04d5e] transition-colors"
                 >
-                  立即註冊
+                  {t("detail.login_prompt.register")}
                 </button>
                 <button
                   type="button"
                   onClick={goToLogin}
                   className="w-full bg-[#3157B5] text-white py-3 rounded-full text-sm font-bold hover:bg-[#2748a0] transition-colors"
                 >
-                  已有帳號，登入
+                  {t("detail.login_prompt.login")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowLoginPrompt(false)}
                   className="text-sm text-gray-400 hover:text-gray-600 transition-colors py-1"
                 >
-                  稍後再說
+                  {t("detail.login_prompt.later")}
                 </button>
               </div>
             </motion.div>
@@ -461,7 +477,7 @@ export default function PlayDetailPage() {
 
       <main className="pld-page">
         <Link href="/play" className="pld-back pld-mobile-only">
-          <ArrowLeft size={16} /> 返回揪團列表
+          <ArrowLeft size={16} /> {t("detail.back_to_list_full")}
         </Link>
 
         {/* ── MOBILE HERO ─────────────────────────── */}
@@ -479,26 +495,30 @@ export default function PlayDetailPage() {
               {statusText}
             </span>
             <span className={`pld-badge ${getSkillLevelColor(session.skill_level)}`}>
-              {getSkillLevelLabel(session.skill_level)}
+              {getSkillLevelLabel(session.skill_level, t)}
             </span>
             {session.my_status === "joined" && (
-              <span className="pld-badge pld-badge-joined">您已加入</span>
+              <span className="pld-badge pld-badge-joined">
+                {t("status.joined_badge")}
+              </span>
             )}
             {session.my_status === "waitlist" && (
-              <span className="pld-badge pld-badge-wait">候補中</span>
+              <span className="pld-badge pld-badge-wait">
+                {t("status.waitlist")}
+              </span>
             )}
           </div>
           <h1 className="pld-hero-title">{session.title}</h1>
           <p className="pld-hero-meta">
-            {formatSessionDate(session.starts_at)} ·{" "}
-            {formatSessionRange(session.starts_at, session.ends_at)}
+            {formatSessionDate(session.starts_at, locale)} ·{" "}
+            {formatSessionRange(session.starts_at, session.ends_at, locale)}
           </p>
         </div>
 
         {/* ── DESKTOP HEADER (THEO) ───────────────── */}
         <div className="pld-dsk-brand pld-desktop-only">
           <Link href="/play" className="pld-dsk-back">
-            <ArrowLeft size={16} /> 返回揪團列表
+            <ArrowLeft size={16} /> {t("detail.back_to_list_full")}
           </Link>
           <span className="pld-dsk-logo">PikFun</span>
           <div className="pld-dsk-icon" aria-hidden>
@@ -506,7 +526,7 @@ export default function PlayDetailPage() {
           </div>
           <h1 className="pld-dsk-title">{session.title}</h1>
           <p className="pld-dsk-sub">
-            {statusText} · {getSkillLevelLabel(session.skill_level)}
+            {statusText} · {getSkillLevelLabel(session.skill_level, t)}
           </p>
         </div>
 
@@ -517,13 +537,13 @@ export default function PlayDetailPage() {
           className="pld-sheet"
         >
           <div className="pld-info">
-            <InfoRow label="日期">
-              {formatSessionDate(session.starts_at)}
+            <InfoRow label={t("detail.info.date")}>
+              {formatSessionDate(session.starts_at, locale)}
             </InfoRow>
-            <InfoRow label="時間">
-              {formatSessionRange(session.starts_at, session.ends_at)}
+            <InfoRow label={t("detail.info.time")}>
+              {formatSessionRange(session.starts_at, session.ends_at, locale)}
             </InfoRow>
-            <InfoRow label="球場">
+            <InfoRow label={t("detail.info.court")}>
               <p className="pld-loc-name">{session.location_name}</p>
               {session.location_address && (
                 <p className="pld-loc-addr">{session.location_address}</p>
@@ -535,17 +555,17 @@ export default function PlayDetailPage() {
                   rel="noopener noreferrer"
                   className="pld-map-link"
                 >
-                  在 Google 地圖中開啟 →
+                  {t("detail.info.map_link")}
                 </a>
               )}
             </InfoRow>
-            <InfoRow label="費用">
+            <InfoRow label={t("detail.info.fee")}>
               {isFree ? (
-                <span className="pld-fee-free">免費</span>
+                <span className="pld-fee-free">{t("common.free")}</span>
               ) : (
                 <span className="pld-fee-paid">
                   NT$ {Number(fee).toLocaleString()}
-                  <span className="pld-fee-unit"> / 人</span>
+                  <span className="pld-fee-unit"> {t("detail.info.fee_unit")}</span>
                 </span>
               )}
               {!isFree && session.payment_method_label && (
@@ -555,21 +575,58 @@ export default function PlayDetailPage() {
                 </p>
               )}
             </InfoRow>
-            <InfoRow label="人數">
+            <InfoRow label={t("detail.info.people")}>
               <span className="pld-count">
-                <em>{session.joined_count}</em> / {session.max_players} 人
+                <em>{session.joined_count}</em> / {session.max_players}{" "}
+                {t("detail.info.people_unit")}
               </span>
               {(session.waitlist_count || 0) > 0 && (
                 <span className="pld-waitlist">
-                  （{session.waitlist_count} 人候補）
+                  {t("detail.info.waitlist_count", {
+                    count: session.waitlist_count,
+                  })}
                 </span>
               )}
             </InfoRow>
           </div>
 
+          {session.host_profile_slug && (
+            <Link
+              href={`/play/host/${session.host_profile_slug}`}
+              className="group my-7 flex items-center gap-4 rounded-2xl border border-[#005caf]/20 bg-[#005caf]/[0.04] p-4 transition hover:border-[#005caf]/50 hover:bg-[#005caf]/[0.07]"
+            >
+              {session.host_profile_avatar ? (
+                <img
+                  src={session.host_profile_avatar}
+                  alt={session.host_name}
+                  className="h-14 w-14 shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#005caf] text-lg font-black text-white">
+                  {session.host_name?.charAt(0) || "P"}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-black tracking-wider text-[#005caf]">
+                  {t("card.host_label")}
+                </p>
+                <p className="truncate font-black text-slate-900">
+                  {session.host_name}
+                </p>
+                <p className="truncate text-xs text-slate-500">
+                  {session.host_profile_title ||
+                    t("host_profile.fallback_title")}
+                </p>
+              </div>
+              <span className="text-xs font-black text-[#005caf] group-hover:underline">
+                {t("host_profile.detail_cta")} →
+              </span>
+            </Link>
+          )}
+
           {session.description && (
             <div className="pld-desc">
-              <p className="pld-desc-label">揪團說明</p>
+              <p className="pld-desc-label">{t("detail.info.description_label")}</p>
               <p className="pld-desc-text">{session.description}</p>
             </div>
           )}
@@ -577,11 +634,12 @@ export default function PlayDetailPage() {
           {message && <p className="pld-message">{message}</p>}
 
           {lineReminderEnabled && isInSession && !isCancelled && !isPast && (
-            <LineReminderEnabledBadge />
+            <LineReminderEnabledBadge t={t} />
           )}
 
           {showLineReminderCard && (
             <LineReminderCard
+              t={t}
               sessionId={id}
               userEmail={userInfo.email}
               isReturning={showLineReminderReturning}
@@ -590,6 +648,7 @@ export default function PlayDetailPage() {
 
           <div className="pld-desktop-only">
             <SessionActions
+              t={t}
               session={session}
               isCancelled={isCancelled}
               isPast={isPast}
@@ -604,33 +663,36 @@ export default function PlayDetailPage() {
           </div>
 
           {isPast && !isCancelled && (
-            <p className="pld-ended">此揪團已開始或已結束</p>
+            <p className="pld-ended">{t("detail.info.ended_note")}</p>
           )}
         </motion.div>
 
         {/* ── DESKTOP PANEL ───────────────────────── */}
         <div className="pld-dsk-panel pld-desktop-only">
           <div className="pld-dsk-panel-inner">
-            <h2 className="pld-dsk-panel-title">球局資訊一覽</h2>
-            <p className="pld-dsk-panel-lead">
-              確認時間地點後，點擊上方按鈕加入揪團
-            </p>
+            <h2 className="pld-dsk-panel-title">{t("detail.panel.title")}</h2>
+            <p className="pld-dsk-panel-lead">{t("detail.panel.lead")}</p>
 
             <div className="pld-dsk-panel-grid">
               <div className="pld-dsk-panel-box">
-                <p className="pld-dsk-panel-box-label">報名狀況</p>
+                <p className="pld-dsk-panel-box-label">
+                  {t("detail.panel.signup_status")}
+                </p>
                 <p className="pld-dsk-panel-highlight">
                   <em>
-                    {session.joined_count} / {session.max_players} 人
+                    {session.joined_count} / {session.max_players}{" "}
+                    {t("detail.info.people_unit")}
                   </em>
                 </p>
                 <p className="pld-dsk-panel-meta">{statusText}</p>
               </div>
               <div className="pld-dsk-panel-box">
-                <p className="pld-dsk-panel-box-label">每人費用</p>
+                <p className="pld-dsk-panel-box-label">
+                  {t("detail.panel.fee_per_person")}
+                </p>
                 <p className="pld-dsk-panel-fee">
                   {isFree ? (
-                    <em>免費</em>
+                    <em>{t("common.free")}</em>
                   ) : (
                     <>
                       NT$ <em>{Number(fee).toLocaleString()}</em>
@@ -638,14 +700,16 @@ export default function PlayDetailPage() {
                   )}
                 </p>
                 <p className="pld-dsk-panel-meta">
-                  {formatFee(fee, session.payment_method)}
+                  {formatFee(fee, session.payment_method, t)}
                 </p>
               </div>
             </div>
 
             {(session.location_name || session.location_address) && (
               <div className="pld-map-block">
-                <h3 className="pld-section-title">球場位置</h3>
+                <h3 className="pld-section-title">
+                  {t("detail.panel.court_location")}
+                </h3>
                 <MapEmbed
                   locationName={session.location_name}
                   locationAddress={session.location_address}
@@ -656,36 +720,39 @@ export default function PlayDetailPage() {
 
             <div className="pld-dsk-steps">
               <div className="pld-dsk-step-col">
-                <h3 className="pld-dsk-step-heading">加入流程</h3>
+                <h3 className="pld-dsk-step-heading">
+                  {t("detail.panel.join_steps_title")}
+                </h3>
                 <ol className="pld-dsk-step-list">
                   <li>
                     <span className="pld-dsk-step-icon">
                       <Mail size={18} strokeWidth={1.5} />
                     </span>
-                    登入 PikFun 會員
+                    {t("detail.panel.step_login")}
                   </li>
                   <li>
                     <span className="pld-dsk-step-icon">
                       <UserCheck size={18} strokeWidth={1.5} />
                     </span>
-                    點擊「加入揪團」報名
+                    {t("detail.panel.step_join")}
                   </li>
                   <li>
                     <span className="pld-dsk-step-icon">
                       <Wallet size={18} strokeWidth={1.5} />
                     </span>
-                    依揪團說明完成付款（若有）
+                    {t("detail.panel.step_pay")}
                   </li>
                 </ol>
               </div>
               <div className="pld-dsk-step-col">
                 <h3 className="pld-section-title">
-                  已加入 ({session.joined_count})
+                  {t("detail.panel.joined_title", { count: session.joined_count })}
                 </h3>
                 <div className="pld-participant-list">
                   {(session.participants || []).map((p) => (
                     <ParticipantRow
                       key={p.id || p.participant_email}
+                      t={t}
                       p={p}
                       isHost={p.participant_email === session.host_email}
                     />
@@ -694,12 +761,15 @@ export default function PlayDetailPage() {
                 {(session.waitlist || []).length > 0 && (
                   <>
                     <h3 className="pld-section-title pld-section-title-spaced">
-                      候補 ({session.waitlist_count})
+                      {t("detail.panel.waitlist_title", {
+                        count: session.waitlist_count,
+                      })}
                     </h3>
                     <div className="pld-participant-list pld-participant-list-muted">
                       {session.waitlist.map((p) => (
                         <ParticipantRow
                           key={p.id || p.participant_email}
+                          t={t}
                           p={p}
                         />
                       ))}
@@ -715,7 +785,9 @@ export default function PlayDetailPage() {
         <div className="pld-mobile-extra pld-mobile-only">
           {(session.location_name || session.location_address) && (
             <div className="pld-map-block">
-              <h3 className="pld-section-title">球場位置</h3>
+              <h3 className="pld-section-title">
+                {t("detail.panel.court_location")}
+              </h3>
               <MapEmbed
                 locationName={session.location_name}
                 locationAddress={session.location_address}
@@ -724,12 +796,13 @@ export default function PlayDetailPage() {
           )}
           <div className="pld-participants-mobile">
             <h3 className="pld-section-title">
-              已加入 ({session.joined_count})
+              {t("detail.panel.joined_title", { count: session.joined_count })}
             </h3>
             <div className="pld-participant-list">
               {(session.participants || []).map((p) => (
                 <ParticipantRow
                   key={p.id || p.participant_email}
+                  t={t}
                   p={p}
                   isHost={p.participant_email === session.host_email}
                 />
@@ -738,11 +811,13 @@ export default function PlayDetailPage() {
             {(session.waitlist || []).length > 0 && (
               <>
                 <h3 className="pld-section-title pld-section-title-spaced">
-                  候補 ({session.waitlist_count})
+                  {t("detail.panel.waitlist_title", {
+                    count: session.waitlist_count,
+                  })}
                 </h3>
                 <div className="pld-participant-list pld-participant-list-muted">
                   {session.waitlist.map((p) => (
-                    <ParticipantRow key={p.id || p.participant_email} p={p} />
+                    <ParticipantRow key={p.id || p.participant_email} t={t} p={p} />
                   ))}
                 </div>
               </>
@@ -754,6 +829,7 @@ export default function PlayDetailPage() {
         {showStickyCta && (
           <div className="pld-sticky pld-mobile-only">
             <SessionActions
+              t={t}
               session={session}
               isCancelled={isCancelled}
               isPast={isPast}
@@ -1301,4 +1377,12 @@ export default function PlayDetailPage() {
       `}</style>
     </>
   );
+}
+
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? "zh-TW", ["play", "common"])),
+    },
+  };
 }

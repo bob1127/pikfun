@@ -1,14 +1,15 @@
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import { Search, ChevronRight, BookOpen, Users, GraduationCap, Sparkles, X } from "lucide-react";
-import { CLASS_TYPE_LABELS, SKILL_LABELS } from "@/lib/coachUtils";
+import { SKILL_LABELS, getSkillLabel } from "@/lib/coachUtils";
 import ClassCard from "./ClassCard";
 
 const NAV_ITEMS = [
-  { key: "all", label: "全部課程", icon: BookOpen },
-  { key: "group", label: "團體班", icon: Users },
-  { key: "private", label: "私人課", icon: GraduationCap },
-  { key: "clinic", label: "主題班", icon: Sparkles },
-  { key: "beginner", label: "新手班", icon: BookOpen },
+  { key: "all", icon: BookOpen },
+  { key: "group", icon: Users },
+  { key: "private", icon: GraduationCap },
+  { key: "clinic", icon: Sparkles },
+  { key: "beginner", icon: BookOpen },
 ];
 
 function MenuLink({ active, onClick, children }) {
@@ -43,18 +44,19 @@ export default function CoachingSidebar({
   onSkillLevelChange,
   featuredClasses = [],
 }) {
-  const skillTags = Object.entries(SKILL_LABELS);
+  const { t } = useTranslation("coaching");
+  const skillTags = Object.keys(SKILL_LABELS).filter((k) => k !== "all");
 
   return (
     <aside className="lg:w-[260px] xl:w-[280px] shrink-0 lg:border-r lg:border-gray-200 lg:pr-8 lg:mr-8">
       {/* Menu — 圖2 左側選單 */}
       <nav className="mb-10">
-        <p className="text-xs font-bold text-[#1a2d4a] mb-4 tracking-wide">Menu</p>
+        <p className="text-xs font-bold text-[#1a2d4a] mb-4 tracking-wide">{t("sidebar.menu_label")}</p>
         <ul className="space-y-0.5">
-          {NAV_ITEMS.map(({ key, label }) => (
+          {NAV_ITEMS.map(({ key }) => (
             <li key={key}>
               <MenuLink active={classType === key} onClick={() => onClassTypeChange(key)}>
-                {label}
+                {t(`sidebar.nav.${key}`)}
               </MenuLink>
             </li>
           ))}
@@ -64,7 +66,7 @@ export default function CoachingSidebar({
               className="w-full flex items-center gap-2 py-2.5 text-left text-sm text-gray-600 hover:text-[#3366CC] transition-colors group"
             >
               <span className="text-[#3366CC] text-xs opacity-50 group-hover:opacity-80">→</span>
-              <span>教練進駐申請</span>
+              <span>{t("sidebar.apply_link")}</span>
             </Link>
           </li>
         </ul>
@@ -73,7 +75,7 @@ export default function CoachingSidebar({
       {/* Search */}
       <div className="mb-8 pb-8 border-b border-gray-200">
         <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">
-          Search
+          {t("sidebar.search_label")}
         </p>
         <div className="relative">
           <input
@@ -81,7 +83,7 @@ export default function CoachingSidebar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSearchSubmit?.()}
-            placeholder="課程、教練、球場..."
+            placeholder={t("sidebar.search_placeholder")}
             className="w-full border border-gray-200 rounded-lg px-4 py-2.5 pr-16 text-sm focus:outline-none focus:border-[#3366CC] transition-colors bg-white"
           />
           {searchQuery && (
@@ -89,7 +91,7 @@ export default function CoachingSidebar({
               type="button"
               onClick={onClearSearch}
               className="absolute right-9 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
-              aria-label="清除搜尋"
+              aria-label={t("sidebar.clear_search_aria")}
             >
               <X size={14} />
             </button>
@@ -98,7 +100,7 @@ export default function CoachingSidebar({
             type="button"
             onClick={onSearchSubmit}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#3366CC]"
-            aria-label="搜尋"
+            aria-label={t("sidebar.search_aria")}
           >
             <Search size={16} />
           </button>
@@ -107,7 +109,7 @@ export default function CoachingSidebar({
         {cityTags.length > 0 && (
           <div className="mt-4">
             <p className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase mb-2">
-              依縣市
+              {t("sidebar.city_label")}
             </p>
             <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
               {cityTags.map(({ full, label, search }) => (
@@ -132,7 +134,7 @@ export default function CoachingSidebar({
         {extraTags.length > 0 && (
           <div className="mt-3">
             <p className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase mb-2">
-              快速篩選
+              {t("sidebar.quick_filter_label")}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {extraTags.map((tag) => (
@@ -157,7 +159,7 @@ export default function CoachingSidebar({
       {/* 程度 */}
       <div className="mb-8">
         <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">
-          程度篩選
+          {t("sidebar.skill_filter_label")}
         </p>
         <div className="flex flex-wrap gap-1.5">
           <button
@@ -169,9 +171,9 @@ export default function CoachingSidebar({
                 : "border-gray-200 text-gray-600 hover:border-[#3366CC] hover:text-[#3366CC] bg-white"
             }`}
           >
-            全部
+            {t("sidebar.skill_all_btn")}
           </button>
-          {skillTags.map(([key, label]) => (
+          {skillTags.map((key) => (
             <button
               key={key}
               type="button"
@@ -182,7 +184,7 @@ export default function CoachingSidebar({
                   : "border-gray-200 text-gray-600 hover:border-[#3366CC] hover:text-[#3366CC] bg-white"
               }`}
             >
-              {label}
+              {getSkillLabel(key, t)}
             </button>
           ))}
         </div>
@@ -192,7 +194,7 @@ export default function CoachingSidebar({
       {featuredClasses.length > 0 && (
         <div>
           <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">
-            推薦課程
+            {t("sidebar.recommended_label")}
           </p>
           <div className="border border-gray-200 rounded-lg px-3 bg-white">
             {featuredClasses.slice(0, 4).map((cls) => (

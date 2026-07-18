@@ -1,3 +1,4 @@
+import { useTranslation } from "next-i18next";
 import {
   toggleLineItem,
   toggleCommaItem,
@@ -13,8 +14,10 @@ export default function TagPickerField({
   mode = "lines",
   placeholder,
   rows = 4,
-  hint = "點選常用項目，或直接輸入自訂內容",
+  hint,
 }) {
+  const { t } = useTranslation("coaching");
+  const resolvedHint = hint || t("editor.tag_picker.default_hint");
   const isSelected = mode === "lines" ? hasLineItem : hasCommaItem;
   const toggle = mode === "lines" ? toggleLineItem : toggleCommaItem;
 
@@ -68,7 +71,7 @@ export default function TagPickerField({
         />
       )}
 
-      <p className="text-[10px] text-gray-400 mt-1.5">{hint}</p>
+      <p className="text-[10px] text-gray-400 mt-1.5">{resolvedHint}</p>
     </div>
   );
 }

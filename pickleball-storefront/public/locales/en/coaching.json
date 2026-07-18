@@ -1,0 +1,671 @@
+{
+  "seo": {
+    "list_title": "Coaching | PikFun",
+    "list_desc": "Browse pickleball coaching classes — group, private, and clinic sessions — and find the right coach for you",
+    "detail_suffix": "Coaching | PikFun",
+    "create_title": "Create a Class | PikFun",
+    "apply_title": "Apply as Coach | PikFun",
+    "apply_edit_title": "Edit Coach Application | PikFun",
+    "apply_approved_title": "Coach Application Approved | PikFun",
+    "apply_pending_title": "Application Under Review | PikFun",
+    "apply_rejected_title": "Application Not Approved | PikFun"
+  },
+  "common": {
+    "loading": "Loading...",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "close": "Close",
+    "clear": "Clear",
+    "all": "All",
+    "free": "Free",
+    "group_label": "Group",
+    "menu_label": "Menu",
+    "vertical_course_intro": "Course Intro",
+    "weekdays": [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ]
+  },
+  "list": {
+    "eyebrow": "Coaching",
+    "title": "Coaching Classes",
+    "subtitle": "— Pickleball coaching · From beginner basics to advanced skills",
+    "index_mark": "{01}",
+    "filters": {
+      "upcoming": "Upcoming",
+      "all": "All",
+      "enrolled": "My Enrollments",
+      "teaching": "My Classes"
+    },
+    "create_btn": "Create a Class",
+    "search": {
+      "prefix": "Search \"",
+      "suffix": "\"",
+      "found_count": " · {{count}} classes found",
+      "clear": "Clear",
+      "switch_all": "Search all classes instead"
+    },
+    "loading": "Loading classes...",
+    "error": {
+      "hint": "If this is a database error, please run supabase/coach_classes.sql in Supabase first",
+      "retry": "Retry"
+    },
+    "empty": {
+      "no_match": "No classes found for \"{{query}}\"",
+      "no_match_hint": "Try a court name, address, coach name, or switch to \"All\"",
+      "clear_search": "Clear Search",
+      "view_all": "View All Classes",
+      "no_classes": "No classes yet",
+      "become_first": "Be the First Coach to Open a Class"
+    },
+    "bottom_cta": {
+      "title": "Create a Class",
+      "subtitle": "Become a PikFun coach and start your first class"
+    }
+  },
+  "detail": {
+    "back_link": "for Coaching",
+    "entry_btn": "ENTRY",
+    "loading": "Loading...",
+    "not_found": "Class not found",
+    "back_to_list": "Back to Class List",
+    "vertical_label": "Class Details",
+    "badge_cancelled": "Cancelled",
+    "coach_meta_prefix": "Coach · ",
+    "location_pending": "Location TBD",
+    "menu": {
+      "overview": "Overview",
+      "description": "Description",
+      "curriculum": "Curriculum",
+      "coach": "About the Coach",
+      "location": "Location",
+      "students": "Enrolled Students",
+      "enroll": "Enrollment",
+      "related": "Other Classes",
+      "other_coaches": "Other Coaches"
+    },
+    "overview": {
+      "eyebrow": "Group",
+      "title": "Overview",
+      "class_type_label": "Class Type",
+      "location_label": "Main Location",
+      "date_label": "Date",
+      "time_label": "Time",
+      "capacity_label": "Capacity",
+      "opened_by": "Opened by Coach {{name}}",
+      "spots_left": " · {{count}} spots left",
+      "capacity_unit": ""
+    },
+    "qa": {
+      "description_bracket": "[Description]",
+      "description_title": "What is this class about?",
+      "curriculum_bracket": "[Curriculum]",
+      "curriculum_title": "What will we do in class?",
+      "coach_bracket": "[About the Coach]",
+      "coach_title": "Coach {{name}}",
+      "coach_badge": "PikFun Certified Coach",
+      "location_bracket": "[Location]",
+      "location_title": "Where is the class held?",
+      "open_in_maps": "Open in Google Maps",
+      "students_bracket": "[Enrolled Students]",
+      "students_title": "Currently {{enrolled}} / {{max}} enrolled",
+      "waitlist_label": "Waitlist ({{count}})"
+    },
+    "enroll_panel": {
+      "title": "Enrollment",
+      "capacity_unit": "",
+      "spots_left": " ({{count}} spots left)",
+      "enroll_btn": "Enroll Now",
+      "waitlist_btn": "Join Waitlist",
+      "leave_btn": "Cancel Enrollment",
+      "enrolled_msg": "✓ You're enrolled in this class",
+      "waitlist_msg": "You're on the waitlist",
+      "cancel_class_btn": "Cancel Class",
+      "past_msg": "This class has ended",
+      "cancelled_msg": "This class has been cancelled"
+    },
+    "mobile_sticky": {
+      "free": "Free",
+      "enroll": "Enroll",
+      "waitlist": "Waitlist",
+      "leave": "Cancel",
+      "past": "Ended",
+      "cancelled": "Cancelled",
+      "enrolled": "Enrolled",
+      "waitlist_status": "On Waitlist"
+    },
+    "login_prompt": {
+      "title": "Not registered or logged in yet?",
+      "desc_line1": "You need to be a PikFun member to enroll in a class.",
+      "desc_line2": "Once registered, you can enroll with one click.",
+      "register_btn": "Register Now",
+      "login_btn": "Already have an account, log in",
+      "later_btn": "Maybe later"
+    },
+    "related": {
+      "eyebrow": "Other Courses",
+      "title": "Other Courses"
+    },
+    "bottom_cta": {
+      "title": "ENTRY",
+      "desc_can_enroll": "Confirm the class details and enroll now",
+      "desc_default": "More PikFun coaching classes",
+      "meta": " · ",
+      "enroll_bar": "Enroll in This Class",
+      "waitlist_bar": "Join the Waitlist",
+      "back_to_list_bar": "Back to Class List",
+      "create_bar": "Create a Class",
+      "apply_bar": "Apply to Join PikFun as a Coach"
+    },
+    "group_links": {
+      "eyebrow": "Group",
+      "all_classes": "All Classes",
+      "featured_coaches": "Featured Coaches"
+    },
+    "footer_entry": {
+      "waitlist": "Waitlist",
+      "entry": "ENTRY",
+      "create": "Create"
+    },
+    "alert": {
+      "action_failed": "Action failed"
+    },
+    "confirm": {
+      "cancel_class": "Are you sure you want to cancel this class?"
+    }
+  },
+  "create": {
+    "loading": "Loading...",
+    "today_date": "{{month}}/{{day}}",
+    "gate": {
+      "title": "Coach Approval Required",
+      "desc_line1": "Creating classes is limited to coaches who have passed the application review.",
+      "desc_line2": "Please apply to become a PikFun coach first — once approved, you can create classes.",
+      "apply_btn": "Apply as Coach",
+      "browse_btn": "Browse Classes"
+    },
+    "sections": {
+      "info": "Class Info",
+      "type_level": "Type & Level",
+      "court": "Choose a Court",
+      "time": "Schedule",
+      "capacity_fee": "Capacity & Fee",
+      "cover": "Cover Image (optional, up to 2MB)"
+    },
+    "fields": {
+      "title_placeholder": "Class name (e.g. Weekend Beginner Doubles)",
+      "description_placeholder": "Class description: goals, who it's for, notes...",
+      "curriculum_placeholder": "Curriculum outline: warm-up → grip & positioning → forehand drills → rally...",
+      "coach_bio_placeholder": "Coach bio: teaching experience, certifications, specialties...",
+      "class_type_label": "Class Type",
+      "skill_level_label": "Skill Level",
+      "starts_at_label": "Start Time *",
+      "ends_at_label": "End Time",
+      "capacity_label": "Max Students",
+      "capacity_unit": "",
+      "capacity_unit_private": " (private lesson)",
+      "fee_label": "Fee per Person",
+      "fee_free": "Free",
+      "payment_note_placeholder": "Payment note (e.g. account last 4 digits, LINE ID)"
+    },
+    "cover": {
+      "preview_alt": "Cover preview",
+      "upload_label": "Click to upload cover",
+      "upload_hint": "JPG / PNG / WebP / GIF"
+    },
+    "errors": {
+      "image_type": "Please upload an image (JPG, PNG, WebP, GIF)",
+      "image_size": "Image exceeds the 2MB limit",
+      "location_required": "Please select a court or enter a complete address",
+      "validation": "Please complete the required fields",
+      "login_required": "Please log in first",
+      "network": "Network error, please try again later",
+      "submit_failed": "Failed to create class",
+      "cover_upload_failed": "Cover upload failed"
+    },
+    "greeting": {
+      "dawn": "Good evening",
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "hero": {
+      "title": "Create a Class",
+      "subtitle": "Open a class and bring students to the court 🏓"
+    },
+    "desktop_header": {
+      "title": "Create a Class",
+      "subtitle": "{{greeting}}, {{name}}. Set the class details, schedule, and fee so students can easily find you"
+    },
+    "actions": {
+      "submit_note": "By publishing a class, you agree to PikFun's coaching guidelines and confirm the information provided is accurate.",
+      "submit_btn": "Publish Class",
+      "submit_success": "Class published! 🎉",
+      "submit_success_mobile": "Published! 🎉",
+      "back_link": "Back to Class List"
+    },
+    "panel": {
+      "title": "Once published, students can enroll",
+      "lead": "Complete the form above and publish — your class will appear in the PikFun coaching list",
+      "preview_label": "Class Preview",
+      "unselected_court": "No court selected yet",
+      "fee_label": "Fee per Person",
+      "fee_edit_hint": "You can still edit this on the class page after publishing",
+      "steps_title": "How It Works",
+      "step1": "Fill in class details, court, and schedule",
+      "step2": "Publish the class and share it with students",
+      "step3": "Students enroll and join you on the court",
+      "tips_title": "Tips",
+      "tip1": "Choosing from the court list gives more accurate map locations",
+      "tip2": "A complete curriculum makes it easier for students to enroll",
+      "tip3": "You can manage enrolled students on the class page after publishing"
+    }
+  },
+  "apply": {
+    "loading": "Loading...",
+    "back_to_member": "Back to Member Center",
+    "back_to_review": "Back to Review Status",
+    "back_to_coaching": "Back to Coaching",
+    "approved": {
+      "badge": "Approved Coach",
+      "title": "Coach Application Approved",
+      "desc": "Your coach page is now live on the PikFun website — players can search for and enroll in your classes.",
+      "reviewed_at": "Approved on: {{date}}",
+      "status_badge": "Approved",
+      "slug_preview": "pikfun.com.tw/coaching/coach/{{slug}}",
+      "stats": {
+        "upcoming": "Upcoming",
+        "total_classes": "Total Classes",
+        "total_enrollments": "Total Enrollments"
+      },
+      "view_page_btn": "View My Coach Page",
+      "edit_page_btn": "Edit Coach Page",
+      "new_class_btn": "New Class",
+      "coach_center_btn": "Go to Coach Center",
+      "footer_note_line1": "To update your coach info, please use \"Edit Coach Page\".",
+      "footer_note_line2": "If you have any questions, please contact PikFun support."
+    },
+    "pending": {
+      "title": "Application Under Review",
+      "desc_line1": "We've received your coach application and will complete the review within 3–5 business days.",
+      "desc_line2": "Once approved, you'll appear in the \"Featured Coaches\" section and be notified by email.",
+      "applied_at": "Submitted on: {{date}}",
+      "notice": "You can edit and resubmit your application during the review period. Resubmitting restarts the review period from that day.",
+      "edit_btn": "Edit Application"
+    },
+    "rejected": {
+      "title": "Application Not Approved",
+      "desc": "We're sorry, but your coach application was not approved this time.",
+      "note_prefix": "Reviewer note: ",
+      "reapply_btn": "Reapply"
+    },
+    "form": {
+      "eyebrow_edit": "Edit Application",
+      "eyebrow_new": "Apply as Coach",
+      "title_edit": "Edit Coach Application",
+      "title_new": "Apply to Join PikFun as a Coach",
+      "bound_member": "Linked member: ",
+      "hint_edit": "After resubmitting, the review period restarts from that day.",
+      "hint_new": "Once submitted, the PikFun team will review your application. Once approved, it will appear in the \"Featured Coaches\" section.",
+      "resubmit_notice_title": "Resubmission Notice",
+      "resubmit_notice_desc": "Your application is currently under review. If you edit and resubmit, the review period will restart from that day (about 3–5 business days).",
+      "fields": {
+        "name_label": "Coach Name *",
+        "slug_label": "URL Slug *",
+        "slug_placeholder": "e.g. ye-kun-zhi or bob_coach",
+        "slug_preview": "/coaching/coach/{{slug}}",
+        "slug_hint": "Auto-generated from your name; Chinese names are converted to pinyin. Letters, numbers, - and _ only",
+        "slug_error": "Please use at least 2 letters or numbers (may include - or _)",
+        "title_label": "Title *",
+        "title_placeholder": "PPR Certified Coach · Taichung",
+        "subtitle_label": "Subtitle",
+        "subtitle_placeholder": "Association-Affiliated Coach",
+        "city_label": "Main City",
+        "city_placeholder": "Taichung City",
+        "region_label": "Region",
+        "excerpt_label": "One-line Summary (card title) *",
+        "bio_label": "Coach Bio *",
+        "story_label": "Coach Story (long-form)",
+        "story_placeholder": "Leave a blank line between paragraphs",
+        "credentials_label": "Credentials (one per line)",
+        "credentials_placeholder": "PPR Certified Coach\n8 years teaching experience",
+        "specialties_label": "Specialties (one per line)",
+        "specialties_placeholder": "Beginner basics\nDoubles strategy",
+        "tags_label": "Tags (comma-separated)",
+        "tags_placeholder": "Beginner, Group Class, Doubles",
+        "tags_hint": "Click common tags, or type your own (separate with commas)",
+        "video_url_label": "YouTube Embed URL",
+        "featured_label_label": "Badge Text",
+        "featured_label_placeholder": "Popular",
+        "contact_email_label": "Contact Email",
+        "instagram_label": "Instagram",
+        "instagram_placeholder": "Handle without @",
+        "avatar_label": "Avatar",
+        "cover_label": "Cover Image",
+        "cover_upload": "Upload Cover"
+      },
+      "submit_btn_new": "Submit Application",
+      "submit_btn_edit": "Resubmit for Review",
+      "success_new": "Application submitted! 🎉",
+      "success_edit": "Resubmitted! 🎉"
+    },
+    "errors": {
+      "login_required": "Please log in first",
+      "slug_invalid": "The URL slug can only contain letters, numbers, - or _ (at least 2 characters). Chinese names are auto-converted to pinyin — please double-check it's correct.",
+      "image_upload": "Please upload an image",
+      "image_size": "Image exceeds 2MB",
+      "upload_failed": "Upload failed",
+      "submit_failed": "Submission failed"
+    }
+  },
+  "profile": {
+    "loading": "Loading...",
+    "not_found": "Coach not found",
+    "back_to_coaching": "Coaching",
+    "toast_saved": "Saved",
+    "owner_banner": "This is your coach page — click \"Edit\" on any section to update it directly",
+    "toc": {
+      "title": "Contents",
+      "profile": "Coach Profile",
+      "bio": "Bio",
+      "story": "Story",
+      "instagram": "Social Feed",
+      "skills": "Credentials & Specialties",
+      "articles": "Coach Articles"
+    },
+    "hero": {
+      "eyebrow": "Special Coach",
+      "edit_label": "Edit Cover",
+      "cover_url_label": "Cover Image URL (hero image)",
+      "video_url_label": "YouTube / Vimeo Embed URL (shown in profile section)"
+    },
+    "breadcrumb": {
+      "home": "Coaching",
+      "fallback": "{{name}}'s Coach Page"
+    },
+    "header": {
+      "edit_label": "Edit Header",
+      "name_label": "Name",
+      "title_label": "Title",
+      "excerpt_label": "Headline / Tagline",
+      "featured_label_label": "Featured Badge",
+      "avatar_url_label": "Avatar URL",
+      "joined_suffix": " Joined",
+      "bio_placeholder": "(You can fill in your bio via \"Edit Bio\")",
+      "video_title": "{{name}}'s Introduction Video",
+      "profile_title_fallback": "{{name}}'s Coach Profile"
+    },
+    "sections": {
+      "bio_eyebrow": "Profile",
+      "bio_title": "Bio",
+      "bio_edit_label": "Edit Bio",
+      "bio_empty": "No bio written yet",
+      "story_eyebrow": "Story",
+      "story_title": "Story",
+      "story_edit_label": "Edit Story",
+      "story_empty": "No story written yet",
+      "instagram_eyebrow": "Instagram",
+      "instagram_title": "Social Feed",
+      "instagram_edit_label": "Edit Instagram",
+      "skills_eyebrow": "Career & Skill",
+      "skills_title": "Credentials & Specialties",
+      "credentials_title": "Credentials",
+      "credentials_empty": "Not filled in yet",
+      "specialties_title": "Specialties",
+      "specialties_empty": "Not filled in yet",
+      "tags_empty": "No tags yet",
+      "tags_label": "Tags",
+      "edit_label": "Edit",
+      "edit_tags_label": "Edit Tags"
+    },
+    "mid_cta": {
+      "title": "Want to play with Coach {{name}}?",
+      "desc": "Whether you're a complete beginner or looking to break through a plateau, check out Coach {{name}}'s current classes and enroll online in the class that's right for you.",
+      "link": "View {{name}}'s Classes"
+    },
+    "sidebar": {
+      "contact_title": "Contact Coach",
+      "contact_empty": "No contact info yet",
+      "contact_cta": "View {{name}}'s Classes",
+      "edit_contact_label": "Edit Contact Info",
+      "city_label": "City",
+      "region_label": "Region",
+      "email_label": "Email",
+      "instagram_label": "Instagram",
+      "instagram_placeholder": "Handle without @",
+      "pickup_badge_line1": "Coach",
+      "pickup_badge_line2": "Pick up",
+      "view_coach_page": "View Coach Page",
+      "popular_tags_title": "Popular Tags"
+    },
+    "recommended": {
+      "eyebrow": "Recommended Coach",
+      "pickup_badge_line1": "Coach",
+      "pickup_badge_line2": "Pick up",
+      "view_coach_page": "View Coach Page"
+    },
+    "articles": {
+      "eyebrow": "Coach Articles",
+      "title": "Articles by Coach {{name}}",
+      "coming_soon": "Article submissions coming soon",
+      "prev_aria": "Previous",
+      "next_aria": "Next"
+    },
+    "fake_articles": {
+      "1": {
+        "title": "[Beginner] 5 pickleball rules you should know before your first game",
+        "tags": [
+          "Beginner",
+          "Rules"
+        ]
+      },
+      "2": {
+        "title": "[Doubles] How to hit a 3rd-shot drop — 3 practice drills",
+        "tags": [
+          "3rd Shot",
+          "Doubles Strategy"
+        ]
+      },
+      "3": {
+        "title": "[Gear Guide] How to choose a paddle — weight, face & grip",
+        "tags": [
+          "Gear",
+          "Beginner"
+        ]
+      },
+      "4": {
+        "title": "[Tournament Notes] 3 lessons from my first skill-level event",
+        "tags": [
+          "Tactics",
+          "Recap"
+        ]
+      },
+      "5": {
+        "title": "[Family] Playing pickleball with kids — courts & safety tips",
+        "tags": [
+          "Family",
+          "Youth"
+        ]
+      }
+    }
+  },
+  "edit": {
+    "redirecting": "Redirecting to coach page…"
+  },
+  "card": {
+    "popular_badge": "Popular",
+    "full_badge": "Full",
+    "enrolled_badge": "Enrolled",
+    "waitlist_badge": "On Waitlist",
+    "fallback_excerpt": "A {{type}} class hosted by {{coach}} — enrollment welcome.",
+    "fallback_type": "class",
+    "coach_fallback": "Coach",
+    "detail_btn": "View Details",
+    "enroll_btn": "Enroll Now"
+  },
+  "sidebar": {
+    "menu_label": "Menu",
+    "nav": {
+      "all": "All Classes",
+      "group": "Group Class",
+      "private": "Private Lesson",
+      "clinic": "Clinic",
+      "beginner": "Beginner Class"
+    },
+    "apply_link": "Apply as Coach",
+    "search_label": "Search",
+    "search_placeholder": "Class, coach, court...",
+    "clear_search_aria": "Clear search",
+    "search_aria": "Search",
+    "city_label": "By City",
+    "quick_filter_label": "Quick Filters",
+    "skill_filter_label": "Skill Level",
+    "skill_all_btn": "All",
+    "recommended_label": "Recommended"
+  },
+  "featured": {
+    "eyebrow": "PikFun Certified Coach Directory",
+    "title": "Featured Coaches",
+    "desc": "One-on-one guidance from professional coaches — from beginner to advanced, find the right pickleball class for you.",
+    "loading": "Loading coach info...",
+    "empty": "Coach info coming soon",
+    "fallback_subtitle": "PikFun Certified Coach",
+    "other_coaches": {
+      "title": "Other Coaches",
+      "prev_aria": "Previous",
+      "next_aria": "Next",
+      "view_all": "View All",
+      "fallback_badge": "Coach",
+      "fallback_meta_left": "Taiwan",
+      "fallback_meta_right": "Pickleball Coach"
+    }
+  },
+  "recruit": {
+    "cards": {
+      "platform": {
+        "title": "About PikFun",
+        "desc": "Learn about our platform, the latest news, and beginner guides to quickly join the pickleball community."
+      },
+      "coaching": {
+        "title": "Coaches & Classes",
+        "desc": "Browse all coaching classes, apply to join, or check out certified coaches to start your teaching journey."
+      },
+      "courts": {
+        "title": "Sessions & Courts",
+        "desc": "Start a session, host an event, or check the court map — always find the right session and venue."
+      },
+      "entry": {
+        "title": "Create a Class",
+        "desc": "Become a PikFun coach — publish classes, recruit students, and help more people fall in love with pickleball."
+      }
+    },
+    "header_title": "Platform & Resources",
+    "home_aria": "PikFun Home",
+    "bracket_label": "[Platform&Resources]",
+    "brand": "PikFun",
+    "home_link": "Home",
+    "privacy_link": "Privacy Policy",
+    "contact_link": "Contact Us",
+    "rights": "Copyright © {{year}} PikFun. All Rights Reserved.",
+    "page_top": "PAGE TOP"
+  },
+  "instagram": {
+    "editor": {
+      "heading": "Instagram Showcase",
+      "desc": "Open a post on Instagram → tap \"...\" in the top right → \"Copy Link\", then paste it below (up to {{max}}). Once saved, it will show as a link card on your coach page and open the post in a new tab when clicked.",
+      "username_label": "Instagram handle (optional, shown as @ with a profile link)",
+      "username_placeholder": "Handle without @",
+      "urls_label": "Post / Reel URLs",
+      "url_placeholder": "https://www.instagram.com/p/... or /reel/...",
+      "remove_aria": "Remove",
+      "add_btn": "Add Another"
+    },
+    "feed": {
+      "post_label": "Post",
+      "reel_label": "Reels",
+      "view_post": "View Post",
+      "visit_profile": "Visit Instagram Profile",
+      "follow_prompt": "Follow @{{handle}} for the latest updates",
+      "view_on_instagram": "View on Instagram"
+    }
+  },
+  "editor": {
+    "placeholder": "Write about the coach...",
+    "errors": {
+      "format_unsupported": "{{label}} format not supported",
+      "size_exceeded": "{{label}} exceeds the {{size}} limit",
+      "quota_exceeded": "{{label}} limit reached ({{max}} items)",
+      "upload_failed": "Upload failed",
+      "image_upload_failed": "Image upload failed"
+    },
+    "upload_video_btn": "Upload Video",
+    "media_labels": {
+      "image": "Image",
+      "video": "Video"
+    },
+    "quota_bar": {
+      "title": "Media Upload Quota (embedded images/videos in rich text)",
+      "usage": "{{used}} / {{max}} (max {{size}} per file)"
+    },
+    "editable_section": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "default_label": "Edit"
+    },
+    "tag_picker": {
+      "default_hint": "Click a common item, or type your own"
+    }
+  },
+  "enums": {
+    "class_type": {
+      "group": "Group Class",
+      "private": "Private Lesson",
+      "clinic": "Clinic",
+      "beginner": "Beginner Class",
+      "fallback": "Class"
+    },
+    "skill": {
+      "all": "Any Level",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "payment": {
+      "free": "Free Trial",
+      "cash": "Cash On-site",
+      "transfer": "Bank Transfer",
+      "line_pay": "LINE Pay",
+      "other": "Other"
+    },
+    "status": {
+      "enrolled": "Enrolled",
+      "waitlist": "On Waitlist",
+      "cancelled": "Cancelled",
+      "past": "Ended",
+      "full": "Full",
+      "open": "Open for Enrollment"
+    },
+    "region": {
+      "北部": "North",
+      "中部": "Central",
+      "南部": "South",
+      "東部": "East",
+      "離島": "Outlying Islands"
+    }
+  },
+  "errors": {
+    "login_required": "Please log in first",
+    "save_failed": "Save failed",
+    "upload_failed": "Upload failed",
+    "action_failed": "Action failed",
+    "network": "Network error, please try again later",
+    "generic": "Something went wrong, please try again later"
+  }
+}

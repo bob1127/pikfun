@@ -1,23 +1,27 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
   Plus,
   Users,
-  SlidersHorizontal,
   ArrowUpDown,
-  X,
-  Check,
   ChevronLeft,
   ChevronRight,
   Map,
+  Search,
+  ChevronDown,
+  Info,
 } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import SessionCard from "@/components/play/SessionCard";
 import PlaySessionsMapModal from "@/components/play/PlaySessionsMapModal";
+import LiquidBlueBg from "@/components/play/LiquidBlueBg";
+import PeopleShowcaseSection from "@/components/play/PeopleShowcaseSection";
 import {
   PlayHeroBanner,
   PlayStatsBar,
@@ -25,47 +29,59 @@ import {
   getAlmostFullSessions,
   computePlayStats,
 } from "@/components/play/PlayEditorialSections";
-import TrapezoidTabs from "@/components/ui/TrapezoidTabs";
-import { SKILL_LABELS } from "@/lib/playUtils";
+import { BluePillTabs } from "@/components/ui/BlueCta";
+import { getSkillLabels } from "@/lib/playUtils";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 12;
 
-const TABS = [
-  { key: "upcoming", label: "即將開始" },
-  { key: "all", label: "全部" },
-  { key: "joined", label: "我加入的", requireAuth: true },
-  { key: "hosting", label: "我開的團", requireAuth: true },
-];
+function getTabs(t) {
+  return [
+    { key: "upcoming", label: t("list.tabs.upcoming") },
+    { key: "ended", label: t("list.tabs.ended") },
+    { key: "joined", label: t("list.tabs.joined"), requireAuth: true },
+    { key: "hosting", label: t("list.tabs.hosting"), requireAuth: true },
+  ];
+}
 
-const SORT_OPTIONS = [
-  { key: "date_asc", label: "最近優先" },
-  { key: "date_desc", label: "最晚優先" },
-  { key: "spots_asc", label: "空位由多到少" },
-  { key: "fee_asc", label: "費用：低到高" },
-  { key: "fee_desc", label: "費用：高到低" },
-];
+function getSortOptions(t) {
+  return [
+    { key: "date_asc", label: t("list.sort.date_asc") },
+    { key: "date_desc", label: t("list.sort.date_desc") },
+    { key: "spots_asc", label: t("list.sort.spots_asc") },
+    { key: "fee_asc", label: t("list.sort.fee_asc") },
+    { key: "fee_desc", label: t("list.sort.fee_desc") },
+  ];
+}
 
-const SKILL_FILTER_OPTIONS = [
-  { key: "all", label: "不限程度" },
-  { key: "beginner", label: SKILL_LABELS.beginner },
-  { key: "intermediate", label: SKILL_LABELS.intermediate },
-  { key: "advanced", label: SKILL_LABELS.advanced },
-];
+function getSkillFilterOptions(t) {
+  const skillLabels = getSkillLabels(t);
+  return [
+    { key: "all", label: t("filters.skill_all") },
+    { key: "beginner", label: skillLabels.beginner },
+    { key: "intermediate", label: skillLabels.intermediate },
+    { key: "advanced", label: skillLabels.advanced },
+  ];
+}
 
-const FEE_OPTIONS = [
-  { key: "any", label: "不限" },
-  { key: "free", label: "免費" },
-  { key: "paid", label: "收費" },
-];
-const STATUS_OPTIONS = [
-  { key: "any", label: "不限" },
-  { key: "open", label: "可加入" },
-  { key: "full", label: "已額滿" },
-];
+function getFeeOptions(t) {
+  return [
+    { key: "any", label: t("common.unlimited") },
+    { key: "free", label: t("filters.fee_free") },
+    { key: "paid", label: t("filters.fee_paid") },
+  ];
+}
+
+function getStatusOptions(t) {
+  return [
+    { key: "any", label: t("common.unlimited") },
+    { key: "open", label: t("filters.status_open") },
+    { key: "full", label: t("filters.status_full") },
+  ];
+}
 
 function applyLocalFilters(
   sessions,
-  { skillLevel, feeType, statusType, sortKey },
+  { skillLevel, feeType, statusType, keyword, sortKey },
 ) {
   let out = [...sessions];
   if (skillLevel && skillLevel !== "all")
@@ -82,8 +98,31 @@ function applyLocalFilters(
       (s) => s.fee_per_person > 0 && s.payment_method !== "free",
     );
   if (statusType === "open")
-    out = out.filter((s) => !s.is_full && s.display_status !== "cancelled");
+    out = out.filter(
+      (s) =>
+        !s.is_full &&
+        s.display_status !== "cancelled" &&
+        s.display_status !== "ended",
+    );
   else if (statusType === "full") out = out.filter((s) => s.is_full);
+
+  const q = (keyword || "").trim().toLowerCase();
+  if (q) {
+    out = out.filter((s) => {
+      const hay = [
+        s.title,
+        s.location_name,
+        s.location_address,
+        s.host_name,
+        s.description,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }
+
   switch (sortKey) {
     case "date_desc":
       out.sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at));
@@ -166,186 +205,152 @@ function Pagination({ page, total, pageSize, onChange }) {
   );
 }
 
-/* ── FilterDrawer ───────────────────────────────────────── */
-function FilterSection({ label, children }) {
+/* ── 淺色藍系橫向篩選列（參考搜尋列設計）───────────────── */
+const FILTER_BLUE = "#005caf";
+
+function FilterSelect({ value, onChange, options, className = "" }) {
   return (
-    <div className="py-5">
-      <p className="text-[10px] font-black tracking-widest uppercase text-gray-500 mb-4">
-        {label}
-      </p>
-      <div className="space-y-3">{children}</div>
+    <div className={`relative min-w-0 ${className}`}>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-md border border-[#d7e3f2] bg-white pl-3.5 pr-9 py-3 text-sm text-gray-800 outline-none transition focus:border-[#005caf] focus:ring-2 focus:ring-[#005caf]/15"
+      >
+        {options.map((o) => (
+          <option key={o.key} value={o.key}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        size={16}
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+        style={{ color: FILTER_BLUE }}
+      />
     </div>
   );
 }
-function CheckRow({ label, checked, onToggle }) {
+
+function PlayFilterBar({
+  t,
+  filters,
+  keywordDraft,
+  onKeywordDraftChange,
+  onFilterChange,
+  onSearch,
+  sortKey,
+  onSortChange,
+  onMapOpen,
+  resultCount,
+  onClear,
+  hasActiveFilters,
+}) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className="flex items-center gap-3 w-full text-left group"
-    >
-      <span
-        className={`w-4 h-4 border flex items-center justify-center flex-shrink-0 transition-colors ${checked ? "bg-gray-900 border-gray-900" : "bg-white border-gray-400 group-hover:border-gray-600"}`}
+    <div className="mb-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSearch();
+        }}
+        className="rounded-xl border border-[#d7e3f2]/80 bg-white/55 backdrop-blur-sm p-3 md:p-4 shadow-sm md:bg-[#f7fbff] md:backdrop-blur-none"
       >
-        {checked && <Check size={10} strokeWidth={3} className="text-white" />}
-      </span>
-      <span className="text-sm text-gray-800">{label}</span>
-    </button>
-  );
-}
-function FilterDrawer({ open, onClose, filters, onChange, onApply }) {
-  return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/30"
-            onClick={onClose}
-            aria-hidden
+        <div className="flex flex-col lg:flex-row gap-2.5 lg:items-stretch">
+          <FilterSelect
+            className="lg:w-[140px]"
+            value={filters.skillLevel}
+            onChange={(v) => onFilterChange("skillLevel", v)}
+            options={getSkillFilterOptions(t)}
           />
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "tween", duration: 0.28 }}
-            className="fixed inset-y-0 left-0 z-50 w-72 bg-[#f2f2f2] flex flex-col"
+          <FilterSelect
+            className="lg:w-[120px]"
+            value={filters.feeType}
+            onChange={(v) => onFilterChange("feeType", v)}
+            options={getFeeOptions(t)}
+          />
+          <FilterSelect
+            className="lg:w-[180px]"
+            value={filters.statusType}
+            onChange={(v) => onFilterChange("statusType", v)}
+            options={getStatusOptions(t)}
+          />
+          <div className="relative flex-1 min-w-0">
+            <input
+              type="search"
+              value={keywordDraft}
+              onChange={(e) => onKeywordDraftChange(e.target.value)}
+              placeholder={t("list.search_placeholder")}
+              className="w-full rounded-md border border-[#d7e3f2] bg-white px-3.5 py-3 text-sm text-gray-800 placeholder:text-gray-400 outline-none transition focus:border-[#005caf] focus:ring-2 focus:ring-[#005caf]/15"
+            />
+          </div>
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-bold text-white transition hover:opacity-90 shrink-0"
+            style={{ backgroundColor: FILTER_BLUE }}
           >
-            <div className="flex items-center justify-between px-6 pt-8 pb-5">
-              <span className="text-xs font-black tracking-widest uppercase text-gray-900">
-                FILTER
-              </span>
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-1 text-gray-500 hover:text-gray-900"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-6 divide-y divide-gray-300">
-              <FilterSection label="程度">
-                {SKILL_FILTER_OPTIONS.map((o) => (
-                  <CheckRow
-                    key={o.key}
-                    label={o.label}
-                    checked={filters.skillLevel === o.key}
-                    onToggle={() => onChange("skillLevel", o.key)}
-                  />
-                ))}
-              </FilterSection>
-              <FilterSection label="費用">
-                {FEE_OPTIONS.map((o) => (
-                  <CheckRow
-                    key={o.key}
-                    label={o.label}
-                    checked={filters.feeType === o.key}
-                    onToggle={() => onChange("feeType", o.key)}
-                  />
-                ))}
-              </FilterSection>
-              <FilterSection label="狀態">
-                {STATUS_OPTIONS.map((o) => (
-                  <CheckRow
-                    key={o.key}
-                    label={o.label}
-                    checked={filters.statusType === o.key}
-                    onToggle={() => onChange("statusType", o.key)}
-                  />
-                ))}
-              </FilterSection>
-            </div>
-            <div className="px-6 py-5 border-t border-gray-300">
-              <button
-                type="button"
-                onClick={() => {
-                  onApply();
-                  onClose();
-                }}
-                className="w-full py-3.5 bg-gray-900 text-white text-sm font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors"
-              >
-                VIEW RESULTS
-              </button>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}
+            {t("common.search")}
+            <Search size={16} strokeWidth={2.5} />
+          </button>
+        </div>
 
-/* ── SortDropdown ───────────────────────────────────────── */
-function SortDropdown({ value, onChange }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  useEffect(() => {
-    const h = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, []);
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white text-xs font-bold tracking-widest uppercase text-gray-700 hover:bg-gray-50 transition-colors"
-      >
-        <ArrowUpDown size={13} /> SORT
-      </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-1 w-52 bg-white border border-gray-200 z-50"
-          >
-            {SORT_OPTIONS.map((o) => (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="inline-flex items-center gap-1.5 text-xs text-[#5a7aa0]">
+            <Info size={13} className="shrink-0" style={{ color: FILTER_BLUE }} />
+            {t("list.result_count", { count: resultCount })}
+            {hasActiveFilters ? t("list.filtered_suffix") : ""}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            {hasActiveFilters && (
               <button
-                key={o.key}
                 type="button"
-                onClick={() => {
-                  onChange(o.key);
-                  setOpen(false);
-                }}
-                className={`block w-full text-left px-5 py-3.5 text-sm transition-colors ${o.key === value ? "text-gray-900 font-bold underline" : "text-gray-700 hover:bg-gray-50"}`}
+                onClick={onClear}
+                className="text-xs font-bold text-[#005caf] underline underline-offset-2"
               >
-                {o.label}
+                {t("common.clear_filters")}
               </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            )}
+            <button
+              type="button"
+              onClick={onMapOpen}
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 hover:shadow-lg"
+              style={{ backgroundColor: FILTER_BLUE }}
+            >
+              <Map size={16} strokeWidth={2.5} />
+              {t("list.map_btn")}
+            </button>
+            <div className="relative">
+              <select
+                value={sortKey}
+                onChange={(e) => onSortChange(e.target.value)}
+                className="appearance-none rounded-md border border-[#d7e3f2] bg-white pl-3 pr-8 py-2 text-xs font-bold text-gray-700 outline-none focus:border-[#005caf]"
+              >
+                {getSortOptions(t).map((o) => (
+                  <option key={o.key} value={o.key}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <ArrowUpDown
+                size={12}
+                className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#005caf]"
+              />
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
-  );
-}
-
-function FilterTag({ label, onRemove }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-900 text-white text-xs font-semibold">
-      {label}
-      <button type="button" onClick={onRemove} className="hover:opacity-70">
-        <X size={11} strokeWidth={2.5} />
-      </button>
-    </span>
   );
 }
 
 /* ══════════════════════════════════════════════════════════ */
 export default function PlayListPage() {
   const router = useRouter();
+  const { t } = useTranslation("play");
   const { userInfo, loading: userLoading } = useUser();
 
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("upcoming");
   const [error, setError] = useState(null);
-  const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [listKey, setListKey] = useState(0);
   const [mapOpen, setMapOpen] = useState(false);
@@ -357,9 +362,20 @@ export default function PlayListPage() {
     skillLevel: "all",
     feeType: "any",
     statusType: "any",
+    keyword: "",
   });
+  const [keywordDraft, setKeywordDraft] = useState("");
   const [sortKey, setSortKey] = useState("date_asc");
-  const [pendingFilters, setPendingFilters] = useState(filters);
+
+  // 讀取網址 ?q= 參數（例如從策辦人介紹頁、標籤連結進來時自動套用篩選）
+  useEffect(() => {
+    if (!router.isReady) return;
+    const q = typeof router.query.q === "string" ? router.query.q.trim() : "";
+    if (q) {
+      setFilters((prev) => ({ ...prev, keyword: q }));
+      setKeywordDraft(q);
+    }
+  }, [router.isReady, router.query.q]);
 
   const fetchSessions = async () => {
     setLoading(true);
@@ -369,7 +385,7 @@ export default function PlayListPage() {
       if (userInfo?.email) params.set("email", userInfo.email);
       const res = await fetch(`/api/play-sessions?${params}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "載入失敗");
+      if (!res.ok) throw new Error(data.error || t("list.load_failed"));
       setSessions(data.sessions || []);
     } catch (e) {
       setError(e.message);
@@ -408,18 +424,17 @@ export default function PlayListPage() {
     }
 
     setMapLoading(true);
-    const params = new URLSearchParams({ filter: "all" });
+    const params = new URLSearchParams({
+      filter: tab === "ended" ? "ended" : "upcoming",
+    });
     if (userInfo?.email) params.set("email", userInfo.email);
 
     fetch(`/api/play-sessions?${params}`)
       .then((r) => r.json())
       .then((d) => {
-        const now = new Date();
-        let list = (d.sessions || []).filter((s) => s.status !== "cancelled");
-        if (tab === "upcoming") {
-          list = list.filter((s) => new Date(s.starts_at) >= now);
-        }
-        setMapSessions(applyLocalFilters(list, { ...filters, sortKey }));
+        setMapSessions(
+          applyLocalFilters(d.sessions || [], { ...filters, sortKey }),
+        );
       })
       .catch(() => setMapSessions([]))
       .finally(() => setMapLoading(false));
@@ -434,12 +449,28 @@ export default function PlayListPage() {
     filters.skillLevel !== "all",
     filters.feeType !== "any",
     filters.statusType !== "any",
+    Boolean(filters.keyword?.trim()),
   ].filter(Boolean).length;
+
+  const clearFilters = () => {
+    setFilters({
+      skillLevel: "all",
+      feeType: "any",
+      statusType: "any",
+      keyword: "",
+    });
+    setKeywordDraft("");
+  };
 
   const handlePageChange = (p) => {
     setPage(p);
     setListKey((k) => k + 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // 捲到列表頂端（扣掉固定導覽列高度），而不是整頁最上方
+    const list = document.getElementById("play-sessions-list");
+    if (list) {
+      const top = list.getBoundingClientRect().top + window.scrollY - 130;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
   };
 
   const handleCreateClick = () => {
@@ -453,20 +484,9 @@ export default function PlayListPage() {
   return (
     <>
       <Head>
-        <title>揪團打球 | PikFun</title>
-        <meta
-          name="description"
-          content="尋找附近的匹克球揪團，加入球友一起打球"
-        />
+        <title>{t("seo.list_title")}</title>
+        <meta name="description" content={t("seo.list_description")} />
       </Head>
-
-      <FilterDrawer
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
-        filters={pendingFilters}
-        onChange={(k, v) => setPendingFilters((p) => ({ ...p, [k]: v }))}
-        onApply={() => setFilters(pendingFilters)}
-      />
 
       <PlaySessionsMapModal
         open={mapOpen}
@@ -479,9 +499,10 @@ export default function PlayListPage() {
       />
 
       <main
-        className="min-h-screen pb-20 overflow-x-hidden"
-        style={{ backgroundColor: "#F1F3F5" }}
+        className="relative min-h-screen pb-20 overflow-x-hidden bg-[#eef4fb] md:bg-[#F1F3F5]"
       >
+        <LiquidBlueBg />
+        <div className="relative z-10">
         <PlayHeroBanner
           stats={playStats}
           featuredSessions={almostFullSessions}
@@ -497,102 +518,50 @@ export default function PlayListPage() {
           id="play-sessions-list"
           className="max-w-[1400px] mx-auto px-6 md:px-10 pt-12 md:pt-16"
         >
-          {/* Tabs */}
-          <div className="mb-0">
-            <TrapezoidTabs
-              items={TABS.filter((f) => !f.requireAuth || userInfo)}
+          {/* Tabs + 開團 CTA */}
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <BluePillTabs
+              tabs={getTabs(t)
+                .filter((f) => !f.requireAuth || userInfo)
+                .map((tb) => ({
+                  value: tb.key,
+                  label: tb.label,
+                }))}
               value={tab}
               onChange={setTab}
             />
+            <button
+              type="button"
+              onClick={handleCreateClick}
+              className="inline-flex items-center gap-2 bg-[#3157B5] hover:bg-[#22408f] text-white font-bold text-sm px-6 py-3 rounded-full shadow-lg shadow-[#3157B5]/25 transition-all hover:scale-[1.03] active:scale-95"
+            >
+              <Plus size={18} strokeWidth={2.5} />
+              {t("list.create_cta")}
+            </button>
           </div>
 
-          {/* Filter/Sort bar */}
-          <div className="flex items-center justify-between py-3 border-b border-gray-900 mb-6 gap-3 flex-wrap">
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                type="button"
-                onClick={() => {
-                  setPendingFilters(filters);
-                  setFilterOpen(true);
-                }}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white text-xs font-bold tracking-widest uppercase text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <SlidersHorizontal size={13} />
-                FILTER
-                <span className="text-gray-400 font-medium normal-case tracking-normal">
-                  {displayed.length} 場次
-                </span>
-                {activeFilterCount > 0 && (
-                  <span className="ml-1 w-4 h-4 rounded-full bg-gray-900 text-white text-[10px] flex items-center justify-center font-bold">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setMapOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold transition-colors border border-gray-300 bg-white text-gray-700 hover:bg-[#005caf] hover:text-white hover:border-[#005caf]"
-              >
-                <Map size={13} /> 地圖
-              </button>
-            </div>
-            <SortDropdown value={sortKey} onChange={setSortKey} />
-          </div>
-
-          {/* Active filter tags */}
-          {activeFilterCount > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {filters.skillLevel !== "all" && (
-                <FilterTag
-                  label={
-                    SKILL_FILTER_OPTIONS.find(
-                      (o) => o.key === filters.skillLevel,
-                    )?.label
-                  }
-                  onRemove={() =>
-                    setFilters((p) => ({ ...p, skillLevel: "all" }))
-                  }
-                />
-              )}
-              {filters.feeType !== "any" && (
-                <FilterTag
-                  label={
-                    FEE_OPTIONS.find((o) => o.key === filters.feeType)?.label
-                  }
-                  onRemove={() => setFilters((p) => ({ ...p, feeType: "any" }))}
-                />
-              )}
-              {filters.statusType !== "any" && (
-                <FilterTag
-                  label={
-                    STATUS_OPTIONS.find((o) => o.key === filters.statusType)
-                      ?.label
-                  }
-                  onRemove={() =>
-                    setFilters((p) => ({ ...p, statusType: "any" }))
-                  }
-                />
-              )}
-              <button
-                type="button"
-                onClick={() =>
-                  setFilters({
-                    skillLevel: "all",
-                    feeType: "any",
-                    statusType: "any",
-                  })
-                }
-                className="text-xs text-gray-400 underline hover:text-gray-700 px-1"
-              >
-                清除全部
-              </button>
-            </div>
-          )}
+          <PlayFilterBar
+            t={t}
+            filters={filters}
+            keywordDraft={keywordDraft}
+            onKeywordDraftChange={setKeywordDraft}
+            onFilterChange={(key, value) =>
+              setFilters((p) => ({ ...p, [key]: value }))
+            }
+            onSearch={() =>
+              setFilters((p) => ({ ...p, keyword: keywordDraft.trim() }))
+            }
+            sortKey={sortKey}
+            onSortChange={setSortKey}
+            onMapOpen={() => setMapOpen(true)}
+            resultCount={displayed.length}
+            onClear={clearFilters}
+            hasActiveFilters={activeFilterCount > 0}
+          />
 
           {/* Content */}
           {loading ? (
-            <div className="text-center py-20 text-gray-400">載入揪團中...</div>
+            <div className="text-center py-20 text-gray-400">{t("list.loading")}</div>
           ) : error ? (
             <div className="text-center py-20">
               <p className="text-red-500 mb-2">{error}</p>
@@ -600,7 +569,7 @@ export default function PlayListPage() {
                 onClick={fetchSessions}
                 className="text-[#3157B5] font-bold underline"
               >
-                重試
+                {t("common.retry")}
               </button>
             </div>
           ) : displayed.length === 0 ? (
@@ -608,28 +577,24 @@ export default function PlayListPage() {
               <Users size={48} className="text-gray-200 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">
                 {sessions.length > 0
-                  ? "目前篩選條件下沒有揪團"
-                  : "目前沒有揪團，成為第一個開團的人吧！"}
+                  ? t("list.empty_filtered")
+                  : tab === "ended"
+                    ? t("list.empty_ended")
+                    : t("list.empty_upcoming")}
               </p>
               {sessions.length > 0 ? (
                 <button
-                  onClick={() =>
-                    setFilters({
-                      skillLevel: "all",
-                      feeType: "any",
-                      statusType: "any",
-                    })
-                  }
-                  className="inline-flex items-center gap-2 bg-gray-900 text-white font-bold px-6 py-3 text-sm uppercase tracking-widest"
+                  onClick={clearFilters}
+                  className="inline-flex items-center gap-2 bg-[#005caf] text-white font-bold px-6 py-3 text-sm"
                 >
-                  清除篩選
+                  {t("common.clear_filters")}
                 </button>
               ) : (
                 <button
                   onClick={handleCreateClick}
                   className="inline-flex items-center gap-2 bg-[#3157B5] text-white font-bold px-6 py-3 rounded-full"
                 >
-                  <Plus size={18} /> 我要開團
+                  <Plus size={18} /> {t("list.create_cta")}
                 </button>
               )}
             </div>
@@ -659,7 +624,18 @@ export default function PlayListPage() {
             </>
           )}
         </div>
+
+        <PeopleShowcaseSection />
+        </div>
       </main>
     </>
   );
+}
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? "zh-TW", ["play", "common"])),
+    },
+  };
 }

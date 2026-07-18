@@ -1,0 +1,73 @@
+{
+  "breadcrumbAria": "Breadcrumb",
+  "breadcrumbHome": "Home",
+  "backToHome": "Back to Home",
+  "browseOtherCategory": "Browse other categories:",
+  "notFound": "Article not found",
+  "fontToolbar": {
+    "ariaLabel": "Font size",
+    "standard": "Standard",
+    "lg": "Large",
+    "xl": "X-Large"
+  },
+  "list": {
+    "empty": "No articles in this category yet."
+  },
+  "topics": {
+    "active": "Courts & Events",
+    "knowledge": "Sports Education",
+    "default": "Pickleball"
+  },
+  "footer": {
+    "meta": {
+      "category": "Type",
+      "topic": "Topic",
+      "keywords": "Keywords",
+      "relatedLink": "Related Link",
+      "relatedLinkSuffix": "Article List",
+      "originalLink": "Original Link"
+    },
+    "cta": {
+      "heading": "Not a member yet?",
+      "loginBtn": "Member Login",
+      "loginSub": "Already have an account",
+      "registerBtn": "Sign Up Now",
+      "registerSub": "Free to join",
+      "note": "Register as a member to see more coach contact info, event registration and exclusive course information.",
+      "noteSub": "* Content varies by article category; some information requires login to view."
+    },
+    "gallery": {
+      "title": "Article Images",
+      "altTemplate": "{{title}} image {{index}}"
+    },
+    "profile": {
+      "heading": "Site Overview",
+      "followersSuffix": "followers",
+      "follow": "Follow",
+      "backHome": "Back to Home",
+      "labels": {
+        "url": "Official Website",
+        "industry": "Industry",
+        "region": "Service Region",
+        "contact": "Contact",
+        "representative": "Operated By",
+        "established": "Established"
+      }
+    },
+    "carousel": {
+      "latest": "Latest Articles",
+      "recommended": "Recommended Reading",
+      "viewMore": "View More",
+      "nextAria": "Next page"
+    },
+    "bottomCrumb": {
+      "home": "Home"
+    }
+  },
+  "siteProfile": {
+    "industry": "Sports & Leisure / Pickleball",
+    "region": "Taiwan",
+    "representative": "PikFun Team",
+    "established": "2024"
+  }
+}

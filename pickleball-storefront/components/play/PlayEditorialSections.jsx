@@ -3,9 +3,10 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import {
-  SKILL_LABELS,
+  getSkillLabels,
   formatSessionDate,
   formatSessionRange,
   formatFee,
@@ -25,9 +26,6 @@ const HERO_CAROUSEL_IMAGES = [
   "/images/pik04.jpg",
 ];
 
-const HERO_MARQUEE_TEXT =
-  "揪團打球 · Pickleball Play · 一起上場揮拍 · Join the Game · 找球友開團 · ";
-
 const HERO_CAROUSEL_INTERVAL_MS = 4500;
 
 function chunkImages(images, size) {
@@ -42,57 +40,59 @@ const PAGE_BG = "#F1F3F5";
 const BLUE = "#005caf";
 const CAROUSEL_INTERVAL_MS = 5000;
 
-const DEMO_ALMOST_FULL_SESSIONS = [
-  {
-    id: "demo-1",
-    title: "週末雙打揪團 — 石牌運動中心｜歡迎各程度球友加入",
-    location_name: "石牌運動中心",
-    skill_level: "intermediate",
-    joined_count: 4,
-    max_players: 5,
-    starts_at: new Date(Date.now() + 86400000 * 2).toISOString(),
-    fee_per_person: 150,
-    payment_method: "cash",
-  },
-  {
-    id: "demo-2",
-    title: "平日晚上揪團 — 大安運動中心｜中階以上",
-    location_name: "大安運動中心",
-    skill_level: "advanced",
-    joined_count: 3,
-    max_players: 4,
-    starts_at: new Date(Date.now() + 86400000 * 4).toISOString(),
-    fee_per_person: 0,
-    payment_method: "free",
-  },
-  {
-    id: "demo-3",
-    title: "假日早上揪團 — 板橋體育場｜輕鬆交流局",
-    location_name: "板橋體育場",
-    skill_level: "beginner",
-    joined_count: 5,
-    max_players: 6,
-    starts_at: new Date(Date.now() + 86400000 * 6).toISOString(),
-    fee_per_person: 200,
-    payment_method: "cash",
-  },
-  {
-    id: "demo-4",
-    title: "夜間揪團 — 內湖匹克球場｜差一人即可開打",
-    location_name: "內湖匹克球場",
-    skill_level: "intermediate",
-    joined_count: 3,
-    max_players: 4,
-    starts_at: new Date(Date.now() + 86400000 * 8).toISOString(),
-    fee_per_person: 100,
-    payment_method: "transfer",
-  },
-];
+function getDemoAlmostFullSessions(t) {
+  return [
+    {
+      id: "demo-1",
+      title: t("editorial.demo.session1.title"),
+      location_name: t("editorial.demo.session1.location_name"),
+      skill_level: "intermediate",
+      joined_count: 4,
+      max_players: 5,
+      starts_at: new Date(Date.now() + 86400000 * 2).toISOString(),
+      fee_per_person: 150,
+      payment_method: "cash",
+    },
+    {
+      id: "demo-2",
+      title: t("editorial.demo.session2.title"),
+      location_name: t("editorial.demo.session2.location_name"),
+      skill_level: "advanced",
+      joined_count: 3,
+      max_players: 4,
+      starts_at: new Date(Date.now() + 86400000 * 4).toISOString(),
+      fee_per_person: 0,
+      payment_method: "free",
+    },
+    {
+      id: "demo-3",
+      title: t("editorial.demo.session3.title"),
+      location_name: t("editorial.demo.session3.location_name"),
+      skill_level: "beginner",
+      joined_count: 5,
+      max_players: 6,
+      starts_at: new Date(Date.now() + 86400000 * 6).toISOString(),
+      fee_per_person: 200,
+      payment_method: "cash",
+    },
+    {
+      id: "demo-4",
+      title: t("editorial.demo.session4.title"),
+      location_name: t("editorial.demo.session4.location_name"),
+      skill_level: "intermediate",
+      joined_count: 3,
+      max_players: 4,
+      starts_at: new Date(Date.now() + 86400000 * 8).toISOString(),
+      fee_per_person: 100,
+      payment_method: "transfer",
+    },
+  ];
+}
 
 const PLACEHOLDER_SLIDE_BG = ["#d5dae0", "#c9cfd6", "#bdc4cc", "#b1bac3"];
 
-function formatStatNumber(n) {
-  return Number(n || 0).toLocaleString("zh-TW");
+function formatStatNumber(n, locale = "zh-TW") {
+  return Number(n || 0).toLocaleString(locale);
 }
 
 function getSessionCounts(session) {
@@ -103,15 +103,15 @@ function getSessionCounts(session) {
   return { max, joined, spotsLeft };
 }
 
-function getSpotsMessage(spotsLeft) {
-  if (spotsLeft <= 0) return "已額滿";
-  if (spotsLeft === 1) return "差一人成團";
-  return `差${spotsLeft}人成團`;
+function getSpotsMessage(spotsLeft, t) {
+  if (spotsLeft <= 0) return t("status.full");
+  if (spotsLeft === 1) return t("editorial.count_block.one_left");
+  return t("editorial.count_block.left", { count: spotsLeft });
 }
 
 export function getAlmostFullSessions(sessions) {
   const now = new Date();
-  return sessions
+  const upcoming = sessions
     .filter(
       (s) =>
         s.display_status === "open" &&
@@ -127,7 +127,9 @@ export function getAlmostFullSessions(sessions) {
         fillRatio: joined / max,
         spotsLeft: s.spots_left ?? Math.max(0, max - joined),
       };
-    })
+    });
+
+  const almostFull = upcoming
     .filter((s) => s.fillRatio >= 0.5 || s.spotsLeft <= 2)
     .sort((a, b) => {
       const d = a.spotsLeft - b.spotsLeft;
@@ -135,23 +137,43 @@ export function getAlmostFullSessions(sessions) {
       return b.fillRatio - a.fillRatio;
     })
     .slice(0, 8);
+
+  if (almostFull.length > 0) return almostFull;
+
+  // 沒有即將額滿的場次時，改帶入最新開的團
+  return [...upcoming]
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+    .slice(0, 8);
 }
 
 export function computePlayStats(sessions) {
+  const now = new Date();
+  const upcomingOpen = (s) =>
+    s.status !== "cancelled" &&
+    s.display_status !== "cancelled" &&
+    s.display_status !== "ended" &&
+    !s.is_past &&
+    s.starts_at &&
+    new Date(s.starts_at) >= now;
+
   return {
-    ongoing: sessions.filter((s) => s.display_status === "open").length,
+    ongoing: sessions.filter(
+      (s) => upcomingOpen(s) && s.display_status === "open",
+    ).length,
     participants: sessions.reduce((sum, s) => sum + (s.joined_count || 0), 0),
     available: sessions.filter(
-      (s) => !s.is_full && s.display_status !== "cancelled",
+      (s) => upcomingOpen(s) && !s.is_full,
     ).length,
   };
 }
 
 /* ── Part 1: Hero images + marquee + intro strip ─────────── */
 export function PlayHeroBanner({ stats, featuredSessions = [] }) {
+  const { t } = useTranslation("play");
   const slideGroups = useMemo(() => chunkImages(HERO_CAROUSEL_IMAGES, 3), []);
   const [activeSlide, setActiveSlide] = useState(0);
-  const marqueeItems = Array.from({ length: 3 }, () => HERO_MARQUEE_TEXT);
+  const marqueeText = t("editorial.hero.marquee_text");
+  const marqueeItems = Array.from({ length: 3 }, () => marqueeText);
 
   useEffect(() => {
     if (slideGroups.length <= 1) return;
@@ -163,8 +185,8 @@ export function PlayHeroBanner({ stats, featuredSessions = [] }) {
 
   return (
     <>
-      <section className="relative w-full overflow-x-hidden bg-[#F1F3F5]">
-        <h1 className="sr-only">揪團打球</h1>
+      <section className="relative w-full overflow-x-hidden bg-transparent md:bg-[#F1F3F5]">
+        <h1 className="sr-only">{t("editorial.sr_title")}</h1>
 
         <style>{`
           @keyframes play-hero-marquee {
@@ -216,7 +238,7 @@ export function PlayHeroBanner({ stats, featuredSessions = [] }) {
               {[...marqueeItems, ...marqueeItems].map((text, i) => (
                 <span
                   key={i}
-                  className="play-editorial-serif text-white leading-[0.9] tracking-[-0.02em] whitespace-nowrap pr-10 md:pr-16"
+                  className="play-editorial-serif text-[#d9dfe6] leading-[0.9] tracking-[-0.02em] whitespace-nowrap pr-10 md:pr-16"
                   style={{ fontSize: "clamp(3rem, 10vw, 8.5rem)" }}
                 >
                   {text}
@@ -226,173 +248,34 @@ export function PlayHeroBanner({ stats, featuredSessions = [] }) {
           </div>
         </div>
       </section>
-
-      <PlayHeroIntroStrip stats={stats} sessions={featuredSessions} />
     </>
-  );
-}
-
-/* ── Below marquee: intro strip (reference image 2) ────── */
-function PlayHeroIntroStrip({ stats, sessions }) {
-  const [active, setActive] = useState(0);
-  const items =
-    sessions.length > 0
-      ? sessions
-      : [
-          {
-            id: "placeholder",
-            title: "週末匹克球揪團 — 歡迎各程度球友加入",
-            location_name: "台北運動中心",
-            skill_level: "intermediate",
-            starts_at: new Date().toISOString(),
-          },
-        ];
-
-  useEffect(() => {
-    if (items.length <= 1) return;
-    const t = setInterval(() => {
-      setActive((i) => (i + 1) % items.length);
-    }, 5500);
-    return () => clearInterval(t);
-  }, [items.length]);
-
-  const current = items[active];
-
-  return (
-    <section className="relative z-10" style={{ backgroundColor: PAGE_BG }}>
-      <div className="max-w-[1200px] mx-auto px-6 md:px-12 lg:px-16 pt-16 md:pt-20 pb-12 md:pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-          <div className="lg:pr-4">
-            <h2 className="text-[1.625rem] md:text-[2rem] lg:text-[2.25rem] font-bold text-black leading-[1.5] tracking-[-0.01em] mb-8 md:mb-10">
-              找到球友，
-              <br />
-              讓每場揪團都順利開打
-            </h2>
-            <div className="space-y-2 text-[13px] md:text-sm text-[#333] leading-relaxed">
-              <p>
-                進行揪團中{" "}
-                <span className="font-bold text-black">
-                  {formatStatNumber(stats?.ongoing ?? 0)}
-                </span>{" "}
-                場
-              </p>
-              <p>
-                總參與人次{" "}
-                <span className="font-bold text-black">
-                  {formatStatNumber(stats?.participants ?? 0)}
-                </span>{" "}
-                人
-              </p>
-            </div>
-          </div>
-
-          <div className="relative min-h-[200px]">
-            <div className="flex items-center justify-end gap-2 mb-4">
-              {items.map((s, i) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setActive(i)}
-                  aria-label={`第 ${i + 1} 則`}
-                  className={`rounded-full transition-all ${
-                    i === active
-                      ? "w-2 h-2"
-                      : "w-1.5 h-1.5 bg-[#ccc] hover:bg-[#aaa]"
-                  }`}
-                  style={i === active ? { backgroundColor: BLUE } : undefined}
-                />
-              ))}
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={current.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-3 pr-0 md:pr-36"
-              >
-                <div className="flex items-center gap-2 text-[11px] text-[#888] flex-wrap">
-                  <span>場地</span>
-                  <span className="text-[#d0d0d0]">|</span>
-                  <span className="text-[#333]">
-                    {current.location_name || "各區場地"}
-                  </span>
-                  <span
-                    className="px-2 py-0.5 rounded-full text-[10px] font-medium text-white"
-                    style={{ backgroundColor: BLUE }}
-                  >
-                    熱門揪團
-                  </span>
-                </div>
-
-                <Link
-                  href={
-                    current.id === "placeholder"
-                      ? "#play-sessions-list"
-                      : `/play/${current.id}`
-                  }
-                  className="group inline-flex items-start gap-1.5 text-[15px] font-bold text-black leading-snug hover:opacity-65"
-                >
-                  <span className="line-clamp-2">{current.title}</span>
-                  <ArrowUpRight
-                    size={14}
-                    className="shrink-0 mt-0.5 opacity-50"
-                  />
-                </Link>
-
-                <div className="flex flex-wrap gap-x-3 text-[11px] text-[#aaa]">
-                  {current.skill_level && (
-                    <span>({SKILL_LABELS[current.skill_level]})</span>
-                  )}
-                  <span>#揪團打球</span>
-                  <span>#匹克球</span>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            <Link
-              href="/play/create"
-              className="hidden md:flex absolute bottom-0 right-0 w-[148px] overflow-hidden rounded-sm shadow-sm hover:opacity-90 transition-opacity"
-            >
-              <div className="w-[52px] h-[72px] bg-[#1a3a5c] flex items-center justify-center p-1.5 shrink-0">
-                <span className="text-[8px] text-white/90 leading-tight text-center font-bold">
-                  開團
-                  <br />
-                  指南
-                </span>
-              </div>
-              <div
-                className="flex-1 h-[72px] flex flex-col justify-center px-2.5 text-white"
-                style={{ backgroundColor: BLUE }}
-              >
-                <p className="text-[9px] leading-snug font-bold">
-                  三步驟
-                  <br />
-                  輕鬆開團
-                </p>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
 /* ── Figure 3: Stats row ─────────────────────────────────── */
 export function PlayStatsBar({ stats }) {
+  const { t, i18n } = useTranslation("play");
   const items = [
-    { label: "進行揪團中", value: stats.ongoing, unit: "場" },
-    { label: "總參與人次", value: stats.participants, unit: "人" },
-    { label: "可加入場次", value: stats.available, unit: "場" },
+    {
+      label: t("editorial.stats.ongoing"),
+      value: stats.ongoing,
+      unit: t("editorial.stats.unit_session"),
+    },
+    {
+      label: t("editorial.stats.participants"),
+      value: stats.participants,
+      unit: t("editorial.stats.unit_person"),
+    },
+    {
+      label: t("editorial.stats.available"),
+      value: stats.available,
+      unit: t("editorial.stats.unit_session"),
+    },
   ];
 
   return (
     <section
-      className="border-y border-[#e2e5e8]"
-      style={{ backgroundColor: PAGE_BG }}
+      className="border-y border-[#e2e5e8]/80 bg-white/45 backdrop-blur-[2px] md:bg-[#F1F3F5] md:backdrop-blur-none"
     >
       <div className="max-w-[1400px] mx-auto px-4 md:px-10">
         <div className="grid grid-cols-3">
@@ -411,7 +294,7 @@ export function PlayStatsBar({ stats }) {
                   className="play-editorial-serif text-black leading-none"
                   style={{ fontSize: "clamp(1.75rem, 7vw, 4.5rem)" }}
                 >
-                  {formatStatNumber(item.value)}
+                  {formatStatNumber(item.value, i18n.language)}
                 </span>
                 <span className="play-editorial-serif text-black/70 text-[11px] md:text-base pb-0.5 md:pb-1.5">
                   {item.unit}
@@ -426,6 +309,7 @@ export function PlayStatsBar({ stats }) {
 }
 
 function PlaceholderSlide({ index }) {
+  const { t } = useTranslation("play");
   return (
     <div
       className="absolute inset-0 flex flex-col items-center justify-center"
@@ -443,39 +327,42 @@ function PlaceholderSlide({ index }) {
         </svg>
       </div>
       <span className="text-[11px] text-[#7d8793] tracking-[0.2em] font-medium">
-        假圖 {index + 1}
+        {t("editorial.placeholder_slide", { index: index + 1 })}
       </span>
     </div>
   );
 }
 function SessionMetaHeader({ session }) {
+  const { t } = useTranslation("play");
   return (
     <div className="flex items-center gap-2 text-[11px] text-[#666] flex-wrap min-w-0">
-      <span>場地</span>
+      <span>{t("editorial.meta.field_label")}</span>
       <span className="text-[#d8d8d8]">|</span>
       <span className="text-[#222] truncate max-w-[160px]">
-        {session.location_name || "待定"}
+        {session.location_name || t("editorial.meta.field_fallback")}
       </span>
       <span
         className="px-2.5 py-[3px] rounded-full text-[10px] font-medium text-white leading-none"
         style={{ backgroundColor: BLUE }}
       >
-        即將成團
+        {t("editorial.meta.coming_soon_badge")}
       </span>
     </div>
   );
 }
 
 function SessionMetaBody({ session, isDemo = false }) {
+  const { t } = useTranslation("play");
+  const skillLabels = getSkillLabels(t);
   const category =
-    session.skill_level && SKILL_LABELS[session.skill_level]
-      ? `(${SKILL_LABELS[session.skill_level]})`
+    session.skill_level && skillLabels[session.skill_level]
+      ? `(${skillLabels[session.skill_level]})`
       : null;
   const tags = [
-    "揪團打球",
-    "匹克球",
+    t("editorial.tags.play"),
+    t("editorial.tags.pickleball"),
     session.location_name,
-    formatFee(session.fee_per_person, session.payment_method),
+    formatFee(session.fee_per_person, session.payment_method, t),
   ].filter(Boolean);
 
   const href = isDemo ? "#play-sessions-list" : `/play/${session.id}`;
@@ -505,6 +392,7 @@ function SessionMetaBody({ session, isDemo = false }) {
 }
 
 function SessionCountBlock({ session, loading }) {
+  const { t, i18n } = useTranslation("play");
   if (loading || !session) {
     return (
       <div className="flex items-start gap-4 md:gap-6 mb-10 md:mb-12 max-w-md">
@@ -535,12 +423,14 @@ function SessionCountBlock({ session, loading }) {
       >
         <div className="flex-1 min-w-0">
           <p className="text-[12px] md:text-[13px] text-[#333] leading-[1.9]">
-            {getSpotsMessage(spotsLeft)}
+            {getSpotsMessage(spotsLeft, t)}
             <br />
-            即將額滿的揪團場次
+            {t("editorial.count_block.almost_full_desc")}
           </p>
           <p className="text-[10px] text-[#aaa] mt-3 tracking-wide">
-            ※{formatSessionDate(session.starts_at)} 開打
+            {t("editorial.count_block.starts_note", {
+              date: formatSessionDate(session.starts_at, i18n.language),
+            })}
           </p>
         </div>
 
@@ -555,7 +445,7 @@ function SessionCountBlock({ session, loading }) {
               {joined}/{max}
             </span>
             <span className="play-editorial-serif text-[13px] text-[#444] pb-1.5">
-              人
+              {t("editorial.count_block.unit_person")}
             </span>
           </div>
         </div>
@@ -611,6 +501,7 @@ function PillButton({ href, onClick, variant = "primary", children }) {
 }
 
 function CarouselDots({ count, active, onSelect, overlay = false }) {
+  const { t } = useTranslation("play");
   return (
     <div className="flex items-center justify-end gap-2 shrink-0">
       {Array.from({ length: count }, (_, i) => (
@@ -618,7 +509,7 @@ function CarouselDots({ count, active, onSelect, overlay = false }) {
           key={i}
           type="button"
           onClick={() => onSelect(i)}
-          aria-label={`第 ${i + 1} 場揪團`}
+          aria-label={t("editorial.carousel_dot_aria", { index: i + 1 })}
           aria-current={i === active ? "true" : undefined}
           className={`rounded-full transition-all duration-300 ${
             i === active
@@ -633,6 +524,7 @@ function CarouselDots({ count, active, onSelect, overlay = false }) {
 }
 
 function PromoFloatCard() {
+  const { t } = useTranslation("play");
   return (
     <Link
       href="/play/create"
@@ -640,9 +532,9 @@ function PromoFloatCard() {
     >
       <div className="w-[54px] h-[76px] bg-[#1a3352] flex items-center justify-center p-2 shrink-0">
         <span className="text-[8px] text-white/90 leading-tight text-center font-bold">
-          開團
+          {t("editorial.promo_card.guide_line1")}
           <br />
-          指南
+          {t("editorial.promo_card.guide_line2")}
         </span>
       </div>
       <div
@@ -650,9 +542,9 @@ function PromoFloatCard() {
         style={{ backgroundColor: BLUE }}
       >
         <p className="text-[9px] leading-snug font-bold">
-          新手上路
+          {t("editorial.promo_card.tip_line1")}
           <br />
-          輕鬆開團
+          {t("editorial.promo_card.tip_line2")}
         </p>
       </div>
     </Link>
@@ -660,11 +552,14 @@ function PromoFloatCard() {
 }
 
 export function PlayAlmostFullSection({ sessions, onCreateClick, loading }) {
+  const { t } = useTranslation("play");
   const [active, setActive] = useState(0);
 
   const displaySessions = useMemo(() => {
     const base =
-      sessions.length > 0 ? sessions.slice(0, 4) : DEMO_ALMOST_FULL_SESSIONS;
+      sessions.length > 0
+        ? sessions.slice(0, 4)
+        : getDemoAlmostFullSessions(t);
     return base.map((s) => {
       const max = s.max_players || 4;
       const joined = s.joined_count || 0;
@@ -673,7 +568,7 @@ export function PlayAlmostFullSection({ sessions, onCreateClick, loading }) {
         spotsLeft: s.spotsLeft ?? s.spots_left ?? Math.max(0, max - joined),
       };
     });
-  }, [sessions]);
+  }, [sessions, t]);
 
   useEffect(() => {
     setActive(0);
@@ -691,7 +586,7 @@ export function PlayAlmostFullSection({ sessions, onCreateClick, loading }) {
   const isDemo = current?.id?.startsWith("demo-");
 
   return (
-    <section className="relative z-10 bg-white">
+    <section className="relative z-10 bg-white/55 backdrop-blur-[1px] md:bg-white md:backdrop-blur-none">
       <div className="max-w-[1200px] mx-auto px-6 md:px-12 lg:px-16 py-16 md:py-20 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-12 lg:gap-16 xl:gap-24 items-start">
           {/* ── Left column ── */}
@@ -702,14 +597,14 @@ export function PlayAlmostFullSection({ sessions, onCreateClick, loading }) {
                 style={{ backgroundColor: BLUE }}
               />
               <span className="text-[11px] md:text-xs text-[#555] tracking-[0.02em]">
-                匹克球揪團服務
+                {t("editorial.almost_full.eyebrow")}
               </span>
             </div>
 
             <h2 className="text-[1.75rem] md:text-[2.125rem] lg:text-[2.375rem] font-bold text-black leading-[1.45] tracking-[-0.02em] mb-8 md:mb-10">
-              快要開團成功
+              {t("editorial.almost_full.title_line1")}
               <br />
-              把握最後名額
+              {t("editorial.almost_full.title_line2")}
             </h2>
 
             {loading ? (
@@ -719,22 +614,21 @@ export function PlayAlmostFullSection({ sessions, onCreateClick, loading }) {
             )}
 
             <p className="text-[13px] md:text-sm text-[#333] leading-[2] mb-10 md:mb-12 max-w-[460px] text-justify">
-              瀏覽即將成團的匹克球場次，查看時間、地點與剩餘名額。
-              人數即將額滿時把握最後加入機會，一鍵報名與球友相約上場，讓每場揪團都能順利開打。
+              {t("editorial.almost_full.description")}
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap items-start gap-2.5">
               {current && !isDemo ? (
                 <PillButton href={`/play/${current.id}`} variant="primary">
-                  立即加入
+                  {t("editorial.almost_full.join_now")}
                 </PillButton>
               ) : (
                 <PillButton onClick={onCreateClick} variant="primary">
-                  我要開團
+                  {t("editorial.almost_full.create_cta")}
                 </PillButton>
               )}
               <PillButton href="#play-sessions-list" variant="secondary">
-                瀏覽全部場次
+                {t("editorial.almost_full.browse_all")}
               </PillButton>
             </div>
           </div>

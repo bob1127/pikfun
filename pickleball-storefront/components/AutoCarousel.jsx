@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import { useTranslation } from "next-i18next";
 
 const CLONE_MAX = 3;
 const SLIDE_PERCENT = 33.333;
@@ -16,6 +17,7 @@ function buildExtended(events) {
 }
 
 const AutoCarousel = ({ items = [] }) => {
+  const { t } = useTranslation("home");
   const events = items;
   const cloneCount = Math.min(CLONE_MAX, events.length || 1);
 
@@ -119,7 +121,7 @@ const AutoCarousel = ({ items = [] }) => {
           Pickleball Tips
         </span>
         <div className="flex justify-between items-end border-b pb-4">
-          <h2 className="text-3xl font-bold text-gray-900">運動知識與攻略</h2>
+          <h2 className="text-3xl font-bold text-gray-900">{t("tips.title")}</h2>
 
           {/* 頂部按鈕與查看更多 */}
           <div className="flex items-center gap-6">
@@ -151,7 +153,7 @@ const AutoCarousel = ({ items = [] }) => {
               href="/blog?category=knowledge"
               className="flex items-center text-[#2369ab] text-sm font-bold hover:opacity-70 transition-opacity"
             >
-              查看更多內容
+              {t("tips.more")}
               <div className="ml-2 w-6 h-6 rounded-full bg-[#2369ab] flex items-center justify-center">
                 <ChevronRight size={16} color="white" />
               </div>
@@ -228,7 +230,7 @@ const AutoCarousel = ({ items = [] }) => {
           </div>
         </div>
       ) : (
-        <p className="text-gray-400 text-sm px-2 py-8">尚無文章，請至 WordPress 後台發佈。</p>
+        <p className="text-gray-400 text-sm px-2 py-8">{t("tips.empty")}</p>
       )}
     </section>
   );

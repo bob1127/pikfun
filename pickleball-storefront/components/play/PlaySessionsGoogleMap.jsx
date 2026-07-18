@@ -7,6 +7,7 @@ import {
   OverlayView,
   InfoWindowF,
 } from "@react-google-maps/api";
+import { useTranslation } from "next-i18next";
 import { Loader2, Users } from "lucide-react";
 import {
   MapInfoContent,
@@ -41,13 +42,15 @@ export default function PlaySessionsGoogleMap({
   onFallback,
   fullscreen = false,
 }) {
+  const { t, i18n } = useTranslation("play");
+  const locale = i18n.language || "zh-TW";
   const [activeId, setActiveId] = useState(null);
   const { groups, mappedCount } = useSessionMapGroups(sessions, courts);
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: "PikFun-play-map",
     googleMapsApiKey: apiKey,
-    language: "zh-TW",
+    language: locale,
     region: "TW",
   });
 
@@ -88,7 +91,7 @@ export default function PlaySessionsGoogleMap({
         className={`psm-fallback${fullscreen ? " psm-fallback--fullscreen" : ""}`}
       >
         <Loader2 size={28} className="animate-spin text-[#005caf] mb-3" />
-        <p className="text-sm text-gray-500">載入 Google 地圖中…</p>
+        <p className="text-sm text-gray-500">{t("map.loading_google")}</p>
         <style jsx>{`
           .psm-fallback {
             display: flex;
@@ -123,14 +126,14 @@ export default function PlaySessionsGoogleMap({
           groups={groups}
           mappedCount={mappedCount}
           sessionsCount={sessions.length}
-          providerLabel="Google Maps"
+          providerLabel={t("map.providers.google")}
         />
       }
       empty={
         groups.length === 0 ? (
           <div className="psm-empty">
             <Users size={20} className="text-gray-400 mb-2" />
-            <p className="text-sm text-gray-500">地圖上尚無揪團標記</p>
+            <p className="text-sm text-gray-500">{t("map.no_markers")}</p>
           </div>
         ) : null
       }

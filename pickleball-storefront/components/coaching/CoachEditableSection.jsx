@@ -1,3 +1,4 @@
+import { useTranslation } from "next-i18next";
 import { Pencil, Loader2, X, Check } from "lucide-react";
 
 export default function CoachEditableSection({
@@ -8,12 +9,14 @@ export default function CoachEditableSection({
   onCancel,
   onSave,
   saving,
-  label = "編輯",
+  label,
   className = "",
   children,
   editPanel,
   alwaysShow = false,
 }) {
+  const { t } = useTranslation("coaching");
+  const resolvedLabel = label || t("editor.editable_section.default_label");
   const editing = isOwner && activeSection === sectionId;
   const showBlock = alwaysShow || children || editing;
 
@@ -31,7 +34,7 @@ export default function CoachEditableSection({
                 disabled={saving}
                 className="inline-flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-black px-2 py-1 rounded border border-gray-200 bg-white"
               >
-                <X size={12} /> 取消
+                <X size={12} /> {t("editor.editable_section.cancel")}
               </button>
               <button
                 type="button"
@@ -44,7 +47,7 @@ export default function CoachEditableSection({
                 ) : (
                   <Check size={12} />
                 )}
-                儲存
+                {t("editor.editable_section.save")}
               </button>
             </div>
           ) : (
@@ -53,7 +56,7 @@ export default function CoachEditableSection({
               onClick={() => onEdit(sectionId)}
               className="inline-flex items-center gap-1 text-xs font-bold text-[#3157B5] hover:text-[#2746a0] px-2.5 py-1 rounded border border-[#3157B5]/30 bg-white/80 hover:bg-white shadow-sm opacity-80 hover:opacity-100 transition-opacity"
             >
-              <Pencil size={12} /> {label}
+              <Pencil size={12} /> {resolvedLabel}
             </button>
           )}
         </div>

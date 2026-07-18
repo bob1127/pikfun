@@ -34,6 +34,30 @@ async function uploadCommunityImage(file) {
   return data.url;
 }
 
+async function uploadCommunityVideo(file) {
+  const maxBytes = 25 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    throw new Error("影片超過 25MB 限制");
+  }
+  if (!["video/mp4", "video/webm", "video/quicktime"].includes(file.type)) {
+    throw new Error("僅支援 MP4、WebM、MOV 影片");
+  }
+
+  const base64 = await fileToBase64(file);
+  const res = await fetch("/api/community-posts/upload-video", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      videoBase64: base64,
+      fileName: file.name,
+      contentType: file.type,
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "影片上傳失敗");
+  return data.url;
+}
+
 function SidebarCard({ title, children }) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -142,6 +166,7 @@ export default function CommunityPostForm({
             content={contentHtml}
             onChange={setContentHtml}
             uploadImage={uploadCommunityImage}
+            uploadVideo={uploadCommunityVideo}
           />
         </div>
 

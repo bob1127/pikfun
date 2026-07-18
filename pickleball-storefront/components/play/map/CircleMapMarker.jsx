@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "next-i18next";
 import { getGroupMarkerMeta } from "@/components/play/map/markerUtils";
 
 export default function CircleMapMarker({
@@ -8,7 +9,11 @@ export default function CircleMapMarker({
   onClick,
   className = "",
 }) {
-  const meta = getGroupMarkerMeta(group);
+  const { t } = useTranslation("play");
+  const meta = getGroupMarkerMeta(group, {
+    fallbackLabel: t("map_marker.fallback_label"),
+    fallbackInitial: t("map_marker.fallback_initial"),
+  });
   const border = meta.multi ? "#ef4023" : "#005caf";
 
   return (
@@ -16,7 +21,7 @@ export default function CircleMapMarker({
       type="button"
       onClick={onClick}
       className={`psm-circle-wrap ${active ? "is-active" : ""} ${className}`}
-      aria-label={`${meta.label}，${meta.count} 場揪團`}
+      aria-label={t("aria.map_marker", { label: meta.label, count: meta.count })}
     >
       <span
         className="psm-circle"

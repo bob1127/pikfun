@@ -5,6 +5,8 @@ import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -34,9 +36,18 @@ import {
   slugifyFromName,
   linesToArray,
   commaToArray,
+  getRegionLabel,
 } from "@/lib/coachProfileFields";
 import TagPickerField from "@/components/coaching/TagPickerField";
 import ConfettiButton from "@/components/ui/ConfettiButton";
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["coaching", "common"])),
+    },
+  };
+}
 
 const emptyForm = {
   slug: "",
@@ -58,9 +69,10 @@ const emptyForm = {
   avatar: "",
 };
 
-function formatReviewDate(iso) {
+function formatReviewDate(iso, locale = "zh-TW") {
   if (!iso) return null;
-  return new Date(iso).toLocaleDateString("zh-TW", {
+  const intlLocale = locale === "en" ? "en-US" : "zh-TW";
+  return new Date(iso).toLocaleDateString(intlLocale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -68,13 +80,14 @@ function formatReviewDate(iso) {
 }
 
 function ApprovedCoachView({ coachProfile, application, stats }) {
+  const { t, i18n } = useTranslation("coaching");
   const slug = coachProfile?.slug || application?.slug;
   const reviewedAt = application?.reviewed_at;
 
   return (
     <>
       <Head>
-        <title>教練進駐已通過 | PikFun</title>
+        <title>{t("seo.apply_approved_title")}</title>
       </Head>
       <main className="bg-[#E8E8E3] min-h-screen pt-24 pb-20">
         <div className="max-w-[640px] mx-auto px-6 md:px-10">
@@ -82,7 +95,7 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
             href="/member?tab=coaching"
             className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-black mb-8"
           >
-            <ArrowLeft size={16} /> 返回會員中心
+            <ArrowLeft size={16} /> {t("apply.back_to_member")}
           </Link>
 
           <motion.div
@@ -95,16 +108,16 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
               <div className="flex items-center gap-2 mb-1">
                 <BadgeCheck size={20} className="text-[#c8f542]" />
                 <span className="text-xs font-bold tracking-widest uppercase text-white/80">
-                  Approved Coach
+                  {t("apply.approved.badge")}
                 </span>
               </div>
-              <h1 className="text-2xl font-black">教練進駐已審核通過</h1>
+              <h1 className="text-2xl font-black">{t("apply.approved.title")}</h1>
               <p className="text-sm text-white/75 mt-1">
-                您的教練頁已上架 PikFun 官網，球友可以搜尋並報名您的課程。
+                {t("apply.approved.desc")}
               </p>
               {reviewedAt && (
                 <p className="text-xs text-white/50 mt-2">
-                  審核通過日期：{formatReviewDate(reviewedAt)}
+                  {t("apply.approved.reviewed_at", { date: formatReviewDate(reviewedAt, i18n.language) })}
                 </p>
               )}
             </div>
@@ -120,12 +133,12 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-[#005caf]/10 text-[#005caf] flex items-center justify-center font-black text-xl shrink-0">
-                    {coachProfile?.name?.charAt(0) || "教"}
+                    {coachProfile?.name?.charAt(0) || t("card.coach_fallback")}
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-bold mb-2">
-                    <CheckCircle size={11} /> 已通過審核
+                    <CheckCircle size={11} /> {t("apply.approved.status_badge")}
                   </span>
                   <h2 className="text-xl font-black text-black leading-tight">
                     {coachProfile?.name || application?.name}
@@ -142,7 +155,7 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
                   )}
                   {slug && (
                     <p className="text-[10px] text-gray-400 mt-2 font-mono">
-                      pikfun.com.tw/coaching/coach/{slug}
+                      {t("apply.approved.slug_preview", { slug })}
                     </p>
                   )}
                 </div>
@@ -153,9 +166,9 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
             {stats && (
               <div className="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-100">
                 {[
-                  { label: "即將開課", value: stats.upcomingCount ?? 0 },
-                  { label: "累計開課", value: stats.totalClasses ?? 0 },
-                  { label: "報名人次", value: stats.totalEnrollments ?? 0 },
+                  { label: t("apply.approved.stats.upcoming"), value: stats.upcomingCount ?? 0 },
+                  { label: t("apply.approved.stats.total_classes"), value: stats.totalClasses ?? 0 },
+                  { label: t("apply.approved.stats.total_enrollments"), value: stats.totalEnrollments ?? 0 },
                 ].map(({ label, value }) => (
                   <div key={label} className="py-4 text-center">
                     <p className="text-2xl font-black text-black">{value}</p>
@@ -175,7 +188,7 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
                   className="w-full flex items-center justify-center gap-2 bg-black text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition-colors"
                 >
                   <ExternalLink size={16} />
-                  查看我的教練頁
+                  {t("apply.approved.view_page_btn")}
                 </Link>
               )}
               <div className="grid grid-cols-2 gap-3">
@@ -185,7 +198,7 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
                     className="flex items-center justify-center gap-2 border border-gray-200 text-gray-800 font-bold py-3 rounded-xl hover:border-gray-400 transition-colors text-sm"
                   >
                     <Pencil size={15} />
-                    編輯教練頁
+                    {t("apply.approved.edit_page_btn")}
                   </Link>
                 )}
                 <Link
@@ -193,7 +206,7 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
                   className="flex items-center justify-center gap-2 border border-[#005caf] text-[#005caf] font-bold py-3 rounded-xl hover:bg-[#005caf]/5 transition-colors text-sm"
                 >
                   <Plus size={15} />
-                  開新課程
+                  {t("apply.approved.new_class_btn")}
                 </Link>
               </div>
               <Link
@@ -201,15 +214,15 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
                 className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-800 py-2 transition-colors"
               >
                 <GraduationCap size={15} />
-                前往教練中心
+                {t("apply.approved.coach_center_btn")}
               </Link>
             </div>
           </motion.div>
 
           <p className="text-center text-xs text-gray-400 mt-6 leading-relaxed">
-            如需修改教練資料，請至「編輯教練頁」更新。
+            {t("apply.approved.footer_note_line1")}
             <br />
-            如有問題請聯絡 PikFun 客服。
+            {t("apply.approved.footer_note_line2")}
           </p>
         </div>
       </main>
@@ -245,28 +258,29 @@ function applicationToForm(app) {
 }
 
 function PendingApplicationView({ application, onEdit }) {
+  const { t, i18n } = useTranslation("coaching");
   return (
     <>
       <Head>
-        <title>申請審核中 | PikFun</title>
+        <title>{t("seo.apply_pending_title")}</title>
       </Head>
       <main className="bg-[#E8E8E3] min-h-screen pt-24 pb-20">
         <div className="max-w-lg mx-auto px-6 text-center">
           <Clock size={48} className="text-[#FFD43A] mx-auto mb-4" />
-          <h1 className="text-2xl font-black mb-2">申請審核中</h1>
+          <h1 className="text-2xl font-black mb-2">{t("apply.pending.title")}</h1>
           <p className="text-gray-600 text-sm mb-2 leading-relaxed">
-            我們已收到您的進駐申請，將於 3–5 個工作天內完成審核。
+            {t("apply.pending.desc_line1")}
             <br />
-            核准後會出現在「進駐教練」區塊，並以 Email 通知您。
+            {t("apply.pending.desc_line2")}
           </p>
           {application?.created_at && (
             <p className="text-xs text-gray-400 mb-6">
-              申請時間：{formatReviewDate(application.created_at)}
+              {t("apply.pending.applied_at", { date: formatReviewDate(application.created_at, i18n.language) })}
             </p>
           )}
           <div className="bg-white rounded-2xl border border-gray-200 p-5 text-left mb-6">
             <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 leading-relaxed">
-              審核期間可編輯申請內容並重新提交。重新提交後，審核工作天數將從送出當日重新計算。
+              {t("apply.pending.notice")}
             </p>
             <button
               type="button"
@@ -274,14 +288,14 @@ function PendingApplicationView({ application, onEdit }) {
               className="mt-4 w-full inline-flex items-center justify-center gap-2 bg-black text-white font-bold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors"
             >
               <Pencil size={16} />
-              編輯申請內容
+              {t("apply.pending.edit_btn")}
             </button>
           </div>
           <Link
             href="/member?tab=coaching"
             className="text-[#3157B5] font-bold underline"
           >
-            返回會員中心
+            {t("apply.back_to_member")}
           </Link>
         </div>
       </main>
@@ -290,24 +304,25 @@ function PendingApplicationView({ application, onEdit }) {
 }
 
 function RejectedApplicationView({ adminNote }) {
+  const { t } = useTranslation("coaching");
   return (
     <>
       <Head>
-        <title>申請未通過 | PikFun</title>
+        <title>{t("seo.apply_rejected_title")}</title>
       </Head>
       <main className="bg-[#E8E8E3] min-h-screen pt-24 pb-20">
         <div className="max-w-lg mx-auto px-6">
           <div className="bg-white rounded-2xl border border-red-200 p-8 text-center">
             <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
             <h1 className="text-2xl font-black mb-2 text-red-800">
-              申請未通過
+              {t("apply.rejected.title")}
             </h1>
             <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-              很抱歉，您的教練進駐申請此次未獲核准。
+              {t("apply.rejected.desc")}
             </p>
             {adminNote && (
               <p className="text-sm text-red-700 bg-red-50 rounded-lg px-4 py-3 mb-6 text-left">
-                審核備注：{adminNote}
+                {t("apply.rejected.note_prefix")}{adminNote}
               </p>
             )}
             <Link
@@ -315,7 +330,7 @@ function RejectedApplicationView({ adminNote }) {
               onClick={() => window.location.reload()}
               className="inline-flex items-center gap-2 bg-black text-white font-bold px-6 py-3 rounded-xl"
             >
-              重新申請
+              {t("apply.rejected.reapply_btn")}
               <ChevronRight size={16} />
             </Link>
           </div>
@@ -326,6 +341,7 @@ function RejectedApplicationView({ adminNote }) {
 }
 
 export default function CoachApplyPage() {
+  const { t } = useTranslation("coaching");
   const router = useRouter();
   const { userInfo, loading: userLoading } = useUser();
   const [form, setForm] = useState(emptyForm);
@@ -431,7 +447,7 @@ export default function CoachApplyPage() {
       }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "上傳失敗");
+    if (!res.ok) throw new Error(data.error || t("apply.errors.upload_failed"));
     return data.url;
   };
 
@@ -439,11 +455,11 @@ export default function CoachApplyPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      alert("請上傳圖片");
+      alert(t("apply.errors.image_upload"));
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      alert("圖片超過 2MB");
+      alert(t("apply.errors.image_size"));
       return;
     }
     const url = URL.createObjectURL(file);
@@ -458,16 +474,14 @@ export default function CoachApplyPage() {
   };
 
   const doSubmit = async () => {
-    if (!userInfo?.email) throw new Error("請先登入");
+    if (!userInfo?.email) throw new Error(t("apply.errors.login_required"));
     if (formRef.current && !formRef.current.reportValidity()) {
       throw new Error("VALIDATION");
     }
 
     const finalSlug = slugify(form.slug || form.name);
     if (!isValidSlug(finalSlug)) {
-      throw new Error(
-        "網址代稱僅可使用英文、數字、- 或 _（至少 2 個字元）。中文姓名會自動轉為拼音，請確認代稱是否正確。",
-      );
+      throw new Error(t("apply.errors.slug_invalid"));
     }
 
     let coverImageUrl = application?.cover_image || null;
@@ -503,7 +517,7 @@ export default function CoachApplyPage() {
     );
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || "提交失敗");
+      throw new Error(data.error || t("apply.errors.submit_failed"));
     }
 
     return { data, isResubmit };
@@ -526,7 +540,7 @@ export default function CoachApplyPage() {
       }, 1400);
     } catch (err) {
       if (err.message !== "VALIDATION") {
-        alert(err.message || "提交失敗");
+        alert(err.message || t("apply.errors.submit_failed"));
       }
       throw err;
     }
@@ -543,7 +557,7 @@ export default function CoachApplyPage() {
   if (userLoading || !userInfo || checking || (isEditMode && editLoading)) {
     return (
       <main className="min-h-screen pt-24 flex items-center justify-center text-gray-500 bg-[#E8E8E3]">
-        <Loader2 className="animate-spin mr-2" size={20} /> 載入中...
+        <Loader2 className="animate-spin mr-2" size={20} /> {t("apply.loading")}
       </main>
     );
   }
@@ -574,7 +588,7 @@ export default function CoachApplyPage() {
   return (
     <>
       <Head>
-        <title>{isEditMode ? "編輯進駐申請" : "申請進駐教練"} | PikFun</title>
+        <title>{isEditMode ? t("seo.apply_edit_title") : t("seo.apply_title")}</title>
       </Head>
 
       <main className="bg-[#E8E8E3] min-h-screen pt-24 pb-20">
@@ -584,7 +598,7 @@ export default function CoachApplyPage() {
             className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-black mb-8"
           >
             <ArrowLeft size={16} />{" "}
-            {isEditMode ? "返回審核狀態" : "返回教練開課"}
+            {isEditMode ? t("apply.back_to_review") : t("apply.back_to_coaching")}
           </Link>
 
           <motion.div
@@ -592,20 +606,20 @@ export default function CoachApplyPage() {
             animate={{ opacity: 1, y: 0 }}
           >
             <p className="text-[10px] font-black tracking-widest text-gray-500 uppercase mb-2">
-              {isEditMode ? "Edit Application" : "Apply as Coach"}
+              {isEditMode ? t("apply.form.eyebrow_edit") : t("apply.form.eyebrow_new")}
             </p>
             <h1 className="text-3xl font-black text-black mb-2">
-              {isEditMode ? "編輯進駐申請" : "申請進駐 PikFun 官網"}
+              {isEditMode ? t("apply.form.title_edit") : t("apply.form.title_new")}
             </h1>
             <p className="text-sm text-gray-600 mb-2">
-              已綁定會員：
+              {t("apply.form.bound_member")}
               <span className="font-bold text-black">{userInfo.name}</span>（
               {userInfo.email}）
             </p>
             <p className="text-xs text-gray-400 mb-8">
               {isEditMode
-                ? "修改後重新提交，審核工作天數將從送出當日重新計算。"
-                : "送出後由 PikFun 團隊審核，核准後將顯示於「進駐教練」專區。"}
+                ? t("apply.form.hint_edit")
+                : t("apply.form.hint_new")}
             </p>
 
             {isEditMode && (
@@ -616,11 +630,10 @@ export default function CoachApplyPage() {
                 />
                 <div>
                   <p className="text-sm font-bold text-amber-900">
-                    重新提交審核須知
+                    {t("apply.form.resubmit_notice_title")}
                   </p>
                   <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                    您的申請目前審核中。編輯並重新提交後，審核工作天數將從送出當日重新計算（約
-                    3–5 個工作天）。
+                    {t("apply.form.resubmit_notice_desc")}
                   </p>
                 </div>
               </div>
@@ -634,7 +647,7 @@ export default function CoachApplyPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    教練姓名 *
+                    {t("apply.form.fields.name_label")}
                   </label>
                   <input
                     name="name"
@@ -646,26 +659,26 @@ export default function CoachApplyPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    網址代稱 *
+                    {t("apply.form.fields.slug_label")}
                   </label>
                   <input
                     name="slug"
                     value={form.slug}
                     onChange={handleChange}
                     required
-                    placeholder="例：ye-kun-zhi 或 bob_coach"
+                    placeholder={t("apply.form.fields.slug_placeholder")}
                     pattern="[a-z0-9]+([_-][a-z0-9]+)*"
                     className="field"
                   />
                   <p className="text-[10px] text-gray-400 mt-1">
-                    /coaching/coach/{form.slug || "..."}
+                    {t("apply.form.fields.slug_preview", { slug: form.slug || "..." })}
                   </p>
                   <p className="text-[10px] text-gray-400 mt-0.5">
-                    依姓名自動產生；中文轉拼音，僅限英文、數字、- 與 _
+                    {t("apply.form.fields.slug_hint")}
                   </p>
                   {form.slug && !isValidSlugDraft(form.slug) && (
                     <p className="text-[10px] text-red-500 mt-1">
-                      請使用至少 2 個字元的英文或數字（可含 - 或 _）
+                      {t("apply.form.fields.slug_error")}
                     </p>
                   )}
                 </div>
@@ -674,26 +687,26 @@ export default function CoachApplyPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    職稱 *
+                    {t("apply.form.fields.title_label")}
                   </label>
                   <input
                     name="title"
                     value={form.title}
                     onChange={handleChange}
                     required
-                    placeholder="PPR 認證教練 · 台中"
+                    placeholder={t("apply.form.fields.title_placeholder")}
                     className="field"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    副標
+                    {t("apply.form.fields.subtitle_label")}
                   </label>
                   <input
                     name="subtitle"
                     value={form.subtitle}
                     onChange={handleChange}
-                    placeholder="協會特約教練"
+                    placeholder={t("apply.form.fields.subtitle_placeholder")}
                     className="field"
                   />
                 </div>
@@ -702,19 +715,19 @@ export default function CoachApplyPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    主要縣市
+                    {t("apply.form.fields.city_label")}
                   </label>
                   <input
                     name="city"
                     value={form.city}
                     onChange={handleChange}
-                    placeholder="台中市"
+                    placeholder={t("apply.form.fields.city_placeholder")}
                     className="field"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    區域
+                    {t("apply.form.fields.region_label")}
                   </label>
                   <select
                     name="region"
@@ -724,7 +737,7 @@ export default function CoachApplyPage() {
                   >
                     {COACH_REGIONS.map((r) => (
                       <option key={r.value} value={r.value}>
-                        {r.label}
+                        {getRegionLabel(r.value, t)}
                       </option>
                     ))}
                   </select>
@@ -733,7 +746,7 @@ export default function CoachApplyPage() {
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                  一句話摘要（卡片標題）*
+                  {t("apply.form.fields.excerpt_label")}
                 </label>
                 <textarea
                   name="excerpt"
@@ -747,7 +760,7 @@ export default function CoachApplyPage() {
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                  教練簡介 *
+                  {t("apply.form.fields.bio_label")}
                 </label>
                 <textarea
                   name="bio"
@@ -761,57 +774,57 @@ export default function CoachApplyPage() {
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                  教練故事（內頁長文）
+                  {t("apply.form.fields.story_label")}
                 </label>
                 <textarea
                   name="story"
                   value={form.story}
                   onChange={handleChange}
                   rows={6}
-                  placeholder="段落之間空一行"
+                  placeholder={t("apply.form.fields.story_placeholder")}
                   className="field resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <TagPickerField
-                  label="經歷認證（每行一項）"
+                  label={t("apply.form.fields.credentials_label")}
                   value={form.credentials}
                   onChange={(v) =>
                     setForm((prev) => ({ ...prev, credentials: v }))
                   }
                   presets={CREDENTIAL_PRESETS}
                   mode="lines"
-                  placeholder={"PPR 認證教練\n8 年教學經驗"}
+                  placeholder={t("apply.form.fields.credentials_placeholder")}
                   rows={4}
                 />
                 <TagPickerField
-                  label="教學專長（每行一項）"
+                  label={t("apply.form.fields.specialties_label")}
                   value={form.specialties}
                   onChange={(v) =>
                     setForm((prev) => ({ ...prev, specialties: v }))
                   }
                   presets={SPECIALTY_PRESETS}
                   mode="lines"
-                  placeholder={"新手入門\n雙打策略"}
+                  placeholder={t("apply.form.fields.specialties_placeholder")}
                   rows={4}
                 />
               </div>
 
               <TagPickerField
-                label="標籤（逗號或頓號分隔）"
+                label={t("apply.form.fields.tags_label")}
                 value={form.tags}
                 onChange={(v) => setForm((prev) => ({ ...prev, tags: v }))}
                 presets={TAG_PRESETS}
                 mode="comma"
-                placeholder="初學入門、團體班、雙打"
-                hint="點選常用標籤，或直接輸入自訂標籤（可用逗號、頓號分隔）"
+                placeholder={t("apply.form.fields.tags_placeholder")}
+                hint={t("apply.form.fields.tags_hint")}
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    YouTube 嵌入網址
+                    {t("apply.form.fields.video_url_label")}
                   </label>
                   <input
                     name="video_url"
@@ -823,13 +836,13 @@ export default function CoachApplyPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    徽章文字
+                    {t("apply.form.fields.featured_label_label")}
                   </label>
                   <input
                     name="featured_label"
                     value={form.featured_label}
                     onChange={handleChange}
-                    placeholder="大人氣"
+                    placeholder={t("apply.form.fields.featured_label_placeholder")}
                     className="field"
                   />
                 </div>
@@ -838,7 +851,7 @@ export default function CoachApplyPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    聯絡 Email
+                    {t("apply.form.fields.contact_email_label")}
                   </label>
                   <input
                     name="contact_email"
@@ -850,13 +863,13 @@ export default function CoachApplyPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    Instagram
+                    {t("apply.form.fields.instagram_label")}
                   </label>
                   <input
                     name="instagram"
                     value={form.instagram}
                     onChange={handleChange}
-                    placeholder="帳號不含 @"
+                    placeholder={t("apply.form.fields.instagram_placeholder")}
                     className="field"
                   />
                 </div>
@@ -865,7 +878,7 @@ export default function CoachApplyPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    頭像
+                    {t("apply.form.fields.avatar_label")}
                   </label>
                   <label className="block w-24 h-24 rounded-full overflow-hidden border border-dashed border-gray-300 cursor-pointer relative">
                     {avatarPreview ? (
@@ -891,7 +904,7 @@ export default function CoachApplyPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                    封面圖
+                    {t("apply.form.fields.cover_label")}
                   </label>
                   <label className="block w-full aspect-[4/3] rounded-lg overflow-hidden border border-dashed border-gray-300 cursor-pointer relative">
                     {coverPreview ? (
@@ -917,7 +930,7 @@ export default function CoachApplyPage() {
                     ) : (
                       <span className="flex flex-col items-center justify-center h-full text-gray-400 text-xs">
                         <Upload size={20} className="mb-1" />
-                        上傳封面
+                        {t("apply.form.fields.cover_upload")}
                       </span>
                     )}
                     <input
@@ -932,10 +945,10 @@ export default function CoachApplyPage() {
 
               <ConfettiButton
                 onClick={handleSubmitClick}
-                successLabel={isEditMode ? "已重新提交！🎉" : "申請已送出！🎉"}
+                successLabel={isEditMode ? t("apply.form.success_edit") : t("apply.form.success_new")}
                 className="w-full bg-black text-white font-black py-4 rounded-md hover:bg-gray-800 disabled:opacity-50"
               >
-                {isEditMode ? "重新提交審核" : "提交進駐申請"}{" "}
+                {isEditMode ? t("apply.form.submit_btn_edit") : t("apply.form.submit_btn_new")}{" "}
                 <ChevronRight size={18} />
               </ConfettiButton>
             </form>

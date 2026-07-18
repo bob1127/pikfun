@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://www.kesh-de1.com
+Host: https://www.pikfun.com.tw
 
 # Sitemaps
-Sitemap: https://www.kesh-de1.com/sitemap.xml
+Sitemap: https://www.pikfun.com.tw/sitemap.xml

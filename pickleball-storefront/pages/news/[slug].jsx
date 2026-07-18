@@ -4,6 +4,8 @@ import { getSiteUrl } from "@/lib/siteUrl";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
   fetchPostBySlug,
   fetchNewsPosts,
@@ -17,7 +19,7 @@ import {
 import { fetchMergedNewsFeed } from "@/lib/newsFeed";
 import CommunityArticleLayout from "@/components/news/CommunityArticleLayout";
 
-function RecentJournalCard({ post }) {
+function RecentJournalCard({ post, t }) {
   return (
     <Link href={`/news/${post.slug}`} className="block group">
       <div className="relative w-full aspect-[4/3] bg-gray-100 mb-4 overflow-hidden">
@@ -31,7 +33,7 @@ function RecentJournalCard({ post }) {
       </div>
       <div className="flex justify-between items-center text-[10px] text-gray-500 mb-2 uppercase tracking-wider">
         <span className="border-b border-gray-300 pb-0.5">
-          {post.categories?.[0] || "最新消息"}
+          {post.categories?.[0] || t("card.defaultCategory")}
         </span>
         <span>{post.date}</span>
       </div>
@@ -51,6 +53,7 @@ export default function NewsDetail({
   authorProfile = null,
 }) {
   const router = useRouter();
+  const { t } = useTranslation("news");
   const [headings, setHeadings] = useState([]);
   const contentRef = useRef(null);
 
@@ -76,7 +79,7 @@ export default function NewsDetail({
   if (router.isFallback) {
     return (
       <div className="min-h-screen flex items-center justify-center tracking-widest uppercase text-gray-500">
-        Loading...
+        {t("detail.loading")}
       </div>
     );
   }
@@ -86,17 +89,22 @@ export default function NewsDetail({
   const siteUrl = getSiteUrl();
   const postUrl = `${siteUrl}/news/${post.slug}`;
   const metaDesc = post.seo_description || post.excerpt || "";
-  const category = post.categories?.[0] || "最新消息";
+  const category = post.categories?.[0] || t("card.defaultCategory");
 
   const schemaBreadcrumb = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "首頁", item: siteUrl },
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: t("detail.breadcrumbHome"),
+        item: siteUrl,
+      },
       {
         "@type": "ListItem",
         position: 2,
-        name: "最新消息",
+        name: t("detail.breadcrumbNews"),
         item: `${siteUrl}/news`,
       },
       { "@type": "ListItem", position: 3, name: post.title, item: postUrl },
@@ -187,7 +195,7 @@ export default function NewsDetail({
               <p className="text-sm text-gray-400 tracking-widest font-light">
                 {post.source === "community" && post.authorName
                   ? `${post.authorRole} · ${post.authorName}`
-                  : "PikFun News"}
+                  : t("detail.officialAuthor")}
               </p>
               <p className="text-xs font-mono mt-4 text-gray-500">
                 {post.date}
@@ -195,7 +203,7 @@ export default function NewsDetail({
             </div>
             <div className="w-full md:w-[280px] text-xs text-gray-500 space-y-4 pt-2">
               <div className="space-y-1 border-l-2 border-gray-100 pl-4">
-                <p className="font-bold text-gray-900">分類</p>
+                <p className="font-bold text-gray-900">{t("detail.categoryLabel")}</p>
                 <p>{category}</p>
               </div>
             </div>
@@ -205,7 +213,7 @@ export default function NewsDetail({
         <div className="max-w-[1400px] mx-auto px-6 mb-24 flex flex-col lg:flex-row gap-16 items-start">
           <aside className="hidden lg:block w-48 sticky top-32 shrink-0">
             <h3 className="text-xs font-bold uppercase tracking-widest mb-6 border-b border-gray-200 pb-3">
-              文章目錄
+              {t("detail.tocTitle")}
             </h3>
             {headings.length > 0 ? (
               <ul className="space-y-5 border-l-2 border-gray-100 pl-4">
@@ -222,7 +230,7 @@ export default function NewsDetail({
                 ))}
               </ul>
             ) : (
-              <p className="text-xs text-gray-400">暫無大綱</p>
+              <p className="text-xs text-gray-400">{t("detail.noToc")}</p>
             )}
           </aside>
 
@@ -237,7 +245,7 @@ export default function NewsDetail({
                 type="button"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white cursor-pointer hover:bg-[#005caf] transition-colors"
-                aria-label="回到頂部"
+                aria-label={t("detail.backToTopAria")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -263,18 +271,20 @@ export default function NewsDetail({
               href="/news"
               className="px-8 py-3 border border-gray-300 rounded-full text-xs font-bold tracking-widest hover:bg-black hover:text-white transition-all"
             >
-              返回最新消息
+              {t("detail.backToNews")}
             </Link>
           </div>
           <div className="flex items-center gap-4 mb-10">
-            <h2 className="text-2xl font-normal tracking-wide">推薦閱讀</h2>
+            <h2 className="text-2xl font-normal tracking-wide">
+              {t("detail.recommendedTitle")}
+            </h2>
             <span className="bg-[#1c1c1c] text-white text-[10px] rounded-full px-3 py-1 font-bold">
-              News
+              {t("detail.recommendedBadge")}
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             {recentPosts.map((item) => (
-              <RecentJournalCard key={item.id} post={item} />
+              <RecentJournalCard key={item.id} post={item} t={t} />
             ))}
           </div>
         </div>
@@ -293,7 +303,8 @@ export async function getStaticPaths() {
   }
 }
 
-export async function getStaticProps({ params }) {
+export async function getStaticProps({ locale, params }) {
+  const i18n = await serverSideTranslations(locale ?? "zh-TW", ["news", "common"]);
   const slug = params.slug;
 
   try {
@@ -303,7 +314,7 @@ export async function getStaticProps({ params }) {
     if (slug.startsWith("c-")) {
       const communityPost = await fetchCommunityPostBySlug(slug);
       if (communityPost) {
-        const detail = mapCommunityPostToDetail(communityPost);
+        const detail = mapCommunityPostToDetail(communityPost, locale ?? "zh-TW");
         formattedPost = {
           ...detail,
           seo_title: detail.title,
@@ -343,11 +354,15 @@ export async function getStaticProps({ params }) {
       authorProfile = await fetchAuthorProfile(formattedPost.authorEmail);
     }
 
-    const merged = await fetchMergedNewsFeed({ perPage: 24 });
+    const merged = await fetchMergedNewsFeed({
+      perPage: 24,
+      locale: locale ?? "zh-TW",
+    });
     const recentPosts = merged.filter((p) => p.slug !== slug).slice(0, 4);
 
     return {
       props: {
+        ...i18n,
         post: formattedPost,
         recentPosts,
         authorProfile,

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import { ChevronRight } from "lucide-react";
 import { formatWpDate, mapPostToBase, stripHtml } from "@/lib/wordpress";
 
@@ -13,9 +14,12 @@ export default function BlogList({
   categoryKey,
   categoryLabel,
   listBackHref = "/",
-  listBackLabel = "返回首頁",
+  listBackLabel,
   showFooter = true,
 }) {
+  const { t } = useTranslation("blog");
+  const resolvedBackLabel = listBackLabel ?? t("backToHome");
+
   return (
     <>
       <ul className="editorial-list">
@@ -25,7 +29,7 @@ export default function BlogList({
           const title =
             base.title || stripHtml(post.title?.rendered || "");
           const date = base.dateFormatted || formatWpDate(post.date);
-          const tag = base.categories?.[0] || categoryLabel || "文章";
+          const tag = base.categories?.[0] || categoryLabel || t("topics.default");
 
           return (
             <li key={post.id} className="editorial-list-item">
@@ -47,14 +51,14 @@ export default function BlogList({
 
       {posts.length === 0 && (
         <p className="text-center text-[var(--color-text-muted)] py-12">
-          此分類尚無文章。
+          {t("list.empty")}
         </p>
       )}
 
       {showFooter && (
         <div className="editorial-list-footer">
           <Link href={listBackHref} className="editorial-cta-link">
-            {listBackLabel}
+            {resolvedBackLabel}
             <span className="editorial-list-arrow" aria-hidden>
               <ChevronRight size={16} strokeWidth={2.5} />
             </span>

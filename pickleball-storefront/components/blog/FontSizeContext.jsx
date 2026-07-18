@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { useTranslation } from "next-i18next";
 
 const STORAGE_KEY = "PikFun-text-scale";
 
@@ -58,15 +59,20 @@ export function useFontSize() {
 
 export function FontSizeToolbar() {
   const { scale, setScale } = useFontSize();
+  const { t } = useTranslation("blog");
 
   const options = [
-    { id: "standard", label: "標準" },
-    { id: "lg", label: "大" },
-    { id: "xl", label: "特大" },
+    { id: "standard", label: t("fontToolbar.standard") },
+    { id: "lg", label: t("fontToolbar.lg") },
+    { id: "xl", label: t("fontToolbar.xl") },
   ];
 
   return (
-    <div className="editorial-font-toolbar" role="group" aria-label="字級大小">
+    <div
+      className="editorial-font-toolbar"
+      role="group"
+      aria-label={t("fontToolbar.ariaLabel")}
+    >
       {options.map((opt) => (
         <button
           key={opt.id}

@@ -1,0 +1,100 @@
+{
+  "seo": {
+    "title": "PikFun | Pickleball Community, Shop, Courts & Coaching in Taiwan",
+    "description": "Taiwan's largest pickleball community and information platform. Find courts, join games, shop gear, connect with coaches, and meet fellow players."
+  },
+  "featured": {
+    "title": "Featured Gear"
+  },
+  "service": {
+    "heading_line1": "Starting from the court,",
+    "heading_line2": "building a complete pickleball lifestyle",
+    "desc": "We bring together shopping, open play, coaching, and learning content so you can find everything pickleball in one place. Hand-picked paddles and accessories, quick ways to find players and sessions, one-on-one coaching, plus rule guides and mini games to get you started with ease. It's more than buying gear — it's joining a growing sports community. PikFun keeps expanding its services so every player can enjoy this easy-to-learn sport.",
+    "btn": "All Services"
+  },
+  "about": {
+    "heading_line1": "\"Just get on the court\" —",
+    "heading_line2": "standing side by side with every player.",
+    "desc": "PikFun believes pickleball is more than a sport — it's a way to connect people. From your first grip and first rally to finding regular partners and hosting weekly games, we want to lower the barrier to entry so more people can meet on the court. Whether you're a curious beginner or a veteran looking for regular sessions, you'll find your own rhythm here. We offer gear, open play, coaching, and learning resources to take you from curious to hooked — sweating it out and enjoying every shot together.",
+    "btn": "About Us",
+    "img_alt": "Swinging a paddle on the pickleball court"
+  },
+  "partners": {
+    "heading": "What is PikFun?",
+    "desc_line1": "PikFun aims to be Taiwan's largest pickleball information platform.",
+    "desc_line2": "From open play and coaching to gear picks,",
+    "desc_line3": "we help every player find what they need and get on the court with ease.",
+    "watch_btn": "Join a Game!",
+    "learn_btn": "Find a Coach",
+    "video_unsupported": "Your browser does not support HTML5 video.",
+    "marquee1": [
+      "Professional Indoor Courts",
+      "24-Hour Self-Service Courts",
+      "International Paddle Brands",
+      "Certified Pickleball Coaches",
+      "Local Pickleball Associations",
+      "Tournament Organizers",
+      "Sports Care & Physio"
+    ],
+    "marquee2": [
+      "Exclusive Gear Distributors",
+      "Athletic Apparel Brands",
+      "Corporate Team Building",
+      "Court Net Reservations",
+      "Co-Branded Merchandise",
+      "High-End Carbon Paddles",
+      "Beginner Trial Programs"
+    ]
+  },
+  "trends": {
+    "explore_link": "Explore more pickleball resources",
+    "items": [
+      {
+        "title": "The New National Sport",
+        "desc": "Pickleball perfectly blends elements of tennis, badminton, and table tennis. Played on a badminton-sized court with composite paddles and a perforated plastic ball, it is easy to pick up yet highly competitive and fun — beginners and seasoned athletes alike quickly fall for its charm.",
+        "btn": "Learn the Rules"
+      },
+      {
+        "title": "Fastest-Growing Sport, 3 Years Running",
+        "desc": "According to the latest SFIA statistics, pickleball has topped the list of America's fastest-growing sports for several consecutive years, with over 36 million participants in the US alone. The wave is sweeping the globe, with participation and dedicated venues in Asia and Taiwan growing exponentially.",
+        "btn": "Market Trends"
+      },
+      {
+        "title": "A Social Experience Across Generations",
+        "desc": "Pickleball is more than a sport — it's a bridge for building community. The smaller court brings players closer together, filling every match with laughter and interaction. It breaks the limits of age and fitness, making cross-generational play an everyday joy and the perfect way to unwind and expand your social circle.",
+        "btn": "Find Players"
+      }
+    ]
+  },
+  "tips": {
+    "title": "Tips & Knowledge",
+    "more": "View More",
+    "empty": "No articles yet. Publish from the WordPress dashboard."
+  },
+  "community": {
+    "title": "Courts & Community",
+    "desc_line1": "From beginner chats and player discussions to court info, gear picks, and event updates —",
+    "desc_line2": "building a home for Taiwan's pickleball players.",
+    "count": "{{count}} articles in total",
+    "cta": "View All Community Posts",
+    "empty": "No articles yet. Publish from the WordPress dashboard."
+  },
+  "gear": {
+    "title": "Paddle & Gear Guide",
+    "lead_line1": "Not sure how to pick your first pickleball paddle?",
+    "lead_line2": "Fiberglass vs. carbon fiber, paddle weight, core thickness, grip length, and picks for different sports backgrounds —",
+    "lead_line3": "we'll help you find the paddle that fits you best.",
+    "empty_topics": "No paddle articles yet. Publish under the gear category in WordPress.",
+    "cta_by_style": "Pick a Paddle by Play Style",
+    "cta_guide": "Read the Full Gear Guide",
+    "shop_title": "Best-Selling Paddles & Gear",
+    "all_tab": "All Paddles",
+    "loading": "Loading…",
+    "load_more": "Load More",
+    "empty": "No products in this category yet.",
+    "tax": "(tax incl.)",
+    "label_hot": "HOT",
+    "label_featured": "PICK",
+    "fallback_tag": "pickleball"
+  }
+}

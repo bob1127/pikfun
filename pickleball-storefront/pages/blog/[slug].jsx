@@ -2,6 +2,8 @@ import React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
   fetchPostBySlug,
   fetchPostsByCategorySlug,
@@ -28,13 +30,15 @@ export default function BlogPost({
   recommendedPosts,
   categoryKey,
 }) {
+  const { t } = useTranslation("blog");
+
   if (!post) {
     return (
       <main className="editorial-page">
         <div className="editorial-container text-center py-20">
-          <p className="text-[var(--color-text-muted)]">找不到文章</p>
+          <p className="text-[var(--color-text-muted)]">{t("notFound")}</p>
           <Link href="/" className="editorial-cta-link mt-8">
-            返回首頁
+            {t("backToHome")}
           </Link>
         </div>
       </main>
@@ -44,7 +48,7 @@ export default function BlogPost({
   const title = stripHtml(post.title?.rendered || "");
   const date = formatWpDate(post.date);
   const base = mapPostToBase(post);
-  const category = base.categories[0] || "文章";
+  const category = base.categories[0] || t("topics.default");
   const meta = WP_CATEGORY[categoryKey];
   const listHref = `/blog?category=${meta?.slug || "active"}`;
 
@@ -59,8 +63,8 @@ export default function BlogPost({
 
       <main className="editorial-page">
         <article className="editorial-container">
-          <nav className="editorial-breadcrumb" aria-label="麵包屑">
-            <Link href="/">首頁</Link>
+          <nav className="editorial-breadcrumb" aria-label={t("breadcrumbAria")}>
+            <Link href="/">{t("breadcrumbHome")}</Link>
             <span aria-hidden> &gt; </span>
             <Link href={listHref}>{meta?.label || category}</Link>
             <span aria-hidden> &gt; </span>
@@ -121,7 +125,9 @@ export async function getStaticPaths() {
   return { paths: [], fallback: "blocking" };
 }
 
-export async function getStaticProps({ params }) {
+export async function getStaticProps({ locale, params }) {
+  const i18n = await serverSideTranslations(locale ?? "zh-TW", ["blog", "common"]);
+
   try {
     const post = await fetchPostBySlug(params.slug);
     if (!post) {
@@ -155,6 +161,7 @@ export async function getStaticProps({ params }) {
 
     return {
       props: {
+        ...i18n,
         post,
         latestPosts,
         recommendedPosts,

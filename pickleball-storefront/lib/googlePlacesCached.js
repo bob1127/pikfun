@@ -7,6 +7,8 @@ import {
   formatCacheMeta,
   readPlacesCache,
   writePlacesCache,
+  isDistrictRecentlyChecked,
+  markDistrictChecked,
 } from "@/lib/googlePlacesCache";
 import { searchGooglePickleballCourts } from "@/lib/googlePlacesSearch";
 
@@ -35,7 +37,7 @@ export async function getGoogleCourtsForCity(city, { forceRefresh = false } = {}
     };
   }
 
-  const cached = readPlacesCache(normalizedCity);
+  const cached = await readPlacesCache(normalizedCity);
 
   if (!forceRefresh && cached && !cached.expired) {
     const courts = cached.data.courts || [];
@@ -74,7 +76,11 @@ export async function getGoogleCourtsForCity(city, { forceRefresh = false } = {}
     };
   }
 
-  const stored = writePlacesCache(normalizedCity, result.courts);
+  const stored = await writePlacesCache(
+    normalizedCity,
+    result.courts,
+    forceRefresh ? { lastForcedRefresh: Date.now() } : {}
+  );
 
   return {
     available: true,
@@ -95,18 +101,25 @@ export async function supplementDistrictCourts(city, district, existingCourts = 
     return { courts: existingCourts, supplemented: false };
   }
 
+  // 冷卻期內查過（含查無結果）就不再打 Google，防止空區域被反覆刷爆用量
+  if (await isDistrictRecentlyChecked(normalizedCity, normalizedDistrict)) {
+    return { courts: existingCourts, supplemented: false };
+  }
+
   const result = await searchGooglePickleballCourts({
     city: normalizedCity,
     district: normalizedDistrict,
     maxPages: 3,
   });
 
+  await markDistrictChecked(normalizedCity, normalizedDistrict);
+
   if (!result.available || !result.courts.length) {
     return { courts: existingCourts, supplemented: false };
   }
 
   const merged = mergeCourtLists(existingCourts, result.courts);
-  writePlacesCache(normalizedCity, merged);
+  await writePlacesCache(normalizedCity, merged);
   return { courts: merged, supplemented: true };
 }
 
@@ -134,14 +147,18 @@ export async function getGoogleCourtsForSelection(
     district,
   });
 
+  let cache = cityResult.cache;
+  if (supplemented) {
+    const refreshed = await readPlacesCache(city);
+    cache = formatCacheMeta(refreshed?.data || {}, { fromCache: false });
+  }
+
   return {
     ...cityResult,
     courts,
     allCourts,
     supplemented,
-    cache: supplemented
-      ? formatCacheMeta(readPlacesCache(city)?.data || {}, { fromCache: false })
-      : cityResult.cache,
+    cache,
   };
 }
 

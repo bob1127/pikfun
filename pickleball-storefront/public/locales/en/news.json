@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "title": "News | PikFun",
+    "description": "Latest PikFun news, court & event updates, and pickleball tips and guides."
+  },
+  "list": {
+    "pageTitle": "News",
+    "pageSubtitle": "News · Events · Tips",
+    "updatedAt": "Updated on",
+    "empty": "No articles yet. Please publish events or knowledge articles on WordPress.",
+    "officialLabel": "PikFun Official",
+    "goToShop": "Go to Shop"
+  },
+  "hero": {
+    "badgeCommunity": "Community Post",
+    "badgeLatest": "Latest",
+    "readMore": "Read More"
+  },
+  "card": {
+    "defaultCategory": "News",
+    "viewDetails": "View Details"
+  },
+  "detail": {
+    "loading": "Loading...",
+    "breadcrumbHome": "Home",
+    "breadcrumbNews": "News",
+    "officialAuthor": "PikFun News",
+    "categoryLabel": "Category",
+    "tocTitle": "Table of Contents",
+    "noToc": "No outline available",
+    "backToTopAria": "Back to top",
+    "backToNews": "Back to News",
+    "recommendedTitle": "Recommended Reading",
+    "recommendedBadge": "News"
+  },
+  "community": {
+    "categoryMeta": {
+      "active": {
+        "eyebrow": "Group Play",
+        "relatedLabel": "Relevant Guides",
+        "relatedTitle": "Related Group Play",
+        "sidebarTitle": "Categories",
+        "cta": "Want to organize? Submit now",
+        "heroLead": "Find courts, players & time slots"
+      },
+      "event": {
+        "eyebrow": "Tournament",
+        "relatedLabel": "Relevant Guides",
+        "relatedTitle": "Related Events",
+        "sidebarTitle": "Categories",
+        "cta": "Hosting an event? Submit now",
+        "heroLead": "Tournaments, events & registration info"
+      },
+      "course": {
+        "eyebrow": "Coaching",
+        "relatedLabel": "Relevant Guides",
+        "relatedTitle": "Related Courses",
+        "sidebarTitle": "Categories",
+        "cta": "Want to coach? Submit now",
+        "heroLead": "Coaching & course information"
+      },
+      "knowledge": {
+        "eyebrow": "Tips",
+        "relatedLabel": "Relevant Guides",
+        "relatedTitle": "Related Tips",
+        "sidebarTitle": "Categories",
+        "cta": "Have knowledge to share? Submit now",
+        "heroLead": "Pickleball knowledge & techniques"
+      }
+    },
+    "defaultCategory": "News",
+    "breadcrumbHome": "Home",
+    "breadcrumbNews": "News",
+    "highlightsTitle": "Highlights",
+    "highlightsCategory": "Category:",
+    "highlightsDate": "Published:",
+    "highlightsAuthor": "Author:",
+    "backToListLabel": "Back to News list",
+    "sidebarPopularTitle": "Popular Posts",
+    "sidebarTagsTitle": "Popular Tags",
+    "tagPikfun": "#PikFun",
+    "tagPickleball": "#Pickleball",
+    "viewMore": "View More",
+    "categoryOptions": {
+      "active": "Group Play / Drop-in",
+      "event": "Tournaments & Events",
+      "knowledge": "Tips & Guides",
+      "course": "Courses & Coaching"
+    }
+  },
+  "author": {
+    "defaultName": "PikFun Partner",
+    "defaultTitle": "Contributing Author",
+    "defaultRole": "Partner",
+    "defaultBioTemplate": "{{name}} is a PikFun-verified {{role}}, sharing group play, events, and course information to help more players find the right venues and partners."
+  },
+  "like": {
+    "eyebrow": "Like",
+    "prompt": "Found this article helpful? Give the author a like",
+    "liked": "Liked",
+    "notLiked": "Like"
+  },
+  "comments": {
+    "eyebrow": "Discussion",
+    "title": "Comments",
+    "writeComment": "Write a Comment",
+    "statsUnit": "comments",
+    "statsDesc": "Discussion and questions from players",
+    "invite": "Feel free to share your thoughts and photos",
+    "commonTagsTitle": "Frequently Mentioned",
+    "tags": [
+      "Beginner Friendly",
+      "Venue",
+      "Time Slot",
+      "Cost",
+      "Coach",
+      "Registration"
+    ],
+    "filterAll": "All",
+    "filterMedia": "With Photos",
+    "formTitle": "Write a Comment",
+    "placeholder": "Share your thoughts, questions or experience…",
+    "uploadLabel": "Upload photos (up to 6)",
+    "uploading": "Uploading",
+    "addImage": "Add",
+    "submit": "Submit Comment",
+    "submitSuccess": "Comment submitted successfully",
+    "cancel": "Cancel",
+    "loading": "Loading comments…",
+    "emptyMedia": "No comments with photos yet",
+    "empty": "No comments yet",
+    "emptyPrompt": "Be the first to share your experience!",
+    "delete": "Delete",
+    "confirmDelete": "Delete this comment?",
+    "errRequired": "Please enter a comment",
+    "errSubmit": "Failed to submit",
+    "errUpload": "Image upload failed",
+    "errUploadSize": "Image exceeds the 4MB limit",
+    "errUploadMax": "Up to 6 images allowed",
+    "mediaAlt": "Comment image",
+    "timeToday": "Today",
+    "timeDaysAgo": "{{count}} days ago",
+    "timeWeeksAgo": "{{count}} weeks ago"
+  }
+}

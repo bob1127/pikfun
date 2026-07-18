@@ -1,17 +1,22 @@
 import React, { useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import { ChevronRight } from "lucide-react";
 import { mapPostToBase } from "@/lib/wordpress";
 import {
-  BLOG_TOPIC_LABEL,
-  SITE_PROFILE,
+  getBlogTopicLabel,
+  getSiteProfile,
   extractImagesFromHtml,
   formatWpDateLong,
 } from "@/lib/blogMeta";
 
 /* —— 橫向輪播 —— */
 function RelatedCarousel({ title, moreHref, posts, variant = "compact" }) {
+  const { t } = useTranslation("blog");
+  const router = useRouter();
+  const locale = router.locale || "zh-TW";
   const trackRef = useRef(null);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -36,7 +41,7 @@ function RelatedCarousel({ title, moreHref, posts, variant = "compact" }) {
         <h3 className="pr-section-title">{title}</h3>
         {moreHref && (
           <Link href={moreHref} className="pr-section-more">
-            查看更多
+            {t("footer.carousel.viewMore")}
           </Link>
         )}
       </div>
@@ -49,7 +54,7 @@ function RelatedCarousel({ title, moreHref, posts, variant = "compact" }) {
         >
           {posts.map((post) => {
             const base = mapPostToBase(post);
-            const dateLong = formatWpDateLong(post.date);
+            const dateLong = formatWpDateLong(post.date, locale);
 
             if (variant === "story") {
               return (
@@ -102,7 +107,7 @@ function RelatedCarousel({ title, moreHref, posts, variant = "compact" }) {
             type="button"
             className="pr-carousel-arrow"
             onClick={scrollNext}
-            aria-label="下一頁"
+            aria-label={t("footer.carousel.nextAria")}
           >
             <ChevronRight size={22} strokeWidth={1.5} />
           </button>
@@ -122,10 +127,14 @@ export default function BlogPostFooter({
   latestPosts = [],
   recommendedPosts = [],
 }) {
+  const { t } = useTranslation("blog");
+  const router = useRouter();
+  const locale = router.locale || "zh-TW";
   const title = base.title;
-  const topicLabel = BLOG_TOPIC_LABEL[categoryKey] || "匹克球";
+  const topicLabel = getBlogTopicLabel(categoryKey, locale);
   const tags = base.tags?.length ? base.tags : [categoryLabel];
   const contentHtml = post.content?.rendered || "";
+  const siteProfile = getSiteProfile(locale);
 
   const contentImages = extractImagesFromHtml(contentHtml);
   const galleryImages = [
@@ -135,7 +144,7 @@ export default function BlogPostFooter({
 
   const metaRows = [
     {
-      label: "種類",
+      label: t("footer.meta.category"),
       content: (
         <span className={`pr-pill pr-pill--${categoryKey}`}>
           {categoryLabel}
@@ -143,11 +152,11 @@ export default function BlogPostFooter({
       ),
     },
     {
-      label: "主題分類",
+      label: t("footer.meta.topic"),
       content: <span className="pr-pill pr-pill--topic">{topicLabel}</span>,
     },
     {
-      label: "關鍵字",
+      label: t("footer.meta.keywords"),
       content: (
         <div className="pr-pill-group">
           {tags.map((tag) => (
@@ -159,15 +168,15 @@ export default function BlogPostFooter({
       ),
     },
     {
-      label: "相關連結",
+      label: t("footer.meta.relatedLink"),
       content: (
         <Link href={listHref} className="pr-meta-link">
-          {categoryLabel}文章列表
+          {categoryLabel}{t("footer.meta.relatedLinkSuffix")}
         </Link>
       ),
     },
     {
-      label: "原文連結",
+      label: t("footer.meta.originalLink"),
       content: base.link ? (
         <a
           href={base.link}
@@ -184,16 +193,23 @@ export default function BlogPostFooter({
   ];
 
   const profileRows = [
-    { label: "官方網站", value: SITE_PROFILE.url, href: SITE_PROFILE.url },
-    { label: "業種", value: SITE_PROFILE.industry },
-    { label: "服務地區", value: SITE_PROFILE.region },
     {
-      label: "聯絡方式",
-      value: SITE_PROFILE.contact,
-      href: `mailto:${SITE_PROFILE.contact}`,
+      label: t("footer.profile.labels.url"),
+      value: siteProfile.url,
+      href: siteProfile.url,
     },
-    { label: "營運單位", value: SITE_PROFILE.representative },
-    { label: "成立", value: SITE_PROFILE.established },
+    { label: t("footer.profile.labels.industry"), value: siteProfile.industry },
+    { label: t("footer.profile.labels.region"), value: siteProfile.region },
+    {
+      label: t("footer.profile.labels.contact"),
+      value: siteProfile.contact,
+      href: `mailto:${siteProfile.contact}`,
+    },
+    {
+      label: t("footer.profile.labels.representative"),
+      value: siteProfile.representative,
+    },
+    { label: t("footer.profile.labels.established"), value: siteProfile.established },
   ];
 
   const otherCategoryKey = categoryKey === "knowledge" ? "active" : "knowledge";
@@ -216,30 +232,31 @@ export default function BlogPostFooter({
       {/* ② 會員 CTA */}
       <section className="pr-cta-section editorial-container">
         <div className="pr-cta-box">
-          <p className="pr-cta-heading">還未加入我們嗎？</p>
+          <p className="pr-cta-heading">{t("footer.cta.heading")}</p>
           <div className="pr-cta-buttons">
             <div className="pr-cta-btn-wrap">
               <Link
                 href={`/login?redirect=${encodeURIComponent(`/blog/${base.slug}`)}`}
                 className="pr-cta-btn pr-cta-btn--dark"
               >
-                會員登入
+                {t("footer.cta.loginBtn")}
               </Link>
-              <p className="pr-cta-sub">已有帳號請點此</p>
+              <p className="pr-cta-sub">{t("footer.cta.loginSub")}</p>
             </div>
             <div className="pr-cta-btn-wrap">
               <Link
                 href={`/register?redirect=${encodeURIComponent(`/blog/${base.slug}`)}`}
                 className="pr-cta-btn pr-cta-btn--blue"
               >
-                立即註冊
+                {t("footer.cta.registerBtn")}
               </Link>
-              <p className="pr-cta-sub">免費加入</p>
+              <p className="pr-cta-sub">{t("footer.cta.registerSub")}</p>
             </div>
           </div>
           <p className="pr-cta-note">
-            註冊成為會員後，可查看更多教練聯繫方式、活動報名與專屬課程資訊。
-            <br />※ 內容依文章類別而定，部分資訊需登入後瀏覽。
+            {t("footer.cta.note")}
+            <br />
+            {t("footer.cta.noteSub")}
           </p>
         </div>
       </section>
@@ -247,7 +264,7 @@ export default function BlogPostFooter({
       {/* ③ 文章圖片 */}
       {galleryImages.length > 0 && (
         <section className="pr-gallery-section editorial-container">
-          <h3 className="pr-gallery-title">文章圖片</h3>
+          <h3 className="pr-gallery-title">{t("footer.gallery.title")}</h3>
           <div className="pr-gallery-track">
             {galleryImages.map((src, i) => (
               <a
@@ -259,7 +276,7 @@ export default function BlogPostFooter({
               >
                 <Image
                   src={src}
-                  alt={`${title} 圖片 ${i + 1}`}
+                  alt={t("footer.gallery.altTemplate", { title, index: i + 1 })}
                   fill
                   className="object-cover"
                   unoptimized
@@ -273,28 +290,28 @@ export default function BlogPostFooter({
 
       {/* ④ 站點概要 */}
       <section className="pr-profile-section editorial-container">
-        <h3 className="pr-profile-heading">站點概要</h3>
+        <h3 className="pr-profile-heading">{t("footer.profile.heading")}</h3>
         <div className="pr-profile-grid">
           <div className="pr-profile-brand">
             <div className="pr-profile-logo">
               <Image
-                src={SITE_PROFILE.logo}
-                alt={SITE_PROFILE.name}
+                src={siteProfile.logo}
+                alt={siteProfile.name}
                 width={120}
                 height={48}
                 className="object-contain max-h-12"
                 unoptimized
               />
             </div>
-            <p className="pr-profile-name">{SITE_PROFILE.name}</p>
+            <p className="pr-profile-name">{siteProfile.name}</p>
             <p className="pr-profile-followers">
-              {SITE_PROFILE.followers} 位球友追蹤
+              {siteProfile.followers} {t("footer.profile.followersSuffix")}
             </p>
             <Link href="/register" className="pr-follow-btn">
-              追蹤
+              {t("footer.profile.follow")}
             </Link>
             <Link href="/" className="pr-rss-link">
-              返回首頁
+              {t("footer.profile.backHome")}
             </Link>
           </div>
           <dl className="pr-profile-details">
@@ -323,7 +340,7 @@ export default function BlogPostFooter({
       {/* ⑤ 最新文章（同分類・プレスリリース風） */}
       <div className="editorial-container">
         <RelatedCarousel
-          title="最新文章"
+          title={t("footer.carousel.latest")}
           moreHref={listHref}
           posts={latestPosts.slice(0, 8)}
           variant="compact"
@@ -333,7 +350,7 @@ export default function BlogPostFooter({
       {/* ⑥ 推薦閱讀（跨分類・ストーリー風） */}
       <div className="editorial-container">
         <RelatedCarousel
-          title="推薦閱讀"
+          title={t("footer.carousel.recommended")}
           moreHref={otherListHref}
           posts={recommendedPosts.slice(0, 8)}
           variant="story"
@@ -341,8 +358,8 @@ export default function BlogPostFooter({
       </div>
 
       {/* ⑦ 底部麵包屑 */}
-      <nav className="pr-bottom-crumb editorial-container" aria-label="麵包屑">
-        <Link href="/">首頁</Link>
+      <nav className="pr-bottom-crumb editorial-container" aria-label={t("breadcrumbAria")}>
+        <Link href="/">{t("footer.bottomCrumb.home")}</Link>
         <span aria-hidden> &gt; </span>
         <Link href={listHref}>{categoryLabel}</Link>
         <span aria-hidden> &gt; </span>

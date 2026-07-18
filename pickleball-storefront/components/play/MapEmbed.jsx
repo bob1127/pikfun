@@ -1,3 +1,4 @@
+import { useTranslation } from "next-i18next";
 import { DollarSign, Wallet } from "lucide-react";
 import { buildGoogleMapsEmbedUrl } from "@/lib/playUtils";
 
@@ -6,7 +7,9 @@ export default function MapEmbed({
   locationAddress,
   className = "",
 }) {
-  const src = buildGoogleMapsEmbedUrl(locationName, locationAddress);
+  const { t, i18n } = useTranslation("play");
+  const locale = i18n.language || "zh-TW";
+  const src = buildGoogleMapsEmbedUrl(locationName, locationAddress, locale);
   if (!src) return null;
 
   return (
@@ -14,7 +17,7 @@ export default function MapEmbed({
       className={`rounded-xl overflow-hidden border border-gray-200 ${className}`}
     >
       <iframe
-        title={`${locationName} 地圖`}
+        title={t("map.embed_title", { location: locationName })}
         src={src}
         width="100%"
         height="280"
@@ -29,6 +32,7 @@ export default function MapEmbed({
 }
 
 export function FeePaymentBlock({ session, compact = false }) {
+  const { t } = useTranslation("play");
   const fee = session.fee_per_person ?? 0;
   const isFree = fee === 0 || session.payment_method === "free";
 
@@ -37,10 +41,10 @@ export function FeePaymentBlock({ session, compact = false }) {
       <div className="flex items-center gap-3 text-gray-700">
         <span>
           {isFree ? (
-            <span className="font-bold text-green-600">免費</span>
+            <span className="font-bold text-green-600">{t("common.free")}</span>
           ) : (
             <>
-              每人{" "}
+              {t("payment.per_person")}{" "}
               <span className="font-bold text-black text-lg">
                 NT$ {Number(fee).toLocaleString()}
               </span>

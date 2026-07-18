@@ -116,21 +116,26 @@ export function BluePillButton({
   );
 }
 
-/** 圖二風格：淺灰膠囊容器 + 藍底選中 Tab */
-export function BluePillTabs({ tabs, value, onChange }) {
+/** 膠囊分段 Tab：白底描邊容器 + 藍底選中（淺色藍系） */
+export function BluePillTabs({ tabs, value, onChange, className = "" }) {
   return (
-    <div className="inline-flex flex-wrap items-center gap-1 rounded-full bg-gray-100 p-1">
+    <div
+      className={`inline-flex max-w-full flex-wrap items-center gap-0.5 rounded-full border border-[#d7e3f2] bg-white p-1 shadow-[0_2px_10px_rgba(0,92,175,0.08)] ${className}`}
+      role="tablist"
+    >
       {tabs.map((tab) => {
         const active = value === tab.value;
         return (
           <button
             key={tab.value}
             type="button"
+            role="tab"
+            aria-selected={active}
             onClick={() => onChange(tab.value)}
-            className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
+            className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all ${
               active
                 ? "text-white shadow-sm"
-                : "text-gray-500 hover:text-gray-800"
+                : "text-gray-500 hover:text-[#005caf]"
             }`}
             style={active ? { backgroundColor: BLUE } : undefined}
           >

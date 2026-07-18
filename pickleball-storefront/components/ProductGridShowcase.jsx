@@ -10,6 +10,7 @@ import React, {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import { ChevronLeft, ChevronRight, ExternalLink, Play } from "lucide-react";
 import { getMedusaConfig } from "@/lib/medusa";
 
@@ -286,6 +287,7 @@ function TopicsInfiniteCarousel({ topics }) {
 }
 
 function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
+  const { t } = useTranslation("home");
   const [collections, setCollections] = useState([]);
   const [activeTab, setActiveTab] = useState("all");
   const [products, setProducts] = useState([]);
@@ -326,7 +328,7 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
         );
 
         if (!cancelled) {
-          setCollections([{ id: "all", title: "全部球拍" }, ...valid]);
+          setCollections([{ id: "all", title: null }, ...valid]);
         }
       } catch (err) {
         if (!cancelled) console.error("載入分類失敗:", err);
@@ -377,9 +379,11 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
             .split(/[,，#\s]+/)
             .map((t) => t.trim())
             .filter(Boolean);
-          const fallbackTags = [brand, p.metadata?.rank, "匹克球拍"].filter(
-            Boolean,
-          );
+          const fallbackTags = [
+            brand,
+            p.metadata?.rank,
+            t("gear.fallback_tag"),
+          ].filter(Boolean);
           const tags = (
             rawTags.length ? rawTags : metaTags.length ? metaTags : fallbackTags
           ).slice(0, 4);
@@ -393,8 +397,8 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
               : i % 4 === 1
                 ? "NEW"
                 : i % 4 === 2
-                  ? "熱銷"
-                  : "精選");
+                  ? t("gear.label_hot")
+                  : t("gear.label_featured"));
 
           const subtitle =
             p.metadata?.[`subtitle_${metaLang}`] ||
@@ -430,7 +434,7 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
         setIsLoadingMore(false);
       }
     },
-    [metaLang, targetCurrency, symbol],
+    [metaLang, targetCurrency, symbol, t],
   );
 
   useEffect(() => {
@@ -440,7 +444,7 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
   return (
     <div className="shop-section">
       <header className="shop-header">
-        <h3 className="shop-title">熱銷精選球拍/裝備</h3>
+        <h3 className="shop-title">{t("gear.shop_title")}</h3>
       </header>
 
       {collections.length > 1 && (
@@ -452,14 +456,14 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
               onClick={() => setActiveTab(tab.id)}
               className={`shop-tab ${activeTab === tab.id ? "is-active" : ""}`}
             >
-              {tab.title}
+              {tab.id === "all" ? t("gear.all_tab") : tab.title}
             </button>
           ))}
         </div>
       )}
 
       {isLoading ? (
-        <div className="shop-loading">載入中…</div>
+        <div className="shop-loading">{t("gear.loading")}</div>
       ) : products.length > 0 ? (
         <>
           <div className="shop-grid">
@@ -499,7 +503,7 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
                   )}
                   <p className="shop-card-price">
                     {product.price}
-                    <span className="shop-card-tax">（含稅）</span>
+                    <span className="shop-card-tax">{t("gear.tax")}</span>
                   </p>
                 </div>
               </Link>
@@ -514,13 +518,13 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
                 disabled={isLoadingMore}
                 className="shop-more-btn"
               >
-                {isLoadingMore ? "載入中…" : "載入更多球拍"}
+                {isLoadingMore ? t("gear.loading") : t("gear.load_more")}
               </button>
             </div>
           )}
         </>
       ) : (
-        <div className="shop-empty">此分類目前沒有商品</div>
+        <div className="shop-empty">{t("gear.empty")}</div>
       )}
     </div>
   );
@@ -528,6 +532,7 @@ function ProductShopGrid({ metaLang, targetCurrency, symbol }) {
 
 export default function ProductGridShowcase({ topicPosts = [] }) {
   const router = useRouter();
+  const { t } = useTranslation("home");
   const locale = router.locale || "zh-TW";
   const metaLang = locale === "zh-TW" ? "zh" : locale;
   const targetCurrency =
@@ -541,11 +546,11 @@ export default function ProductGridShowcase({ topicPosts = [] }) {
       <div className="max-w-[1280px] mx-auto">
         {/* Header */}
         <header className="text-center mb-10 md:mb-14">
-          <h2 className="topics-title">球拍挑選與裝備推薦</h2>
+          <h2 className="topics-title">{t("gear.title")}</h2>
           <p className="topics-lead max-w-2xl mx-auto mt-6">
-            第一次買匹克球拍不知道怎麼選？<br></br>{" "}
-            玻璃纖維、碳纖維、球拍重量、核心厚度、手柄長度與不同運動背景的挑選建議
-            <br></br>幫你找到最適合自己的第一支匹克球拍。
+            {t("gear.lead_line1")}<br></br>{" "}
+            {t("gear.lead_line2")}
+            <br></br>{t("gear.lead_line3")}
           </p>
         </header>
 
@@ -553,7 +558,7 @@ export default function ProductGridShowcase({ topicPosts = [] }) {
         {topics.length > 0 ? (
           <TopicsInfiniteCarousel topics={topics} />
         ) : (
-          <div className="shop-loading">暫無球拍文章，請至 WordPress「球拍-裝備」分類發布</div>
+          <div className="shop-loading">{t("gear.empty_topics")}</div>
         )}
 
         {/* Navigation 已整合在 TopicsInfiniteCarousel */}
@@ -561,13 +566,13 @@ export default function ProductGridShowcase({ topicPosts = [] }) {
         {/* CTA strip */}
         <div className="topics-cta-row mt-12 md:mt-16 flex flex-wrap justify-center gap-4">
           <Link href="/category" className="topics-cta-primary">
-            依打法挑選球拍
+            {t("gear.cta_by_style")}
           </Link>
           <Link
             href="/blog?category=rackets-equipment"
             className="topics-cta-secondary"
           >
-            閱讀完整裝備攻略
+            {t("gear.cta_guide")}
           </Link>
         </div>
 

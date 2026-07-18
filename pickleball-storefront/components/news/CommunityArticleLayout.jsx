@@ -1,9 +1,13 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight } from "lucide-react";
-import { CATEGORY_OPTIONS } from "@/lib/communityPosts";
+import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import { ChevronRight, ChevronLeft, X } from "lucide-react";
+import { getCategoryOptions } from "@/lib/communityPosts";
 import { BlueArrowLink } from "@/components/ui/BlueCta";
 import {
   AuthorInfoCard,
@@ -12,41 +16,6 @@ import {
 } from "@/components/news/CommunityEngagement";
 
 const BLUE = "#005caf";
-
-const CATEGORY_META = {
-  active: {
-    eyebrow: "Group Play",
-    relatedLabel: "Relevant Guides",
-    relatedTitle: "相關揪團",
-    sidebarTitle: "文章分類",
-    cta: "想揪團？立即投稿",
-    heroLead: "找到球場、球友與時段",
-  },
-  event: {
-    eyebrow: "Tournament",
-    relatedLabel: "Relevant Guides",
-    relatedTitle: "相關賽事",
-    sidebarTitle: "文章分類",
-    cta: "主辦活動？立即投稿",
-    heroLead: "賽事活動與報名資訊",
-  },
-  course: {
-    eyebrow: "Coaching",
-    relatedLabel: "Relevant Guides",
-    relatedTitle: "相關課程",
-    sidebarTitle: "文章分類",
-    cta: "想開課？立即投稿",
-    heroLead: "教練開課與課程資訊",
-  },
-  knowledge: {
-    eyebrow: "Tips",
-    relatedLabel: "Relevant Guides",
-    relatedTitle: "相關攻略",
-    sidebarTitle: "文章分類",
-    cta: "分享知識？立即投稿",
-    heroLead: "匹克球知識與技巧",
-  },
-};
 
 function BlueTag({ children }) {
   return (
@@ -102,6 +71,7 @@ function RelatedCard({ post }) {
 }
 
 function SidebarRelatedItem({ post }) {
+  const { t } = useTranslation("news");
   return (
     <Link
       href={`/news/${post.slug}`}
@@ -118,7 +88,7 @@ function SidebarRelatedItem({ post }) {
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[10px] font-bold text-[#005caf] mb-0.5">
-          {post.categories?.[0] || "夥伴投稿"}
+          {post.categories?.[0] || t("hero.badgeCommunity")}
         </p>
         <p className="text-xs font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-[#005caf] transition-colors">
           {post.title}
@@ -128,14 +98,138 @@ function SidebarRelatedItem({ post }) {
   );
 }
 
+/* 圖片牆幻燈片 Lightbox：點擊 .pe-gallery 內圖片開啟 */
+function GalleryLightbox({ images, index, onClose, onNavigate }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") onNavigate(-1);
+      if (e.key === "ArrowRight") onNavigate(1);
+    };
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose, onNavigate]);
+
+  if (typeof document === "undefined" || !images.length) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 flex items-center justify-center"
+      style={{ zIndex: 999999999 }}
+    >
+      <div
+        className="absolute inset-0 bg-black/85"
+        onClick={onClose}
+        aria-hidden
+      />
+
+      <button
+        type="button"
+        aria-label="關閉"
+        onClick={onClose}
+        className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full flex items-center justify-center text-white transition-transform hover:scale-110"
+        style={{ background: BLUE }}
+      >
+        <X size={18} />
+      </button>
+
+      {images.length > 1 && (
+        <>
+          <button
+            type="button"
+            aria-label="上一張"
+            onClick={() => onNavigate(-1)}
+            className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md transition-transform hover:scale-110"
+            style={{ background: BLUE }}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button
+            type="button"
+            aria-label="下一張"
+            onClick={() => onNavigate(1)}
+            className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md transition-transform hover:scale-110"
+            style={{ background: BLUE }}
+          >
+            <ChevronRight size={20} />
+          </button>
+        </>
+      )}
+
+      <figure className="relative z-10 max-w-[92vw] max-h-[86vh] flex flex-col items-center pointer-events-none">
+        <img
+          key={images[index]}
+          src={images[index]}
+          alt=""
+          className="max-w-full max-h-[80vh] object-contain select-none pointer-events-auto"
+        />
+        <figcaption className="mt-3 text-xs font-bold tracking-widest text-white/80">
+          {index + 1} / {images.length}
+        </figcaption>
+      </figure>
+    </div>,
+    document.body,
+  );
+}
+
 export default function CommunityArticleLayout({
   post,
   recentPosts = [],
   authorProfile = null,
 }) {
+  const { t } = useTranslation("news");
+  const router = useRouter();
+  const locale = router.locale || "zh-TW";
   const categoryKey = post.categoryKey || "active";
-  const meta = CATEGORY_META[categoryKey] || CATEGORY_META.active;
-  const categoryLabelText = post.categories?.[0] || "最新消息";
+  const metaCategoryKey = ["active", "event", "course", "knowledge"].includes(
+    categoryKey,
+  )
+    ? categoryKey
+    : "active";
+  const meta = {
+    eyebrow: t(`community.categoryMeta.${metaCategoryKey}.eyebrow`),
+    relatedLabel: t(`community.categoryMeta.${metaCategoryKey}.relatedLabel`),
+    relatedTitle: t(`community.categoryMeta.${metaCategoryKey}.relatedTitle`),
+    sidebarTitle: t(`community.categoryMeta.${metaCategoryKey}.sidebarTitle`),
+    cta: t(`community.categoryMeta.${metaCategoryKey}.cta`),
+    heroLead: t(`community.categoryMeta.${metaCategoryKey}.heroLead`),
+  };
+  const categoryLabelText = post.categories?.[0] || t("community.defaultCategory");
+  const categoryOptions = getCategoryOptions(locale);
+
+  // 圖片牆 lightbox：對文章內容做事件委派，點 .pe-gallery 的圖開啟幻燈片
+  const proseRef = useRef(null);
+  const [lightbox, setLightbox] = useState(null); // { images: [], index }
+
+  useEffect(() => {
+    const el = proseRef.current;
+    if (!el) return;
+    const onClick = (e) => {
+      const img = e.target.closest(".pe-gallery img");
+      if (!img) return;
+      const gallery = img.closest(".pe-gallery");
+      const imgs = Array.from(gallery.querySelectorAll("img"));
+      setLightbox({
+        images: imgs.map((i) => i.src),
+        index: Math.max(0, imgs.indexOf(img)),
+      });
+    };
+    el.addEventListener("click", onClick);
+    return () => el.removeEventListener("click", onClick);
+  }, [post.content]);
+
+  const navigateLightbox = useCallback((dir) => {
+    setLightbox((prev) => {
+      if (!prev) return prev;
+      const len = prev.images.length;
+      return { ...prev, index: (prev.index + dir + len) % len };
+    });
+  }, []);
 
   return (
     <main className="bg-white min-h-screen pt-24 pb-20 font-sans text-[#1a1a1a]">
@@ -193,11 +287,11 @@ export default function CommunityArticleLayout({
       <div className="max-w-[1180px] mx-auto px-6 mt-8">
         <nav className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-gray-100 px-5 py-2.5 text-xs font-bold">
           <Link href="/" className="text-[#005caf] hover:underline">
-            首頁
+            {t("community.breadcrumbHome")}
           </Link>
           <span className="text-gray-300">/</span>
           <Link href="/news" className="text-[#005caf] hover:underline">
-            最新消息
+            {t("community.breadcrumbNews")}
           </Link>
           <span className="text-gray-300">/</span>
           <span className="text-[#005caf]">{categoryLabelText}</span>
@@ -223,29 +317,44 @@ export default function CommunityArticleLayout({
 
           {/* 重點資訊框 */}
           <div className="border-2 border-[#005caf] rounded-md p-5 mb-10">
-            <p className="text-sm font-black text-gray-900 mb-3">活動重點</p>
+            <p className="text-sm font-black text-gray-900 mb-3">
+              {t("community.highlightsTitle")}
+            </p>
             <ul className="space-y-2 text-sm text-gray-700">
               <li className="flex gap-2">
                 <span className="text-[#005caf] font-bold">✓</span>
-                分類：{categoryLabelText}
+                {t("community.highlightsCategory")}
+                {categoryLabelText}
               </li>
               <li className="flex gap-2">
                 <span className="text-[#005caf] font-bold">✓</span>
-                發布：{post.date}
+                {t("community.highlightsDate")}
+                {post.date}
               </li>
               {post.authorName && (
                 <li className="flex gap-2">
                   <span className="text-[#005caf] font-bold">✓</span>
-                  作者：{post.authorRole} · {post.authorName}
+                  {t("community.highlightsAuthor")}
+                  {post.authorRole} · {post.authorName}
                 </li>
               )}
             </ul>
           </div>
 
           <div
+            ref={proseRef}
             className="ca-prose prose max-w-none prose-p:text-[15px] prose-p:leading-[1.9] prose-p:text-stone-800 prose-headings:font-bold prose-headings:text-gray-900 prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:pb-3 prose-h2:border-b prose-h2:border-gray-100 prose-a:text-[#005caf] prose-img:rounded-lg prose-strong:text-black"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
+
+          {lightbox && (
+            <GalleryLightbox
+              images={lightbox.images}
+              index={lightbox.index}
+              onClose={() => setLightbox(null)}
+              onNavigate={navigateLightbox}
+            />
+          )}
 
           {post.postId && <PostLikeBar postId={post.postId} />}
 
@@ -254,7 +363,7 @@ export default function CommunityArticleLayout({
           {post.postId && <PostCommentsBoard postId={post.postId} />}
 
           <div className="mt-14 pt-8 border-t border-gray-100">
-            <BlueArrowLink href="/news">返回最新消息列表</BlueArrowLink>
+            <BlueArrowLink href="/news">{t("community.backToListLabel")}</BlueArrowLink>
           </div>
         </article>
 
@@ -265,7 +374,7 @@ export default function CommunityArticleLayout({
               {meta.sidebarTitle}
             </h3>
             <ul className="space-y-2.5">
-              {CATEGORY_OPTIONS.map((opt) => (
+              {categoryOptions.map((opt) => (
                 <li key={opt.value}>
                   <Link
                     href={`/news?cat=${opt.value}`}
@@ -290,7 +399,7 @@ export default function CommunityArticleLayout({
           {recentPosts.length > 0 && (
             <div className="bg-[#f7f9fc] rounded-lg p-5">
               <h3 className="text-sm font-black text-[#005caf] mb-3 pb-2 border-b border-[#005caf]/20">
-                熱門投稿
+                {t("community.sidebarPopularTitle")}
               </h3>
               <div>
                 {recentPosts.slice(0, 4).map((item, i) => (
@@ -309,14 +418,14 @@ export default function CommunityArticleLayout({
 
           <div className="bg-[#f7f9fc] rounded-lg p-5">
             <h3 className="text-sm font-black text-[#005caf] mb-3 pb-2 border-b border-[#005caf]/20">
-              熱門標籤
+              {t("community.sidebarTagsTitle")}
             </h3>
             <div className="flex flex-wrap gap-1.5">
-              {CATEGORY_OPTIONS.map((opt) => (
+              {categoryOptions.map((opt) => (
                 <BlueTag key={opt.value}>#{opt.label}</BlueTag>
               ))}
-              <BlueTag>#PikFun</BlueTag>
-              <BlueTag>#匹克球</BlueTag>
+              <BlueTag>{t("community.tagPikfun")}</BlueTag>
+              <BlueTag>{t("community.tagPickleball")}</BlueTag>
             </div>
           </div>
         </aside>
@@ -334,7 +443,7 @@ export default function CommunityArticleLayout({
                 {meta.relatedTitle}
               </h2>
             </div>
-            <BlueArrowLink href="/news">查看更多</BlueArrowLink>
+            <BlueArrowLink href="/news">{t("community.viewMore")}</BlueArrowLink>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {recentPosts.slice(0, 4).map((item) => (

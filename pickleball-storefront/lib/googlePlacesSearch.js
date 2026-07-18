@@ -65,6 +65,11 @@ export function placeToCourt(place) {
     place.location?.longitude;
   const placeId = place.place_id || place.id?.replace(/^places\//, "") || "";
 
+  const photoRefs = (place.photos || [])
+    .slice(0, 4)
+    .map((p) => p.photo_reference || p.name || "")
+    .filter(Boolean);
+
   return {
     id: `google:${placeId}`,
     name,
@@ -76,6 +81,9 @@ export function placeToCourt(place) {
     court_type_label: "Google 地圖",
     source: "google",
     place_id: placeId,
+    photo_refs: photoRefs,
+    rating: place.rating ?? null,
+    rating_count: place.user_ratings_total ?? null,
   };
 }
 

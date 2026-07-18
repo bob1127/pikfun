@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MapPin, CalendarDays } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "next-i18next";
 import {
   enrichSessionsWithCoords,
   groupSessionsByLocation,
@@ -12,7 +13,7 @@ import {
   formatSessionDate,
   formatSessionRange,
   formatFee,
-  SKILL_LABELS,
+  getSkillLevelLabel,
 } from "@/lib/playUtils";
 
 export const TAIWAN_CENTER = { lat: 23.6978, lng: 120.9605 };
@@ -34,10 +35,14 @@ export function useSessionMapGroups(sessions, courts) {
 }
 
 export function MapInfoContent({ group }) {
+  const { t } = useTranslation("play");
   const sessions = [...group.sessions].sort(
     (a, b) => new Date(a.starts_at) - new Date(b.starts_at)
   );
-  const meta = getGroupMarkerMeta(group);
+  const meta = getGroupMarkerMeta(group, {
+    fallbackLabel: t("map_marker.fallback_label"),
+    fallbackInitial: t("map_marker.fallback_initial"),
+  });
 
   return (
     <div className="psm-info min-w-[220px] max-w-[280px]">
@@ -80,13 +85,13 @@ export function MapInfoContent({ group }) {
             </p>
             <div className="flex flex-wrap gap-1.5 mt-1.5">
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">
-                {SKILL_LABELS[s.skill_level] || "不限"}
+                {s.skill_level ? getSkillLevelLabel(s.skill_level, t) : t("common.unlimited")}
               </span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#005caf]/10 text-[#005caf]">
-                {s.joined_count ?? 0}/{s.max_players} 人
+                {s.joined_count ?? 0}/{s.max_players} {t("map.info.people_unit")}
               </span>
               <span className="text-[10px] font-bold text-gray-500">
-                {formatFee(s.fee_per_person, s.payment_method)}
+                {formatFee(s.fee_per_person, s.payment_method, t)}
               </span>
             </div>
           </Link>
@@ -102,13 +107,16 @@ export function MapToolbar({
   sessionsCount,
   providerLabel,
 }) {
+  const { t } = useTranslation("play");
   return (
     <div className="psm-toolbar">
       <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
         <MapPin size={15} className="text-[#005caf]" />
         <span>
-          <strong className="text-gray-900">{groups.length}</strong> 個地標 ·{" "}
-          <strong className="text-gray-900">{mappedCount}</strong> 場揪團已標示
+          <strong className="text-gray-900">{groups.length}</strong>{" "}
+          {t("map.toolbar.locations")} ·{" "}
+          <strong className="text-gray-900">{mappedCount}</strong>{" "}
+          {t("map.toolbar.sessions_mapped")}
         </span>
         {providerLabel && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
@@ -118,7 +126,7 @@ export function MapToolbar({
       </div>
       {mappedCount < sessionsCount && (
         <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
-          {sessionsCount - mappedCount} 場無法對應球場座標
+          {t("map.toolbar.unmapped", { count: sessionsCount - mappedCount })}
         </span>
       )}
     </div>
@@ -126,11 +134,12 @@ export function MapToolbar({
 }
 
 export function MapEmptyHint({ tab, sessionsCount, mappedCount, onSwitchTab }) {
+  const { t } = useTranslation("play");
+
   if (sessionsCount > 0 && mappedCount === 0) {
     return (
       <div className="px-4 py-3 bg-amber-50 border-t border-amber-100 text-xs text-amber-800 leading-relaxed">
-        有 {sessionsCount} 場揪團，但地點無法對應球場座標（可能為手動輸入地址）。
-        建議開團時從球場列表選擇，即可顯示在地圖上。
+        {t("map.empty_hint.unmapped_note", { count: sessionsCount })}
       </div>
     );
   }
@@ -138,18 +147,18 @@ export function MapEmptyHint({ tab, sessionsCount, mappedCount, onSwitchTab }) {
   if (sessionsCount === 0 && tab === "upcoming") {
     return (
       <div className="px-4 py-3 bg-blue-50 border-t border-blue-100 text-xs text-blue-900 leading-relaxed">
-        目前沒有「即將開始」的揪團（可能都已過期）。
+        {t("map.empty_hint.no_upcoming")}
         {onSwitchTab && (
           <>
             {" "}
             <button
               type="button"
-              onClick={() => onSwitchTab("all")}
+              onClick={() => onSwitchTab("ended")}
               className="font-bold underline hover:text-[#005caf]"
             >
-              切換至「全部」
+              {t("map.empty_hint.switch_to_ended")}
             </button>
-            可查看已有揪團；或點「我要開團」建立新活動。
+            {t("map.empty_hint.no_upcoming_suffix")}
           </>
         )}
       </div>
@@ -159,7 +168,7 @@ export function MapEmptyHint({ tab, sessionsCount, mappedCount, onSwitchTab }) {
   if (sessionsCount === 0) {
     return (
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 text-xs text-gray-600 leading-relaxed">
-        目前沒有揪團可顯示。成為第一個開團的人吧！
+        {t("map.empty_hint.no_sessions")}
       </div>
     );
   }

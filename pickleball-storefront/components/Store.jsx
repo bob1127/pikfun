@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Check, ArrowRight } from "lucide-react";
+import { useTranslation } from "next-i18next";
 
 // --- 1. 單一專案卡片 (完全參照截圖排版) ---
 const ProjectCard = ({ data }) => {
@@ -73,6 +74,7 @@ const ProjectCard = ({ data }) => {
 
 // --- 2. 主元件 (含雙色背景與滑動邏輯) ---
 export default function ProjectSection({ posts = [] }) {
+  const { t } = useTranslation("home");
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const items = posts;
@@ -108,14 +110,14 @@ export default function ProjectSection({ posts = [] }) {
         <div className="flex flex-col  max-w-[1500px] lg:flex-row justify-between items-start lg:items-center mb-12 gap-8">
           <div>
             <h2 className="text-5xl font-black text-gray-900 mb-4">
-              查找球場與活動資訊
+              {t("community.title")}
             </h2>
             <span className="text-stone-800 font-normal text-[14px]">
-              從新手交流、球友討論，到球場資訊、裝備推薦與活動分享<br></br>
-              打造屬於台灣匹克球玩家的聚落。
+              {t("community.desc_line1")}<br></br>
+              {t("community.desc_line2")}
             </span>
             <p className="text-stone-400 mt-6 font-normal">
-              文章總數 {items.length} 篇
+              {t("community.count", { count: items.length })}
             </p>
           </div>
 
@@ -151,7 +153,7 @@ export default function ProjectSection({ posts = [] }) {
               href="/blog?category=active"
               className="flex-1 lg:flex-none bg-[#2F54EB] text-white px-10 py-5 rounded-full flex items-center justify-center gap-4 hover:bg-blue-700 transition-all shadow-xl font-bold tracking-wide"
             >
-              採択プロジェクト一覧を見る
+              {t("community.cta")}
               <ArrowRight size={20} />
             </Link>
           </div>
@@ -169,7 +171,7 @@ export default function ProjectSection({ posts = [] }) {
             ))
           ) : (
             <p className="text-stone-500 text-sm py-8">
-              尚無文章，請至 WordPress 後台發佈。
+              {t("community.empty")}
             </p>
           )}
         </div>

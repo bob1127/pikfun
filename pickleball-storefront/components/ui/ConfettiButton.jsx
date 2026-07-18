@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useTranslation } from "next-i18next";
 import { fireCelebrationConfettiFromElement } from "@/lib/fireCelebrationConfetti";
 
 /**
@@ -18,8 +19,8 @@ import { fireCelebrationConfettiFromElement } from "@/lib/fireCelebrationConfett
  */
 export default function ConfettiButton({
   onClick,
-  children = "送出",
-  successLabel = "完成！",
+  children,
+  successLabel,
   resetAfter,
   confettiOpts = {},
   disabled = false,
@@ -28,6 +29,9 @@ export default function ConfettiButton({
   style,
   ...rest
 }) {
+  const { t } = useTranslation("common");
+  const resolvedChildren = children ?? t("actions.submit");
+  const resolvedSuccessLabel = successLabel ?? t("actions.done");
   const [phase, setPhase] = useState("idle"); // idle | loading | success | error
   const btnRef = useRef(null);
   const resetTimer = useRef(null);
@@ -76,7 +80,7 @@ export default function ConfettiButton({
         {...rest}
       >
         {phase === "loading" && (
-          <span className="cfb-dots" aria-label="載入中">
+          <span className="cfb-dots" aria-label={t("actions.loading")}>
             <span className="cfb-dot" style={{ animationDelay: "0s" }} />
             <span className="cfb-dot" style={{ animationDelay: "0.15s" }} />
             <span className="cfb-dot" style={{ animationDelay: "0.3s" }} />
@@ -97,13 +101,13 @@ export default function ConfettiButton({
             >
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            {successLabel}
+            {resolvedSuccessLabel}
           </span>
         )}
         {phase === "error" && (
-          <span className="cfb-error-content">再試一次</span>
+          <span className="cfb-error-content">{t("actions.retry")}</span>
         )}
-        {(phase === "idle") && children}
+        {(phase === "idle") && resolvedChildren}
       </button>
 
       <style jsx global>{`

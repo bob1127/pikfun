@@ -26,14 +26,12 @@ export function middleware(req) {
   // 本機開發時沒有國家資料，直接放行
   if (!country) return NextResponse.next();
 
-  // 3. 智能分流邏輯
+  // 3. 智能分流邏輯（僅支援 zh-TW 與 en 兩種語系）
   const chineseRegions = ['TW', 'CN', 'HK', 'MO', 'SG', 'MY'];
   let targetLocale = 'en'; // 預設全世界英文
 
   if (chineseRegions.includes(country)) {
     targetLocale = 'zh-TW';
-  } else if (country === 'KR') {
-    targetLocale = 'ko';
   }
 
   // 4. 初次進來，將錯誤的語系導航至正確的國家語系，並寫入 Cookie 標籤

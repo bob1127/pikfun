@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Layout from "./Layout.js";
+import Layout from "@/components/Layout";
 import MiniMapGallery from "../components/MiniMapGallery.jsx";
 
 export default function Home() {

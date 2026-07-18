@@ -61,8 +61,8 @@ const GenericAccordion = ({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex justify-between items-center text-left group focus:outline-none"
       >
-        <h3 className="text-[13px] font-bold uppercase tracking-widest flex items-center gap-2 group-hover:text-[#e31837] transition-colors">
-          {Icon && <Icon size={16} className="text-[#e31837]" />}
+        <h3 className="text-[13px] font-bold uppercase tracking-widest flex items-center gap-2 group-hover:text-[#3157B5] transition-colors">
+          {Icon && <Icon size={16} className="text-[#3157B5]" />}
           {title}
         </h3>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
@@ -94,7 +94,7 @@ const StarSelector = ({ value, onChange }) => (
       <button key={n} type="button" onClick={() => onChange(n)}>
         <Star
           size={24}
-          className={n <= value ? "text-[#e31837]" : "text-gray-300"}
+          className={n <= value ? "text-[#3157B5]" : "text-gray-300"}
           fill={n <= value ? "currentColor" : "none"}
         />
       </button>
@@ -180,7 +180,7 @@ const VoteButtons = ({
         onClick={() => reviewId && onVote(reviewId, "up")}
         className={`flex items-center gap-1 transition-colors ${
           upActive
-            ? "text-[#e31837] font-bold"
+            ? "text-[#3157B5] font-bold"
             : "text-gray-500 hover:text-black"
         }`}
       >
@@ -233,7 +233,7 @@ const ReviewCard = ({
               {review.author_name}
             </div>
             {isVerified && (
-              <div className="flex items-center gap-1 text-[11px] text-[#e31837] font-bold mt-1">
+              <div className="flex items-center gap-1 text-[11px] text-[#3157B5] font-bold mt-1">
                 <CheckCircle2 size={12} /> 已驗證會員
               </div>
             )}
@@ -263,7 +263,7 @@ const ReviewCard = ({
         </div>
 
         <div className="space-y-1.5 text-xs">
-          <div className="flex items-center gap-1.5 text-[#e31837] font-bold">
+          <div className="flex items-center gap-1.5 text-[#3157B5] font-bold">
             <ThumbsUp size={13} fill="currentColor" />
             {review.helpful_count || 0}人覺得這則評論很讚
           </div>
@@ -300,7 +300,7 @@ const ReviewCard = ({
             {isOwner && !review._optimistic && (
               <button
                 onClick={() => onEdit(review)}
-                className="text-xs text-gray-400 hover:text-[#e31837] underline transition-colors"
+                className="text-xs text-gray-400 hover:text-[#3157B5] underline transition-colors"
               >
                 編輯
               </button>
@@ -957,6 +957,16 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
 
   return (
     <div className="mt-20 border-t border-gray-200 pt-16 w-full relative">
+      {/* ── 區塊標題（webstaff 風格：藍色 eyebrow + 粗標題）── */}
+      <div className="mb-10">
+        <p className="text-[11px] font-black tracking-[0.18em] uppercase mb-2 text-[#3157B5]">
+          Reviews
+        </p>
+        <h2 className="text-xl md:text-2xl font-black text-[#222] leading-snug">
+          球友評論
+        </h2>
+      </div>
+
       {/* 未登入提示 Popup */}
       <AnimatePresence>
         {showLoginPrompt && (
@@ -984,7 +994,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
               <div className="flex flex-col gap-3">
                 <button
                   onClick={goToLogin}
-                  className="w-full bg-[#3375d9] text-white py-3 rounded-full text-sm font-bold hover:bg-black transition-colors"
+                  className="w-full bg-[#3157B5] text-white py-3 rounded-full text-sm font-bold hover:bg-[#22408f] transition-colors"
                 >
                   登入會員
                 </button>
@@ -1079,7 +1089,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                 onClick={() =>
                   setActiveKeyword(activeKeyword === tag ? null : tag)
                 }
-                className={`px-4 py-1.5 border rounded-full text-xs font-bold transition-colors ${activeKeyword === tag ? "border-black bg-black text-white" : "border-gray-200 text-gray-600 hover:border-black"}`}
+                className={`px-4 py-1.5 border rounded-[4px] text-xs font-bold transition-colors ${activeKeyword === tag ? "border-[#3157B5] bg-[#3157B5] text-white" : "border-[#3157B5]/50 text-[#3157B5] hover:bg-[#3157B5]/5"}`}
               >
                 {tag}
               </button>
@@ -1133,7 +1143,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
       {reviewSummary && (
         <div className="mb-10">
           <h4 className="text-sm font-bold flex items-center gap-2 mb-2 text-black">
-            <Sparkles size={15} className="text-[#e31837]" /> 評論摘要
+            <Sparkles size={15} className="text-[#3157B5]" /> 評論摘要
           </h4>
           <p className="text-sm text-gray-600 leading-relaxed max-w-5xl">
             {reviewSummary}
@@ -1147,28 +1157,30 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
         </div>
       )}
 
-      {/* ── Tabs ── */}
-      <div className="border-b border-gray-200 mb-6">
-        <div className="flex gap-8">
+      {/* ── Tabs（webstaff 膠囊風格）── */}
+      <div className="mb-8 flex justify-start">
+        <div className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white p-1.5 shadow-sm">
           <button
             type="button"
             onClick={() => setActiveTab("reviews")}
-            className={`pb-4 text-sm font-bold relative transition-colors ${activeTab === "reviews" ? "text-black" : "text-gray-400 hover:text-black"}`}
+            className={`px-6 py-2 rounded-full text-sm font-bold transition-colors ${
+              activeTab === "reviews"
+                ? "bg-[#3157B5] text-white"
+                : "text-gray-500 hover:text-[#3157B5]"
+            }`}
           >
             評論 ({reviews.length})
-            {activeTab === "reviews" && (
-              <span className="absolute bottom-0 left-0 w-full h-[2px] bg-black" />
-            )}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("questions")}
-            className={`pb-4 text-sm font-bold relative transition-colors ${activeTab === "questions" ? "text-black" : "text-gray-400 hover:text-black"}`}
+            className={`px-6 py-2 rounded-full text-sm font-bold transition-colors ${
+              activeTab === "questions"
+                ? "bg-[#3157B5] text-white"
+                : "text-gray-500 hover:text-[#3157B5]"
+            }`}
           >
             問題 (0)
-            {activeTab === "questions" && (
-              <span className="absolute bottom-0 left-0 w-full h-[2px] bg-black" />
-            )}
           </button>
         </div>
       </div>
@@ -1180,14 +1192,14 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
             <button
               type="button"
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center gap-2 bg-[#e31837] text-white px-5 py-2.5 text-sm font-bold hover:bg-black transition-colors w-fit"
+              className="inline-flex items-center gap-2 rounded-full border border-[#3157B5] text-[#3157B5] px-6 py-2.5 text-sm font-bold hover:bg-[#3157B5] hover:text-white transition-colors w-fit"
             >
               <Filter size={15} /> 篩選
             </button>
             <button
               type="button"
               onClick={handleWriteReviewClick}
-              className="inline-flex items-center gap-2 bg-[#e31837] text-white px-5 py-2.5 text-sm font-bold hover:bg-black transition-colors w-fit sm:ml-auto"
+              className="inline-flex items-center gap-2 rounded-full bg-[#3157B5] text-white px-6 py-2.5 text-sm font-bold hover:bg-[#22408f] transition-colors w-fit sm:ml-auto"
             >
               <Pencil size={15} /> 撰寫評論
             </button>
@@ -1200,7 +1212,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border border-gray-200 rounded px-2 py-1 text-sm font-medium outline-none focus:border-black bg-white"
+                className="border border-gray-200 rounded px-2 py-1 text-sm font-medium outline-none focus:border-[#3157B5] bg-white"
               >
                 <option value="newest">最新</option>
                 <option value="oldest">最舊</option>
@@ -1249,7 +1261,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="搜尋評論內容..."
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm outline-none focus:border-[#e31837] bg-white"
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm outline-none focus:border-[#3157B5] bg-white"
                       />
                     </div>
                   </div>
@@ -1265,7 +1277,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                           onClick={() =>
                             setActiveKeyword(activeKeyword === tag ? null : tag)
                           }
-                          className={`px-3 py-1 border rounded-full text-xs font-bold transition-colors ${activeKeyword === tag ? "border-black bg-black text-white" : "border-gray-300 text-gray-600 hover:border-black bg-white"}`}
+                          className={`px-3 py-1 border rounded-[4px] text-xs font-bold transition-colors ${activeKeyword === tag ? "border-[#3157B5] bg-[#3157B5] text-white" : "border-[#3157B5]/50 text-[#3157B5] hover:bg-[#3157B5]/5 bg-white"}`}
                         >
                           {tag}
                         </button>
@@ -1284,7 +1296,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                           onClick={() =>
                             setFilterRating(filterRating === s ? null : s)
                           }
-                          className={`flex items-center gap-1 px-3 py-1 border rounded-full text-xs font-bold transition-colors ${filterRating === s ? "border-black bg-black text-white" : "border-gray-300 text-gray-600 hover:border-black bg-white"}`}
+                          className={`flex items-center gap-1 px-3 py-1 border rounded-full text-xs font-bold transition-colors ${filterRating === s ? "border-[#3157B5] bg-[#3157B5] text-white" : "border-gray-300 text-gray-600 hover:border-[#3157B5] bg-white"}`}
                         >
                           {[...Array(s)].map((_, i) => (
                             <Star
@@ -1314,7 +1326,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                         setFilterRating(null);
                         setFilterMediaOnly(false);
                       }}
-                      className="text-xs text-[#e31837] font-bold hover:underline"
+                      className="text-xs text-[#3157B5] font-bold hover:underline"
                     >
                       清除所有篩選
                     </button>
@@ -1361,7 +1373,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                         setForm({ ...form, author_name: e.target.value })
                       }
                       placeholder="請輸入你的暱稱"
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e31837] transition-colors"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#3157B5] transition-colors"
                     />
                   )}
                 </div>
@@ -1383,7 +1395,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   placeholder="用一句話總結你的體驗"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e31837] transition-colors"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#3157B5] transition-colors"
                 />
               </div>
               <div>
@@ -1398,7 +1410,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                     setForm({ ...form, content: e.target.value })
                   }
                   placeholder="分享你的使用心得、優缺點..."
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e31837] transition-colors resize-none"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#3157B5] transition-colors resize-none"
                 />
               </div>
 
@@ -1436,7 +1448,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                     </div>
                   ))}
                   {selectedFiles.length < 6 && (
-                    <label className="w-20 h-20 border-2 border-dashed border-gray-300 hover:border-[#e31837] rounded-md flex flex-col items-center justify-center text-gray-400 hover:text-[#e31837] cursor-pointer transition-colors">
+                    <label className="w-20 h-20 border-2 border-dashed border-gray-300 hover:border-[#3157B5] rounded-md flex flex-col items-center justify-center text-gray-400 hover:text-[#3157B5] cursor-pointer transition-colors">
                       <UploadCloud size={22} />
                       <span className="text-[10px] font-bold mt-1">上傳</span>
                       <input
@@ -1459,7 +1471,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                   onChange={(e) =>
                     setForm({ ...form, recommend: e.target.checked })
                   }
-                  className="w-4 h-4 accent-[#e31837]"
+                  className="w-4 h-4 accent-[#3157B5]"
                 />
                 <label
                   htmlFor="recommend"
@@ -1472,7 +1484,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="bg-[#e31837] text-white px-8 py-3 rounded-full text-sm font-bold hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#3157B5] text-white px-8 py-3 rounded-full text-sm font-bold hover:bg-[#22408f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "處理中..." : "送出評論"}
               </button>
@@ -1524,7 +1536,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                     setEditForm({ ...editForm, title: e.target.value })
                   }
                   placeholder="用一句話總結你的體驗"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e31837] transition-colors"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#3157B5] transition-colors"
                 />
               </div>
               <div>
@@ -1538,7 +1550,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                   onChange={(e) =>
                     setEditForm({ ...editForm, content: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e31837] transition-colors resize-none"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#3157B5] transition-colors resize-none"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -1549,7 +1561,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                   onChange={(e) =>
                     setEditForm({ ...editForm, recommend: e.target.checked })
                   }
-                  className="w-4 h-4 accent-[#e31837]"
+                  className="w-4 h-4 accent-[#3157B5]"
                 />
                 <label
                   htmlFor="edit-recommend"
@@ -1569,7 +1581,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
                 <button
                   type="submit"
                   disabled={editSubmitting}
-                  className="flex-1 bg-[#187ee3] text-white py-3 rounded-full text-sm font-bold hover:bg-black transition-colors disabled:opacity-50"
+                  className="flex-1 bg-[#3157B5] text-white py-3 rounded-full text-sm font-bold hover:bg-[#22408f] transition-colors disabled:opacity-50"
                 >
                   {editSubmitting ? "更新中..." : "儲存變更"}
                 </button>
@@ -1610,7 +1622,7 @@ const ProductReviews = ({ productId, productTitle, productThumbnail }) => {
               setFilterRating(null);
               setFilterMediaOnly(false);
             }}
-            className="text-sm text-[#e31837] font-bold mt-2 hover:underline"
+            className="text-sm text-[#3157B5] font-bold mt-2 hover:underline"
           >
             清除篩選
           </button>
@@ -1717,7 +1729,7 @@ export default function ProductDetail({ product }) {
                 <div className="flex-1 min-w-0 h-full relative">
                   <button
                     onClick={() => setIsZoomEnabled(!isZoomEnabled)}
-                    className={`absolute top-4 right-4 z-20 p-2.5 rounded-full shadow-md transition-all duration-300 ${isZoomEnabled ? "bg-[#e31837] text-white" : "bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white"}`}
+                    className={`absolute top-4 right-4 z-20 p-2.5 rounded-full shadow-md transition-all duration-300 ${isZoomEnabled ? "bg-[#3157B5] text-white" : "bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white"}`}
                     title={isZoomEnabled ? "關閉放大鏡" : "開啟放大鏡"}
                   >
                     {isZoomEnabled ? (
@@ -1859,7 +1871,7 @@ export default function ProductDetail({ product }) {
                 <h1 className="text-2xl lg:text-3xl leading-[1.3] tracking-wide font-medium mt-1 mb-3">
                   {product.title}
                 </h1>
-                <p className="text-2xl font-bold tracking-tight text-black">
+                <p className="text-2xl font-bold tracking-tight text-[#3157B5]">
                   {product.price}
                 </p>
                 {product.weight > 0 && (
@@ -1872,7 +1884,7 @@ export default function ProductDetail({ product }) {
               {/* 數量 + 加入購物車 */}
               <div className="mb-8 space-y-4">
                 <div className="flex gap-4">
-                  <div className="flex border border-gray-300 w-28 justify-between items-center px-3">
+                  <div className="flex border border-gray-300 rounded-full w-28 justify-between items-center px-3">
                     <button
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                       className="py-3 px-2 text-gray-400"
@@ -1889,7 +1901,7 @@ export default function ProductDetail({ product }) {
                   </div>
                   <button
                     onClick={() => addToCart(product, quantity)}
-                    className="flex-1 bg-[#e31837] text-white py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-black transition-all active:scale-95"
+                    className="flex-1 bg-[#3157B5] text-white py-4 rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#22408f] transition-all active:scale-95 shadow-sm"
                   >
                     加入購物車
                   </button>

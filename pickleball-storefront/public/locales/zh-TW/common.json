@@ -1,4 +1,10 @@
 {
+  "actions": {
+    "submit": "送出",
+    "done": "完成！",
+    "retry": "再試一次",
+    "loading": "載入中"
+  },
   "navbar": {
     "categories": "匹克趨勢",
     "brand": "相關產品",

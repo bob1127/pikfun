@@ -1,0 +1,671 @@
+{
+  "seo": {
+    "list_title": "教練開課 | PikFun",
+    "list_desc": "瀏覽匹克球教練課程，團體班、私人課、主題班，找到適合你的教練",
+    "detail_suffix": "教練開課 | PikFun",
+    "create_title": "我要開課 | PikFun",
+    "apply_title": "申請進駐教練 | PikFun",
+    "apply_edit_title": "編輯進駐申請 | PikFun",
+    "apply_approved_title": "教練進駐已通過 | PikFun",
+    "apply_pending_title": "申請審核中 | PikFun",
+    "apply_rejected_title": "申請未通過 | PikFun"
+  },
+  "common": {
+    "loading": "載入中...",
+    "retry": "重試",
+    "cancel": "取消",
+    "save": "儲存",
+    "edit": "編輯",
+    "close": "關閉",
+    "clear": "清除",
+    "all": "全部",
+    "free": "免費",
+    "group_label": "Group",
+    "menu_label": "Menu",
+    "vertical_course_intro": "課程介紹",
+    "weekdays": [
+      "日",
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六"
+    ]
+  },
+  "list": {
+    "eyebrow": "Coaching",
+    "title": "教練開課",
+    "subtitle": "— 匹克球教練課程 · 從新手入門到進階技術",
+    "index_mark": "{01}",
+    "filters": {
+      "upcoming": "即將開課",
+      "all": "全部",
+      "enrolled": "我報名的",
+      "teaching": "我開的課"
+    },
+    "create_btn": "我要開課",
+    "search": {
+      "prefix": "搜尋「",
+      "suffix": "」",
+      "found_count": " · 找到 {{count}} 堂課",
+      "clear": "清除",
+      "switch_all": "改查全部課程"
+    },
+    "loading": "載入課程中...",
+    "error": {
+      "hint": "若為資料表錯誤，請先在 Supabase 執行 supabase/coach_classes.sql",
+      "retry": "重試"
+    },
+    "empty": {
+      "no_match": "找不到符合「{{query}}」的課程",
+      "no_match_hint": "試試球場名稱、地址、教練姓名，或改用「全部」篩選",
+      "clear_search": "清除搜尋",
+      "view_all": "查看全部課程",
+      "no_classes": "目前沒有課程",
+      "become_first": "成為第一位開課教練"
+    },
+    "bottom_cta": {
+      "title": "我要開課",
+      "subtitle": "成為 PikFun 教練，開始你的第一堂課"
+    }
+  },
+  "detail": {
+    "back_link": "for Coaching",
+    "entry_btn": "ENTRY",
+    "loading": "載入中...",
+    "not_found": "找不到此課程",
+    "back_to_list": "返回課程列表",
+    "vertical_label": "課程詳情",
+    "badge_cancelled": "已取消",
+    "coach_meta_prefix": "教練 · ",
+    "location_pending": "地點待定",
+    "menu": {
+      "overview": "課程概要",
+      "description": "課程介紹",
+      "curriculum": "課程內容",
+      "coach": "教練介紹",
+      "location": "上課地點",
+      "students": "已報名學員",
+      "enroll": "報名資訊",
+      "related": "其他課程",
+      "other_coaches": "其他教練"
+    },
+    "overview": {
+      "eyebrow": "Group",
+      "title": "課程概要",
+      "class_type_label": "課程類型",
+      "location_label": "主要上課地點",
+      "date_label": "上課日期",
+      "time_label": "上課時間",
+      "capacity_label": "名額",
+      "opened_by": "由 {{name}} 教練開設",
+      "spots_left": " · 剩 {{count}} 位",
+      "capacity_unit": "人"
+    },
+    "qa": {
+      "description_bracket": "【課程介紹】",
+      "description_title": "這堂課程是什麼？",
+      "curriculum_bracket": "【課程內容】",
+      "curriculum_title": "上課會做什麼？",
+      "coach_bracket": "【教練介紹】",
+      "coach_title": "{{name}} 教練",
+      "coach_badge": "PikFun 認證教練",
+      "location_bracket": "【上課地點】",
+      "location_title": "在哪裡上課？",
+      "open_in_maps": "在 Google 地圖開啟",
+      "students_bracket": "【已報名學員】",
+      "students_title": "目前 {{enrolled}} / {{max}} 人",
+      "waitlist_label": "候補名單（{{count}}）"
+    },
+    "enroll_panel": {
+      "title": "報名資訊",
+      "capacity_unit": "人",
+      "spots_left": "（剩 {{count}} 位）",
+      "enroll_btn": "立即報名",
+      "waitlist_btn": "加入候補",
+      "leave_btn": "取消報名",
+      "enrolled_msg": "✓ 您已報名此課程",
+      "waitlist_msg": "您在候補名單中",
+      "cancel_class_btn": "取消課程",
+      "past_msg": "課程已結束",
+      "cancelled_msg": "課程已取消"
+    },
+    "mobile_sticky": {
+      "free": "免費",
+      "enroll": "報名",
+      "waitlist": "候補",
+      "leave": "取消",
+      "past": "已結束",
+      "cancelled": "已取消",
+      "enrolled": "已報名",
+      "waitlist_status": "候補中"
+    },
+    "login_prompt": {
+      "title": "尚未註冊或登入會員嗎？",
+      "desc_line1": "報名課程需要先成為 PikFun 會員。",
+      "desc_line2": "註冊後即可一鍵報名。",
+      "register_btn": "立即註冊",
+      "login_btn": "已有帳號，登入",
+      "later_btn": "稍後再說"
+    },
+    "related": {
+      "eyebrow": "Other Courses",
+      "title": "その他の課程"
+    },
+    "bottom_cta": {
+      "title": "ENTRY",
+      "desc_can_enroll": "確認課程資訊後，立即報名加入",
+      "desc_default": "更多 PikFun 教練課程",
+      "meta": " · ",
+      "enroll_bar": "立即報名此課程",
+      "waitlist_bar": "加入候補名單",
+      "back_to_list_bar": "返回課程列表",
+      "create_bar": "我要開課",
+      "apply_bar": "教練進駐 PikFun 官網"
+    },
+    "group_links": {
+      "eyebrow": "Group",
+      "all_classes": "全部課程",
+      "featured_coaches": "進駐教練"
+    },
+    "footer_entry": {
+      "waitlist": "候補",
+      "entry": "ENTRY",
+      "create": "開課"
+    },
+    "alert": {
+      "action_failed": "操作失敗"
+    },
+    "confirm": {
+      "cancel_class": "確定要取消此課程？"
+    }
+  },
+  "create": {
+    "loading": "載入中...",
+    "today_date": "{{month}} 月 {{day}} 日",
+    "gate": {
+      "title": "需要先通過進駐審核",
+      "desc_line1": "開課功能僅限已通過進駐審核的教練使用。",
+      "desc_line2": "請先申請成為駐場教練，審核通過後即可開課。",
+      "apply_btn": "申請進駐教練",
+      "browse_btn": "瀏覽課程列表"
+    },
+    "sections": {
+      "info": "課程資訊",
+      "type_level": "類型與程度",
+      "court": "選擇球場",
+      "time": "時間安排",
+      "capacity_fee": "名額與費用",
+      "cover": "封面圖片（選填，上限 2MB）"
+    },
+    "fields": {
+      "title_placeholder": "課程名稱（例：週末初學者雙打入門班）",
+      "description_placeholder": "課程介紹：目標、適合對象、注意事項…",
+      "curriculum_placeholder": "教學大綱：暖身 → 握拍與站位 → 正手練習 → 對打…",
+      "coach_bio_placeholder": "教練簡介：教學經歷、證照、專長…",
+      "class_type_label": "課程類型",
+      "skill_level_label": "適合程度",
+      "starts_at_label": "開始時間 *",
+      "ends_at_label": "結束時間",
+      "capacity_label": "名額上限",
+      "capacity_unit": "人",
+      "capacity_unit_private": "人（私人課）",
+      "fee_label": "每人費用",
+      "fee_free": "免費",
+      "payment_note_placeholder": "付款說明（帳號末四碼、LINE ID 等）"
+    },
+    "cover": {
+      "preview_alt": "封面預覽",
+      "upload_label": "點擊上傳封面",
+      "upload_hint": "JPG / PNG / WebP / GIF"
+    },
+    "errors": {
+      "image_type": "請上傳圖片格式（JPG、PNG、WebP、GIF）",
+      "image_size": "圖片超過 2MB 限制",
+      "location_required": "請選擇球場或填寫完整地址",
+      "validation": "請完成必填欄位",
+      "login_required": "請先登入",
+      "network": "網路錯誤，請稍後再試",
+      "submit_failed": "開課失敗",
+      "cover_upload_failed": "封面上傳失敗"
+    },
+    "greeting": {
+      "dawn": "深夜好",
+      "morning": "早安",
+      "afternoon": "午安",
+      "evening": "晚安"
+    },
+    "hero": {
+      "title": "教練開課",
+      "subtitle": "開一堂課，帶學員上場 🏓"
+    },
+    "desktop_header": {
+      "title": "教練開課",
+      "subtitle": "{{greeting}}，{{name}}。設定課程內容、時間與費用，讓學員輕鬆找到你"
+    },
+    "actions": {
+      "submit_note": "發布課程即表示你同意 PikFun 開課使用規範，並確認所填資訊正確。",
+      "submit_btn": "發布課程",
+      "submit_success": "課程發布成功！🎉",
+      "submit_success_mobile": "發布成功！🎉",
+      "back_link": "返回課程列表"
+    },
+    "panel": {
+      "title": "發布後，學員即可報名",
+      "lead": "完成上方表單並發布，你的課程會出現在 PikFun 教練開課列表",
+      "preview_label": "課程預覽",
+      "unselected_court": "尚未選擇球場",
+      "fee_label": "每人費用",
+      "fee_edit_hint": "發布後仍可至課程頁面編輯",
+      "steps_title": "開課流程",
+      "step1": "填寫課程內容、球場與時間",
+      "step2": "發布課程，分享給學員",
+      "step3": "學員報名，到場開課",
+      "tips_title": "小提醒",
+      "tip1": "建議從球場列表選擇，地圖定位較準確",
+      "tip2": "課程大綱越完整，學員越容易報名",
+      "tip3": "發布後可至課程頁面管理報名學員"
+    }
+  },
+  "apply": {
+    "loading": "載入中...",
+    "back_to_member": "返回會員中心",
+    "back_to_review": "返回審核狀態",
+    "back_to_coaching": "返回教練開課",
+    "approved": {
+      "badge": "Approved Coach",
+      "title": "教練進駐已審核通過",
+      "desc": "您的教練頁已上架 PikFun 官網，球友可以搜尋並報名您的課程。",
+      "reviewed_at": "審核通過日期：{{date}}",
+      "status_badge": "已通過審核",
+      "slug_preview": "pikfun.com.tw/coaching/coach/{{slug}}",
+      "stats": {
+        "upcoming": "即將開課",
+        "total_classes": "累計開課",
+        "total_enrollments": "報名人次"
+      },
+      "view_page_btn": "查看我的教練頁",
+      "edit_page_btn": "編輯教練頁",
+      "new_class_btn": "開新課程",
+      "coach_center_btn": "前往教練中心",
+      "footer_note_line1": "如需修改教練資料，請至「編輯教練頁」更新。",
+      "footer_note_line2": "如有問題請聯絡 PikFun 客服。"
+    },
+    "pending": {
+      "title": "申請審核中",
+      "desc_line1": "我們已收到您的進駐申請，將於 3–5 個工作天內完成審核。",
+      "desc_line2": "核准後會出現在「進駐教練」區塊，並以 Email 通知您。",
+      "applied_at": "申請時間：{{date}}",
+      "notice": "審核期間可編輯申請內容並重新提交。重新提交後，審核工作天數將從送出當日重新計算。",
+      "edit_btn": "編輯申請內容"
+    },
+    "rejected": {
+      "title": "申請未通過",
+      "desc": "很抱歉，您的教練進駐申請此次未獲核准。",
+      "note_prefix": "審核備注：",
+      "reapply_btn": "重新申請"
+    },
+    "form": {
+      "eyebrow_edit": "Edit Application",
+      "eyebrow_new": "Apply as Coach",
+      "title_edit": "編輯進駐申請",
+      "title_new": "申請進駐 PikFun 官網",
+      "bound_member": "已綁定會員：",
+      "hint_edit": "修改後重新提交，審核工作天數將從送出當日重新計算。",
+      "hint_new": "送出後由 PikFun 團隊審核，核准後將顯示於「進駐教練」專區。",
+      "resubmit_notice_title": "重新提交審核須知",
+      "resubmit_notice_desc": "您的申請目前審核中。編輯並重新提交後，審核工作天數將從送出當日重新計算（約 3–5 個工作天）。",
+      "fields": {
+        "name_label": "教練姓名 *",
+        "slug_label": "網址代稱 *",
+        "slug_placeholder": "例：ye-kun-zhi 或 bob_coach",
+        "slug_preview": "/coaching/coach/{{slug}}",
+        "slug_hint": "依姓名自動產生；中文轉拼音，僅限英文、數字、- 與 _",
+        "slug_error": "請使用至少 2 個字元的英文或數字（可含 - 或 _）",
+        "title_label": "職稱 *",
+        "title_placeholder": "PPR 認證教練 · 台中",
+        "subtitle_label": "副標",
+        "subtitle_placeholder": "協會特約教練",
+        "city_label": "主要縣市",
+        "city_placeholder": "台中市",
+        "region_label": "區域",
+        "excerpt_label": "一句話摘要（卡片標題）*",
+        "bio_label": "教練簡介 *",
+        "story_label": "教練故事（內頁長文）",
+        "story_placeholder": "段落之間空一行",
+        "credentials_label": "經歷認證（每行一項）",
+        "credentials_placeholder": "PPR 認證教練\n8 年教學經驗",
+        "specialties_label": "教學專長（每行一項）",
+        "specialties_placeholder": "新手入門\n雙打策略",
+        "tags_label": "標籤（逗號或頓號分隔）",
+        "tags_placeholder": "初學入門、團體班、雙打",
+        "tags_hint": "點選常用標籤，或直接輸入自訂標籤（可用逗號、頓號分隔）",
+        "video_url_label": "YouTube 嵌入網址",
+        "featured_label_label": "徽章文字",
+        "featured_label_placeholder": "大人氣",
+        "contact_email_label": "聯絡 Email",
+        "instagram_label": "Instagram",
+        "instagram_placeholder": "帳號不含 @",
+        "avatar_label": "頭像",
+        "cover_label": "封面圖",
+        "cover_upload": "上傳封面"
+      },
+      "submit_btn_new": "提交進駐申請",
+      "submit_btn_edit": "重新提交審核",
+      "success_new": "申請已送出！🎉",
+      "success_edit": "已重新提交！🎉"
+    },
+    "errors": {
+      "login_required": "請先登入",
+      "slug_invalid": "網址代稱僅可使用英文、數字、- 或 _（至少 2 個字元）。中文姓名會自動轉為拼音，請確認代稱是否正確。",
+      "image_upload": "請上傳圖片",
+      "image_size": "圖片超過 2MB",
+      "upload_failed": "上傳失敗",
+      "submit_failed": "提交失敗"
+    }
+  },
+  "profile": {
+    "loading": "載入中...",
+    "not_found": "找不到此教練",
+    "back_to_coaching": "教練開課",
+    "toast_saved": "已儲存",
+    "owner_banner": "這是你的教練頁 — 點各區塊的「編輯」即可直接修改",
+    "toc": {
+      "title": "目次",
+      "profile": "教練檔案",
+      "bio": "教練簡介",
+      "story": "教練故事",
+      "instagram": "社群動態",
+      "skills": "經歷與專長",
+      "articles": "教練專欄"
+    },
+    "hero": {
+      "eyebrow": "Special Coach",
+      "edit_label": "編輯封面",
+      "cover_url_label": "封面圖片網址（Hero 大圖）",
+      "video_url_label": "YouTube / Vimeo 嵌入網址（顯示於教練檔案區）"
+    },
+    "breadcrumb": {
+      "home": "教練開課",
+      "fallback": "{{name}} 教練頁"
+    },
+    "header": {
+      "edit_label": "編輯標題",
+      "name_label": "姓名",
+      "title_label": "職稱",
+      "excerpt_label": "標題／一句話",
+      "featured_label_label": "精選標籤",
+      "avatar_url_label": "頭像網址",
+      "joined_suffix": " 進駐",
+      "bio_placeholder": "（可於「編輯簡介」填寫教練介紹）",
+      "video_title": "{{name}} 介紹影片",
+      "profile_title_fallback": "{{name}} 的教練檔案"
+    },
+    "sections": {
+      "bio_eyebrow": "Profile",
+      "bio_title": "教練簡介",
+      "bio_edit_label": "編輯簡介",
+      "bio_empty": "尚未撰寫教練簡介",
+      "story_eyebrow": "Story",
+      "story_title": "教練故事",
+      "story_edit_label": "編輯故事",
+      "story_empty": "尚未撰寫教練故事",
+      "instagram_eyebrow": "Instagram",
+      "instagram_title": "社群動態",
+      "instagram_edit_label": "編輯 Instagram",
+      "skills_eyebrow": "Career & Skill",
+      "skills_title": "經歷與專長",
+      "credentials_title": "經歷與認證",
+      "credentials_empty": "尚未填寫",
+      "specialties_title": "教學專長",
+      "specialties_empty": "尚未填寫",
+      "tags_empty": "尚未填寫標籤",
+      "tags_label": "標籤",
+      "edit_label": "編輯",
+      "edit_tags_label": "編輯標籤"
+    },
+    "mid_cta": {
+      "title": "想跟 {{name}} 教練一起打球嗎？",
+      "desc": "無論你是完全新手還是想突破瓶頸，都可以看看{{name}}教練目前的開課場次，找到適合自己的課程，直接線上報名。",
+      "link": "查看 {{name}} 的開課場次"
+    },
+    "sidebar": {
+      "contact_title": "聯絡教練",
+      "contact_empty": "尚未填寫聯絡方式",
+      "contact_cta": "查看 {{name}} 的開課",
+      "edit_contact_label": "編輯聯絡方式",
+      "city_label": "城市",
+      "region_label": "區域",
+      "email_label": "Email",
+      "instagram_label": "Instagram",
+      "instagram_placeholder": "帳號不含 @",
+      "pickup_badge_line1": "Coach",
+      "pickup_badge_line2": "Pick up",
+      "view_coach_page": "查看教練頁",
+      "popular_tags_title": "熱門標籤"
+    },
+    "recommended": {
+      "eyebrow": "Recommended Coach",
+      "pickup_badge_line1": "Coach",
+      "pickup_badge_line2": "Pick up",
+      "view_coach_page": "查看教練頁"
+    },
+    "articles": {
+      "eyebrow": "Coach Articles",
+      "title": "{{name}} 教練的投稿文章",
+      "coming_soon": "文章投稿功能即將開放",
+      "prev_aria": "上一篇",
+      "next_aria": "下一篇"
+    },
+    "fake_articles": {
+      "1": {
+        "title": "【新手必看】第一次上場前，你該知道的 5 個匹克球規則",
+        "tags": [
+          "初學入門",
+          "規則解析"
+        ]
+      },
+      "2": {
+        "title": "【雙打進階】第三拍 Drop 怎麼打？三個練習菜單一次學會",
+        "tags": [
+          "第三拍",
+          "雙打策略"
+        ]
+      },
+      "3": {
+        "title": "【裝備指南】球拍怎麼挑？重量、拍面、握把尺寸完整解析",
+        "tags": [
+          "裝備",
+          "初學入門"
+        ]
+      },
+      "4": {
+        "title": "【比賽心得】第一次參加分級賽，我學到的三件事",
+        "tags": [
+          "比賽戰術",
+          "心得"
+        ]
+      },
+      "5": {
+        "title": "【親子專欄】帶小孩一起打匹克球，場地與安全注意事項",
+        "tags": [
+          "親子班",
+          "青少年"
+        ]
+      }
+    }
+  },
+  "edit": {
+    "redirecting": "導向教練頁…"
+  },
+  "card": {
+    "popular_badge": "熱門",
+    "full_badge": "已額滿",
+    "enrolled_badge": "已報名",
+    "waitlist_badge": "候補中",
+    "fallback_excerpt": "{{coach}} 開設的{{type}}，歡迎報名。",
+    "fallback_type": "課程",
+    "coach_fallback": "教練",
+    "detail_btn": "課程詳情",
+    "enroll_btn": "立即報名"
+  },
+  "sidebar": {
+    "menu_label": "Menu",
+    "nav": {
+      "all": "全部課程",
+      "group": "團體班",
+      "private": "私人課",
+      "clinic": "主題班",
+      "beginner": "新手班"
+    },
+    "apply_link": "教練進駐申請",
+    "search_label": "Search",
+    "search_placeholder": "課程、教練、球場...",
+    "clear_search_aria": "清除搜尋",
+    "search_aria": "搜尋",
+    "city_label": "依縣市",
+    "quick_filter_label": "快速篩選",
+    "skill_filter_label": "程度篩選",
+    "skill_all_btn": "全部",
+    "recommended_label": "推薦課程"
+  },
+  "featured": {
+    "eyebrow": "PikFun 官網認證教練資訊",
+    "title": "進駐教練紹介",
+    "desc": "專業教練一對一指導，從入門到進階，找到最適合你的匹克球課程。",
+    "loading": "載入教練資訊中...",
+    "empty": "教練資訊即將上線",
+    "fallback_subtitle": "PikFun 認證教練",
+    "other_coaches": {
+      "title": "其他教練推薦",
+      "prev_aria": "上一組",
+      "next_aria": "下一組",
+      "view_all": "預覽全部",
+      "fallback_badge": "教練",
+      "fallback_meta_left": "台灣",
+      "fallback_meta_right": "匹克球教練"
+    }
+  },
+  "recruit": {
+    "cards": {
+      "platform": {
+        "title": "了解 PikFun",
+        "desc": "認識平台理念、最新消息與新手指南，快速融入匹克球社群。"
+      },
+      "coaching": {
+        "title": "教練與課程",
+        "desc": "瀏覽全部教練課程、申請進駐或查看認證教練，開啟你的教學之路。"
+      },
+      "courts": {
+        "title": "揪團與球場",
+        "desc": "揪團打球、發起活動或查詢球場地圖，隨時找到適合的場次與場地。"
+      },
+      "entry": {
+        "title": "我要開課",
+        "desc": "成為 PikFun 教練，刊登課程、招募學員，讓更多人愛上匹克球。"
+      }
+    },
+    "header_title": "平台・資源",
+    "home_aria": "PikFun 首頁",
+    "bracket_label": "[Platform&Resources]",
+    "brand": "PikFun",
+    "home_link": "官網首頁",
+    "privacy_link": "個人資料保護方針",
+    "contact_link": "聯絡我們",
+    "rights": "Copyright © {{year}} PikFun. All Rights Reserved.",
+    "page_top": "PAGE TOP"
+  },
+  "instagram": {
+    "editor": {
+      "heading": "Instagram 展示",
+      "desc": "在 Instagram 開啟貼文 → 右上角「…」→「複製連結」，貼到下方（最多 {{max}} 則）。儲存後會以連結卡片顯示在教練頁，點擊開新分頁前往該則貼文。",
+      "username_label": "Instagram 帳號（選填，顯示 @ 與個人頁連結）",
+      "username_placeholder": "帳號不含 @",
+      "urls_label": "貼文／Reels 網址",
+      "url_placeholder": "https://www.instagram.com/p/… 或 /reel/…",
+      "remove_aria": "移除",
+      "add_btn": "新增一則"
+    },
+    "feed": {
+      "post_label": "貼文",
+      "reel_label": "Reels",
+      "view_post": "查看貼文",
+      "visit_profile": "前往 Instagram 主頁",
+      "follow_prompt": "追蹤 @{{handle}} 的最新動態",
+      "view_on_instagram": "在 Instagram 查看"
+    }
+  },
+  "editor": {
+    "placeholder": "撰寫教練介紹…",
+    "errors": {
+      "format_unsupported": "{{label}}格式不支援",
+      "size_exceeded": "{{label}}超過 {{size}} 限制",
+      "quota_exceeded": "{{label}}已達上限（{{max}} 個）",
+      "upload_failed": "上傳失敗",
+      "image_upload_failed": "圖片上傳失敗"
+    },
+    "upload_video_btn": "上傳影片",
+    "media_labels": {
+      "image": "圖片",
+      "video": "影片"
+    },
+    "quota_bar": {
+      "title": "媒體上傳配額（富文本內嵌圖片／影片）",
+      "usage": "{{used}} / {{max}}（單檔 ≤ {{size}}）"
+    },
+    "editable_section": {
+      "cancel": "取消",
+      "save": "儲存",
+      "default_label": "編輯"
+    },
+    "tag_picker": {
+      "default_hint": "點選常用項目，或直接輸入自訂內容"
+    }
+  },
+  "enums": {
+    "class_type": {
+      "group": "團體班",
+      "private": "私人課",
+      "clinic": "主題班",
+      "beginner": "新手班",
+      "fallback": "課程"
+    },
+    "skill": {
+      "all": "不限程度",
+      "beginner": "初學",
+      "intermediate": "中階",
+      "advanced": "高階"
+    },
+    "payment": {
+      "free": "免費體驗",
+      "cash": "現場現金",
+      "transfer": "銀行轉帳",
+      "line_pay": "LINE Pay",
+      "other": "其他方式"
+    },
+    "status": {
+      "enrolled": "已報名",
+      "waitlist": "候補中",
+      "cancelled": "已取消",
+      "past": "已結束",
+      "full": "已額滿",
+      "open": "開放報名"
+    },
+    "region": {
+      "北部": "北部",
+      "中部": "中部",
+      "南部": "南部",
+      "東部": "東部",
+      "離島": "離島"
+    }
+  },
+  "errors": {
+    "login_required": "請先登入",
+    "save_failed": "儲存失敗",
+    "upload_failed": "上傳失敗",
+    "action_failed": "操作失敗",
+    "network": "網路錯誤，請稍後再試",
+    "generic": "發生錯誤，請稍後再試"
+  }
+}

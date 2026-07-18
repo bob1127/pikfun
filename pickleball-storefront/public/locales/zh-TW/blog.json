@@ -1,0 +1,73 @@
+{
+  "breadcrumbAria": "麵包屑",
+  "breadcrumbHome": "首頁",
+  "backToHome": "返回首頁",
+  "browseOtherCategory": "瀏覽其他分類：",
+  "notFound": "找不到文章",
+  "fontToolbar": {
+    "ariaLabel": "字級大小",
+    "standard": "標準",
+    "lg": "大",
+    "xl": "特大"
+  },
+  "list": {
+    "empty": "此分類尚無文章。"
+  },
+  "topics": {
+    "active": "球場與活動",
+    "knowledge": "運動教學",
+    "default": "匹克球"
+  },
+  "footer": {
+    "meta": {
+      "category": "種類",
+      "topic": "主題分類",
+      "keywords": "關鍵字",
+      "relatedLink": "相關連結",
+      "relatedLinkSuffix": "文章列表",
+      "originalLink": "原文連結"
+    },
+    "cta": {
+      "heading": "還未加入我們嗎？",
+      "loginBtn": "會員登入",
+      "loginSub": "已有帳號請點此",
+      "registerBtn": "立即註冊",
+      "registerSub": "免費加入",
+      "note": "註冊成為會員後，可查看更多教練聯繫方式、活動報名與專屬課程資訊。",
+      "noteSub": "※ 內容依文章類別而定，部分資訊需登入後瀏覽。"
+    },
+    "gallery": {
+      "title": "文章圖片",
+      "altTemplate": "{{title}} 圖片 {{index}}"
+    },
+    "profile": {
+      "heading": "站點概要",
+      "followersSuffix": "位球友追蹤",
+      "follow": "追蹤",
+      "backHome": "返回首頁",
+      "labels": {
+        "url": "官方網站",
+        "industry": "業種",
+        "region": "服務地區",
+        "contact": "聯絡方式",
+        "representative": "營運單位",
+        "established": "成立"
+      }
+    },
+    "carousel": {
+      "latest": "最新文章",
+      "recommended": "推薦閱讀",
+      "viewMore": "查看更多",
+      "nextAria": "下一頁"
+    },
+    "bottomCrumb": {
+      "home": "首頁"
+    }
+  },
+  "siteProfile": {
+    "industry": "運動休閒／匹克球",
+    "region": "台灣",
+    "representative": "PikFun 團隊",
+    "established": "2024年"
+  }
+}

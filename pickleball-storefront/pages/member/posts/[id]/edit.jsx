@@ -31,10 +31,6 @@ export default function EditCommunityPostPage() {
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "找不到文章");
-        if (data.post.status === "approved") {
-          setError("已上架文章請聯繫 PikFun 團隊協助修改");
-          return;
-        }
         setPost(data.post);
       })
       .catch((err) => setError(err.message))
@@ -94,6 +90,12 @@ export default function EditCommunityPostPage() {
           </BlueArrowLink>
 
           <h1 className="text-2xl font-black mb-8">編輯投稿</h1>
+
+          {post.status === "approved" && (
+            <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              此文章目前已上架。送出修改後會重新進入審核，通過後才會再次公開。
+            </p>
+          )}
 
           <CommunityPostForm
             initialValues={post}

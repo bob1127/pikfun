@@ -1,37 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import { ChevronRight, ArrowUp } from "lucide-react";
 
 const BLUE = "#005caf";
 const YELLOW = "#FFD43A";
 
-const CARDS = [
+const CARD_KEYS = [
+  { key: "platform", href: "/about", illustration: "platform" },
+  { key: "coaching", href: "/coaching", illustration: "coaching" },
+  { key: "courts", href: "/play", illustration: "courts" },
   {
-    title: "了解 PikFun",
-    description:
-      "認識平台理念、最新消息與新手指南，快速融入匹克球社群。",
-    href: "/about",
-    illustration: "platform",
-  },
-  {
-    title: "教練與課程",
-    description:
-      "瀏覽全部教練課程、申請進駐或查看認證教練，開啟你的教學之路。",
-    href: "/coaching",
-    illustration: "coaching",
-  },
-  {
-    title: "揪團與球場",
-    description:
-      "揪團打球、發起活動或查詢球場地圖，隨時找到適合的場次與場地。",
-    href: "/play",
-    illustration: "courts",
-  },
-  {
-    title: "我要開課",
-    description:
-      "成為 PikFun 教練，刊登課程、招募學員，讓更多人愛上匹克球。",
+    key: "entry",
     href: "/coaching/create",
     illustration: "entry",
     isEntry: true,
@@ -164,11 +145,18 @@ export default function CoachingRecruitFooter({
   onEntryClick,
   showEntry = true,
 }) {
+  const { t } = useTranslation("coaching");
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const visibleCards = (showEntry ? CARDS : CARDS.filter((c) => !c.isEntry)).map(
+  const cards = CARD_KEYS.map((c) => ({
+    ...c,
+    title: t(`recruit.cards.${c.key}.title`),
+    description: t(`recruit.cards.${c.key}.desc`),
+  }));
+
+  const visibleCards = (showEntry ? cards : cards.filter((c) => !c.isEntry)).map(
     (card) => {
       if (!card.isEntry) return card;
       return {
@@ -185,13 +173,13 @@ export default function CoachingRecruitFooter({
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10 md:mb-12">
           <div className="flex items-center gap-3">
             <h2 className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
-              平台・資源
+              {t("recruit.header_title")}
             </h2>
             <Link
               href="/"
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white transition-transform hover:scale-105"
               style={{ backgroundColor: BLUE }}
-              aria-label="PikFun 首頁"
+              aria-label={t("recruit.home_aria")}
             >
               <ChevronRight size={16} strokeWidth={2.5} />
             </Link>
@@ -204,7 +192,7 @@ export default function CoachingRecruitFooter({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
           {visibleCards.map((card) => (
             <ResourceCard
-              key={card.title}
+              key={card.key}
               card={{ ...card, href: card.isEntry ? entryHref : card.href }}
               onEntryClick={card.isEntry ? onEntryClick : undefined}
             />
@@ -213,16 +201,16 @@ export default function CoachingRecruitFooter({
 
         <div className="mt-10 pt-8 border-t border-gray-200 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500">
           <Link href="/" className="font-bold text-[#1a2d4a] hover:text-[#005caf] transition-colors">
-            PikFun
+            {t("recruit.brand")}
           </Link>
           <Link href="/" className="hover:text-[#005caf] transition-colors">
-            官網首頁
+            {t("recruit.home_link")}
           </Link>
           <Link href="/privacy" className="hover:text-[#005caf] transition-colors">
-            個人資料保護方針
+            {t("recruit.privacy_link")}
           </Link>
           <Link href="/contact" className="hover:text-[#005caf] transition-colors">
-            聯絡我們
+            {t("recruit.contact_link")}
           </Link>
         </div>
       </div>
@@ -230,14 +218,14 @@ export default function CoachingRecruitFooter({
       <div className="border-t border-gray-200 bg-[#1a1a1a]">
         <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[11px] text-white/50 tracking-wide order-2 sm:order-1">
-            Copyright © {new Date().getFullYear()} PikFun. All Rights Reserved.
+            {t("recruit.rights", { year: new Date().getFullYear() })}
           </p>
           <button
             type="button"
             onClick={scrollToTop}
             className="inline-flex items-center gap-2 text-[11px] font-bold text-white/70 tracking-[0.2em] hover:text-white transition-colors order-1 sm:order-2"
           >
-            PAGE TOP
+            {t("recruit.page_top")}
             <span
               className="flex h-8 w-8 items-center justify-center rounded-full transition-transform hover:scale-105"
               style={{ backgroundColor: YELLOW, color: "#1a2d4a" }}

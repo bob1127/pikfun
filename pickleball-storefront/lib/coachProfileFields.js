@@ -8,6 +8,16 @@ export const COACH_REGIONS = [
   { value: "離島", label: "離島" },
 ];
 
+/** 區域標籤，可傳入 t() 以隨語言切換，忽略則取內建繁中值 */
+export function getRegionLabel(value, t) {
+  if (!value) return "";
+  if (typeof t === "function") {
+    const translated = t(`coaching:enums.region.${value}`, { defaultValue: "" });
+    if (translated) return translated;
+  }
+  return COACH_REGIONS.find((r) => r.value === value)?.label || value;
+}
+
 export const CREDENTIAL_PRESETS = [
   "PPR 認證教練",
   "體育署合格教練",

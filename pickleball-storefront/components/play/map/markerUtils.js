@@ -7,15 +7,15 @@ export function escapeHtml(value) {
 }
 
 /** 地標圓形標記用：優先發起人頭像，其次場地名稱首字 */
-export function getGroupMarkerMeta(group) {
+export function getGroupMarkerMeta(group, { fallbackLabel = "Court", fallbackInitial = "P" } = {}) {
   const sessions = [...(group?.sessions || [])].sort(
     (a, b) => new Date(a.starts_at) - new Date(b.starts_at)
   );
   const primary = sessions[0] || {};
   const withAvatar = sessions.find((s) => s.host_avatar);
   const avatar = withAvatar?.host_avatar || primary.host_avatar || null;
-  const label = group?.location_name || primary.host_name || "球場";
-  const initial = label.trim().charAt(0) || "球";
+  const label = group?.location_name || primary.host_name || fallbackLabel;
+  const initial = label.trim().charAt(0) || fallbackInitial;
   const count = sessions.length;
   const multi = count > 1;
 

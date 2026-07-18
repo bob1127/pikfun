@@ -29,3 +29,4 @@ yarn-error.log*
 
 # Google Places API cache (server-side)
 /data/cache/google-places/*.json
+/data/court-photos/

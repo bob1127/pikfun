@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import { Bookmark, X, ChevronRight } from "lucide-react";
 import {
   getSkillLevelLabel,
@@ -12,11 +14,11 @@ import {
 import { toggleSavedSession, isSaved } from "@/lib/savedSessions";
 import SessionCardImageCarousel from "@/components/play/SessionCardImageCarousel";
 
-function SaveToast({ show, saved, onClose }) {
+function SaveToast({ t, show, saved, onClose }) {
   useEffect(() => {
     if (!show) return;
-    const t = setTimeout(onClose, 3500);
-    return () => clearTimeout(t);
+    const timer = setTimeout(onClose, 3500);
+    return () => clearTimeout(timer);
   }, [show, onClose]);
 
   return (
@@ -37,11 +39,11 @@ function SaveToast({ show, saved, onClose }) {
             />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold leading-tight">
-                {saved ? "已加入收藏" : "已移除收藏"}
+                {saved ? t("card.saved") : t("card.unsaved")}
               </p>
               {saved && (
                 <p className="text-xs text-gray-400 mt-0.5 truncate">
-                  可至會員中心查看所有收藏揪團
+                  {t("card.saved_hint")}
                 </p>
               )}
             </div>
@@ -51,7 +53,7 @@ function SaveToast({ show, saved, onClose }) {
                 className="shrink-0 inline-flex items-center gap-1 text-xs font-bold text-[#c8f542] bg-[#c8f542]/10 px-3 py-1.5 rounded-full hover:bg-[#c8f542]/20 transition-colors whitespace-nowrap"
                 onClick={onClose}
               >
-                前往查看 <ChevronRight size={12} />
+                {t("card.view_saved")} <ChevronRight size={12} />
               </Link>
             )}
             <button
@@ -78,27 +80,37 @@ function SaveToast({ show, saved, onClose }) {
   );
 }
 
-function getStatusMeta(session) {
+function isSessionPast(session) {
+  if (session.display_status === "ended" || session.is_past) return true;
+  if (!session.starts_at) return false;
+  return new Date(session.starts_at) <= new Date();
+}
+
+function getStatusMeta(session, t) {
   const isCancelled = session.display_status === "cancelled";
-  const isFull = session.is_full && !isCancelled;
+  const isPast = !isCancelled && isSessionPast(session);
+  const isFull = session.is_full && !isCancelled && !isPast;
   const isJoined = session.my_status === "joined";
   const isWaitlist = session.my_status === "waitlist";
 
-  if (isCancelled) return { label: "已取消", tone: "muted" };
-  if (isJoined) return { label: "已加入", tone: "dark" };
-  if (isWaitlist) return { label: "候補中", tone: "purple" };
-  if (isFull) return { label: "已額滿", tone: "muted" };
-  if (session.spots_left === 1) return { label: "差一人成團", tone: "urgent" };
-  return { label: "報名受付中", tone: "blue" };
+  if (isCancelled) return { label: t("status.cancelled"), tone: "muted" };
+  if (isPast) return { label: t("status.ended"), tone: "muted" };
+  if (isJoined) return { label: t("status.joined"), tone: "dark" };
+  if (isWaitlist) return { label: t("status.waitlist"), tone: "purple" };
+  if (isFull) return { label: t("status.full"), tone: "muted" };
+  if (session.spots_left === 1)
+    return { label: t("status.one_spot_left"), tone: "urgent" };
+  // 與內頁「招募中」對齊；避免「受付」被誤讀成「支付」
+  return { label: t("status.open_recruiting"), tone: "blue" };
 }
 
-function buildSessionTags(session) {
+function buildSessionTags(session, t) {
   const tags = [];
-  const skill = getSkillLevelLabel(session.skill_level);
-  if (skill && skill !== "不限程度") tags.push(skill);
+  const skill = getSkillLevelLabel(session.skill_level, t);
+  if (skill && skill !== t("skill.all")) tags.push(skill);
 
-  const feeText = formatFee(session.fee_per_person, session.payment_method);
-  tags.push(feeText === "免費" ? "免費" : feeText.replace("NT$ ", "NT$"));
+  const feeText = formatFee(session.fee_per_person, session.payment_method, t);
+  tags.push(feeText === t("common.free") ? t("common.free") : feeText.replace("NT$ ", "NT$"));
 
   const timeText = formatCardDateTime(session.starts_at, session.ends_at);
   if (timeText) tags.push(timeText);
@@ -107,15 +119,18 @@ function buildSessionTags(session) {
   const joined = session.joined_count || 0;
   const max = session.max_players || 4;
   const spotsLeft = session.spots_left ?? Math.max(0, max - joined);
-  if (!session.is_full && !isCancelled) {
-    if (spotsLeft === 1) tags.push("差一人成團");
-    else tags.push(`剩 ${spotsLeft} 位`);
+  const past = isSessionPast(session);
+  if (!session.is_full && !isCancelled && !past) {
+    if (spotsLeft === 1) tags.push(t("status.one_spot_left"));
+    else tags.push(t("status.spots_left", { count: spotsLeft }));
   }
 
   return tags.slice(0, 4);
 }
 
 export default function SessionCard({ session, index = 0 }) {
+  const { t } = useTranslation("play");
+  const router = useRouter();
   const [saved, setSaved] = useState(false);
   const [toast, setToast] = useState(false);
   const [toastSaved, setToastSaved] = useState(false);
@@ -127,11 +142,12 @@ export default function SessionCard({ session, index = 0 }) {
   }, [session.id]);
 
   const isCancelled = session.display_status === "cancelled";
-  const status = getStatusMeta(session);
+  const isPast = !isCancelled && isSessionPast(session);
+  const status = getStatusMeta(session, t);
   const location =
-    session.location_name || session.location_address || "地點待定";
-  const hostName = session.host_name || "團主";
-  const tags = buildSessionTags(session);
+    session.location_name || session.location_address || t("card.location_pending");
+  const hostName = session.host_name || t("card.host_fallback");
+  const tags = buildSessionTags(session, t);
 
   const handleCarouselState = useCallback((state) => {
     setCarousel(state);
@@ -158,14 +174,22 @@ export default function SessionCard({ session, index = 0 }) {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, delay: Math.min(index * 0.025, 0.2) }}
-        className={`psc-card${isCancelled ? " psc-card--cancelled" : ""}`}
+        className={`psc-card${isCancelled || isPast ? " psc-card--canceled" : ""}`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <Link
-          href={`/play/${session.id}`}
+        <div
           className="psc-card-link"
+          role="link"
+          tabIndex={0}
           aria-label={session.title}
+          onClick={() => router.push(`/play/${session.id}`)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              router.push(`/play/${session.id}`);
+            }
+          }}
         >
           <div className="psc-media">
             <SessionCardImageCarousel
@@ -179,9 +203,19 @@ export default function SessionCard({ session, index = 0 }) {
           <div className="psc-body">
             <div className="psc-meta-row">
               <div className="psc-meta-left">
-                <span className="psc-meta-label">團主</span>
+                <span className="psc-meta-label">{t("card.host_label")}</span>
                 <span className="psc-meta-sep">|</span>
-                <span className="psc-meta-value">{hostName}</span>
+                {session.host_profile_slug ? (
+                  <Link
+                    href={`/play/host/${session.host_profile_slug}`}
+                    className="psc-meta-value hover:underline"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    {hostName}
+                  </Link>
+                ) : (
+                  <span className="psc-meta-value">{hostName}</span>
+                )}
                 <span className={`psc-pill psc-pill--${status.tone}`}>
                   {status.label}
                 </span>
@@ -210,19 +244,19 @@ export default function SessionCard({ session, index = 0 }) {
               ))}
             </div>
           </div>
-        </Link>
+        </div>
 
         <button
           type="button"
           onClick={handleSave}
           className={`psc-save${saved ? " psc-save--active" : ""}${hovered || saved ? " psc-save--visible" : ""}`}
-          aria-label={saved ? "取消收藏" : "收藏揪團"}
+          aria-label={saved ? t("card.aria_unsave") : t("card.aria_save")}
         >
           <Bookmark size={16} className={saved ? "fill-current" : ""} strokeWidth={1.75} />
         </button>
       </motion.article>
 
-      <SaveToast show={toast} saved={toastSaved} onClose={closeToast} />
+      <SaveToast t={t} show={toast} saved={toastSaved} onClose={closeToast} />
 
       <style jsx>{`
         .psc-card {
@@ -236,6 +270,7 @@ export default function SessionCard({ session, index = 0 }) {
           text-decoration: none;
           color: inherit;
           background: transparent;
+          cursor: pointer;
         }
         .psc-card-link:focus-visible .psc-title {
           text-decoration: underline;

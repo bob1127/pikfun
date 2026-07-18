@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
+import { useTranslation } from "next-i18next";
 import { Users } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import {
@@ -22,8 +23,8 @@ const OSM_TILE = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-function createCircleMarkerIcon(group) {
-  const meta = getGroupMarkerMeta(group);
+function createCircleMarkerIcon(group, fallbacks) {
+  const meta = getGroupMarkerMeta(group, fallbacks);
   return L.divIcon({
     className: "psm-leaflet-pin",
     html: buildCircleMarkerHtml(meta),
@@ -71,12 +72,17 @@ function InvalidateSize() {
 export default function PlaySessionsOsmMap({
   sessions = [],
   courts = [],
-  providerLabel = "OpenStreetMap",
+  providerLabel,
   tab = "upcoming",
   onSwitchTab,
   fullscreen = false,
 }) {
+  const { t } = useTranslation("play");
   const { groups, mappedCount } = useSessionMapGroups(sessions, courts);
+  const markerFallbacks = {
+    fallbackLabel: t("map_marker.fallback_label"),
+    fallbackInitial: t("map_marker.fallback_initial"),
+  };
 
   return (
     <MapShell
@@ -86,14 +92,14 @@ export default function PlaySessionsOsmMap({
           groups={groups}
           mappedCount={mappedCount}
           sessionsCount={sessions.length}
-          providerLabel={providerLabel}
+          providerLabel={providerLabel ?? t("map.providers.osm")}
         />
       }
       empty={
         groups.length === 0 ? (
           <div className="psm-empty">
             <Users size={20} className="text-gray-400 mb-2" />
-            <p className="text-sm text-gray-500">地圖上尚無揪團標記</p>
+            <p className="text-sm text-gray-500">{t("map.no_markers")}</p>
           </div>
         ) : null
       }
@@ -121,7 +127,7 @@ export default function PlaySessionsOsmMap({
           <Marker
             key={group.id}
             position={[group.lat, group.lng]}
-            icon={createCircleMarkerIcon(group)}
+            icon={createCircleMarkerIcon(group, markerFallbacks)}
           >
             <Popup maxWidth={320} minWidth={240}>
               <MapInfoContent group={group} />

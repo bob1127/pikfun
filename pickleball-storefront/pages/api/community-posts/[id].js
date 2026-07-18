@@ -40,12 +40,6 @@ export default async function handler(req, res) {
     if (!post) return res.status(404).json({ error: "找不到文章" });
     if (!isOwner) return res.status(403).json({ error: "無權限編輯" });
 
-    if (post.status === "approved") {
-      return res.status(400).json({
-        error: "已上架文章請聯繫 PikFun 團隊協助修改",
-      });
-    }
-
     if (!title?.trim() || !content_html?.trim()) {
       return res.status(400).json({ error: "請填寫標題與內容" });
     }

@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "title": "最新消息 | PikFun 匹克方",
+    "description": "PikFun 最新消息、球場活動資訊與匹克球運動知識攻略。"
+  },
+  "list": {
+    "pageTitle": "最新消息",
+    "pageSubtitle": "News · Events · Tips",
+    "updatedAt": "更新於",
+    "empty": "目前尚無文章，請至 WordPress 發布活動或知識文章。",
+    "officialLabel": "PikFun Official",
+    "goToShop": "前往商城"
+  },
+  "hero": {
+    "badgeCommunity": "夥伴投稿",
+    "badgeLatest": "Latest",
+    "readMore": "閱讀更多"
+  },
+  "card": {
+    "defaultCategory": "最新消息",
+    "viewDetails": "查看詳情"
+  },
+  "detail": {
+    "loading": "Loading...",
+    "breadcrumbHome": "首頁",
+    "breadcrumbNews": "最新消息",
+    "officialAuthor": "PikFun News",
+    "categoryLabel": "分類",
+    "tocTitle": "文章目錄",
+    "noToc": "暫無大綱",
+    "backToTopAria": "回到頂部",
+    "backToNews": "返回最新消息",
+    "recommendedTitle": "推薦閱讀",
+    "recommendedBadge": "News"
+  },
+  "community": {
+    "categoryMeta": {
+      "active": {
+        "eyebrow": "Group Play",
+        "relatedLabel": "Relevant Guides",
+        "relatedTitle": "相關揪團",
+        "sidebarTitle": "文章分類",
+        "cta": "想揪團？立即投稿",
+        "heroLead": "找到球場、球友與時段"
+      },
+      "event": {
+        "eyebrow": "Tournament",
+        "relatedLabel": "Relevant Guides",
+        "relatedTitle": "相關賽事",
+        "sidebarTitle": "文章分類",
+        "cta": "主辦活動？立即投稿",
+        "heroLead": "賽事活動與報名資訊"
+      },
+      "course": {
+        "eyebrow": "Coaching",
+        "relatedLabel": "Relevant Guides",
+        "relatedTitle": "相關課程",
+        "sidebarTitle": "文章分類",
+        "cta": "想開課？立即投稿",
+        "heroLead": "教練開課與課程資訊"
+      },
+      "knowledge": {
+        "eyebrow": "Tips",
+        "relatedLabel": "Relevant Guides",
+        "relatedTitle": "相關攻略",
+        "sidebarTitle": "文章分類",
+        "cta": "分享知識？立即投稿",
+        "heroLead": "匹克球知識與技巧"
+      }
+    },
+    "defaultCategory": "最新消息",
+    "breadcrumbHome": "首頁",
+    "breadcrumbNews": "最新消息",
+    "highlightsTitle": "活動重點",
+    "highlightsCategory": "分類：",
+    "highlightsDate": "發布：",
+    "highlightsAuthor": "作者：",
+    "backToListLabel": "返回最新消息列表",
+    "sidebarPopularTitle": "熱門投稿",
+    "sidebarTagsTitle": "熱門標籤",
+    "tagPikfun": "#PikFun",
+    "tagPickleball": "#匹克球",
+    "viewMore": "查看更多",
+    "categoryOptions": {
+      "active": "揪團／臨打",
+      "event": "賽事活動",
+      "knowledge": "知識攻略",
+      "course": "課程開課"
+    }
+  },
+  "author": {
+    "defaultName": "PikFun 夥伴",
+    "defaultTitle": "投稿作者",
+    "defaultRole": "夥伴",
+    "defaultBioTemplate": "{{name}} 是 PikFun 認證的{{role}}，分享揪團、活動與課程資訊，幫助更多球友找到適合的場地與夥伴。"
+  },
+  "like": {
+    "eyebrow": "Like",
+    "prompt": "覺得這篇文章有幫助嗎？給作者一個讚吧",
+    "liked": "已按讚",
+    "notLiked": "按讚"
+  },
+  "comments": {
+    "eyebrow": "Discussion",
+    "title": "留言討論",
+    "writeComment": "撰寫留言",
+    "statsUnit": "則留言",
+    "statsDesc": "球友交流與提問",
+    "invite": "歡迎留下你的想法與照片",
+    "commonTagsTitle": "球友最常提到",
+    "tags": [
+      "新手友善",
+      "場地",
+      "時段",
+      "費用",
+      "教練",
+      "報名"
+    ],
+    "filterAll": "全部",
+    "filterMedia": "含圖片",
+    "formTitle": "撰寫留言",
+    "placeholder": "分享你的想法、提問或心得…",
+    "uploadLabel": "上傳照片（最多 6 張）",
+    "uploading": "上傳中",
+    "addImage": "加圖",
+    "submit": "送出留言",
+    "submitSuccess": "成功送出留言",
+    "cancel": "取消",
+    "loading": "載入留言中…",
+    "emptyMedia": "目前還沒有附圖留言",
+    "empty": "目前還沒有留言",
+    "emptyPrompt": "成為第一個分享心得的人！",
+    "delete": "刪除",
+    "confirmDelete": "確定刪除此留言？",
+    "errRequired": "請填寫留言內容",
+    "errSubmit": "送出失敗",
+    "errUpload": "圖片上傳失敗",
+    "errUploadSize": "圖片超過 4MB 限制",
+    "errUploadMax": "最多上傳 6 張圖片",
+    "mediaAlt": "留言圖片",
+    "timeToday": "今天",
+    "timeDaysAgo": "{{count}} 天前",
+    "timeWeeksAgo": "{{count}} 週前"
+  }
+}

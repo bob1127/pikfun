@@ -2,6 +2,7 @@
 
 import { useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { useTranslation } from "next-i18next";
 import { COACH_MEDIA_LIMITS, formatBytes } from "@/lib/coachMediaLimits";
 
 const Editor = dynamic(
@@ -28,25 +29,38 @@ export default function CoachRichEditor({
   usage,
   onUsageChange,
   minHeight = 320,
-  placeholder = "撰寫教練介紹…",
+  placeholder,
 }) {
+  const { t } = useTranslation("coaching");
+  const resolvedPlaceholder = placeholder || t("editor.placeholder");
   const editorRef = useRef(null);
+
+  const mediaLabel = useCallback(
+    (mediaType) => t(`editor.media_labels.${mediaType}`),
+    [t]
+  );
 
   const uploadMedia = useCallback(
     async (file, mediaType) => {
       const limits = COACH_MEDIA_LIMITS[mediaType];
+      const label = mediaLabel(mediaType);
       if (!limits.allowedTypes.includes(file.type)) {
-        throw new Error(`${limits.label}格式不支援`);
+        throw new Error(t("editor.errors.format_unsupported", { label }));
       }
       if (file.size > limits.maxFileBytes) {
         throw new Error(
-          `${limits.label}超過 ${formatBytes(limits.maxFileBytes)} 限制`
+          t("editor.errors.size_exceeded", {
+            label,
+            size: formatBytes(limits.maxFileBytes),
+          })
         );
       }
 
       const currentCount = usage?.[mediaType]?.count ?? 0;
       if (currentCount >= limits.maxCount) {
-        throw new Error(`${limits.label}已達上限（${limits.maxCount} 個）`);
+        throw new Error(
+          t("editor.errors.quota_exceeded", { label, max: limits.maxCount })
+        );
       }
 
       const fileBase64 = await fileToBase64(file);
@@ -64,11 +78,11 @@ export default function CoachRichEditor({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "上傳失敗");
+      if (!res.ok) throw new Error(data.error || t("editor.errors.upload_failed"));
       if (data.usage && onUsageChange) onUsageChange(data.usage);
       return data.url;
     },
-    [slug, email, memberId, usage, onUsageChange]
+    [slug, email, memberId, usage, onUsageChange, mediaLabel, t]
   );
 
   const handleImageUpload = useCallback(
@@ -125,7 +139,7 @@ export default function CoachRichEditor({
               "link image media uploadvideo | table | code fullscreen preview",
             content_style:
               "body { font-family: system-ui, sans-serif; font-size: 15px; line-height: 1.7; }",
-            placeholder,
+            placeholder: resolvedPlaceholder,
             branding: false,
             promotion: false,
             relative_urls: false,
@@ -138,7 +152,7 @@ export default function CoachRichEditor({
                 progress(100);
                 return url;
               } catch (err) {
-                throw err.message || "圖片上傳失敗";
+                throw err.message || t("editor.errors.image_upload_failed");
               }
             },
             file_picker_types: "image media",
@@ -169,7 +183,7 @@ export default function CoachRichEditor({
             },
             setup: (editor) => {
               editor.ui.registry.addButton("uploadvideo", {
-                text: "上傳影片",
+                text: t("editor.upload_video_btn"),
                 onAction: () => {
                   const input = document.createElement("input");
                   input.type = "file";

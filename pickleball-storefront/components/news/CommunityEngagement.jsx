@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import {
   Heart,
   MessageCircle,
@@ -57,13 +58,17 @@ function highlightBio(text, highlight) {
 }
 
 export function AuthorInfoCard({ post, profile }) {
+  const { t } = useTranslation("news");
   const displayName =
-    profile?.display_name || post.authorName || "PikFun 夥伴";
-  const title = profile?.title || post.authorRole || "投稿作者";
+    profile?.display_name || post.authorName || t("author.defaultName");
+  const title = profile?.title || post.authorRole || t("author.defaultTitle");
   const credentials = profile?.credentials || post.authorRole;
   const bio =
     profile?.bio ||
-    `${displayName} 是 PikFun 認證的${post.authorRole || "夥伴"}，分享揪團、活動與課程資訊，幫助更多球友找到適合的場地與夥伴。`;
+    t("author.defaultBioTemplate", {
+      name: displayName,
+      role: post.authorRole || t("author.defaultRole"),
+    });
   const avatar = profile?.avatar_url || post.authorAvatar || null;
 
   return (
@@ -112,6 +117,7 @@ export function AuthorInfoCard({ post, profile }) {
 }
 
 export function PostLikeBar({ postId }) {
+  const { t } = useTranslation("news");
   const { userInfo } = useUser();
   const [count, setCount] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -165,11 +171,9 @@ export function PostLikeBar({ postId }) {
     <div className="mt-8 flex items-center justify-between gap-4 py-5 border-y border-gray-100">
       <div>
         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
-          Like
+          {t("like.eyebrow")}
         </p>
-        <p className="text-sm text-gray-600">
-          覺得這篇文章有幫助嗎？給作者一個讚吧
-        </p>
+        <p className="text-sm text-gray-600">{t("like.prompt")}</p>
       </div>
       <BluePillButton
         onClick={toggle}
@@ -178,25 +182,25 @@ export function PostLikeBar({ postId }) {
         className={liked ? "" : ""}
       >
         <Heart size={16} fill={liked ? "currentColor" : "none"} />
-        {liked ? "已按讚" : "按讚"}
+        {liked ? t("like.liked") : t("like.notLiked")}
         <span className="tabular-nums">{count}</span>
       </BluePillButton>
     </div>
   );
 }
 
-function formatTimeAgo(dateStr) {
+function formatTimeAgo(dateStr, t, locale = "zh-TW") {
   const diff = Date.now() - new Date(dateStr || Date.now()).getTime();
   const days = Math.floor(diff / 86400000);
-  if (days === 0) return "今天";
-  if (days < 7) return `${days} 天前`;
-  if (days < 30) return `${Math.floor(days / 7)} 週前`;
-  return new Date(dateStr).toLocaleDateString("zh-TW");
+  if (days === 0) return t("comments.timeToday");
+  if (days < 7) return t("comments.timeDaysAgo", { count: days });
+  if (days < 30) return t("comments.timeWeeksAgo", { count: Math.floor(days / 7) });
+  return new Date(dateStr).toLocaleDateString(locale);
 }
 
-async function uploadCommentImage(file) {
+async function uploadCommentImage(file, t) {
   if (file.size > 4 * 1024 * 1024) {
-    throw new Error("圖片超過 4MB 限制");
+    throw new Error(t("comments.errUploadSize"));
   }
   const base64 = await new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -214,12 +218,13 @@ async function uploadCommentImage(file) {
     }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "圖片上傳失敗");
+  if (!res.ok) throw new Error(data.error || t("comments.errUpload"));
   return { url: data.url, type: file.type || "image/jpeg" };
 }
 
 /** 產品內頁同款 lightbox，藍色系 */
 function CommentMediaModal({ comment, initialIndex = 0, onClose }) {
+  const { t, i18n } = useTranslation("news");
   const media = comment?.media || [];
   const [index, setIndex] = useState(initialIndex);
 
@@ -278,7 +283,7 @@ function CommentMediaModal({ comment, initialIndex = 0, onClose }) {
           <div className="relative w-full h-full">
             <Image
               src={current.url}
-              alt="留言圖片"
+              alt={t("comments.mediaAlt")}
               fill
               className="object-contain"
               unoptimized
@@ -308,7 +313,7 @@ function CommentMediaModal({ comment, initialIndex = 0, onClose }) {
                 {comment.author_name}
               </p>
               <p className="text-xs text-gray-400">
-                {formatTimeAgo(comment.created_at)}
+                {formatTimeAgo(comment.created_at, t, i18n.language)}
               </p>
             </div>
           </div>
@@ -343,6 +348,7 @@ function CommentMediaModal({ comment, initialIndex = 0, onClose }) {
 }
 
 export function PostCommentsBoard({ postId }) {
+  const { t, i18n } = useTranslation("news");
   const { userInfo } = useUser();
   const fileRef = useRef(null);
   const [comments, setComments] = useState([]);
@@ -390,7 +396,7 @@ export function PostCommentsBoard({ postId }) {
     e.target.value = "";
     if (!files.length) return;
     if (selectedFiles.length + files.length > 6) {
-      setError("最多上傳 6 張圖片");
+      setError(t("comments.errUploadMax"));
       return;
     }
     setUploading(true);
@@ -400,12 +406,12 @@ export function PostCommentsBoard({ postId }) {
       for (const file of files) {
         if (!file.type.startsWith("image/")) continue;
         const preview = URL.createObjectURL(file);
-        const remote = await uploadCommentImage(file);
+        const remote = await uploadCommentImage(file, t);
         uploaded.push({ ...remote, preview });
       }
       setSelectedFiles((prev) => [...prev, ...uploaded]);
     } catch (err) {
-      setError(err.message || "圖片上傳失敗");
+      setError(err.message || t("comments.errUpload"));
     } finally {
       setUploading(false);
     }
@@ -414,8 +420,8 @@ export function PostCommentsBoard({ postId }) {
   const handleSubmit = async () => {
     setError("");
     if (!content.trim()) {
-      setError("請填寫留言內容");
-      throw new Error("請填寫留言內容");
+      setError(t("comments.errRequired"));
+      throw new Error(t("comments.errRequired"));
     }
     const res = await fetch(`/api/community-posts/${postId}/comments`, {
       method: "POST",
@@ -430,8 +436,8 @@ export function PostCommentsBoard({ postId }) {
     });
     const data = await res.json();
     if (!res.ok) {
-      setError(data.error || "送出失敗");
-      throw new Error(data.error || "送出失敗");
+      setError(data.error || t("comments.errSubmit"));
+      throw new Error(data.error || t("comments.errSubmit"));
     }
     setContent("");
     setSelectedFiles([]);
@@ -440,7 +446,7 @@ export function PostCommentsBoard({ postId }) {
   };
 
   const handleDelete = async (commentId) => {
-    if (!confirm("確定刪除此留言？")) return;
+    if (!confirm(t("comments.confirmDelete"))) return;
     await fetch(`/api/community-posts/${postId}/comments`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -454,17 +460,17 @@ export function PostCommentsBoard({ postId }) {
       <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
           <p className="text-xs font-bold tracking-widest uppercase text-[#005caf] mb-1">
-            Discussion
+            {t("comments.eyebrow")}
           </p>
           <h2 className="text-2xl font-black text-gray-900">
-            留言討論
+            {t("comments.title")}
             <span className="ml-2 text-base font-bold text-gray-400">
               ({comments.length})
             </span>
           </h2>
         </div>
         <BluePillButton onClick={handleWriteClick}>
-          <Pencil size={15} /> 撰寫留言
+          <Pencil size={15} /> {t("comments.writeComment")}
         </BluePillButton>
       </div>
 
@@ -475,24 +481,28 @@ export function PostCommentsBoard({ postId }) {
               {comments.length}
             </span>
             <div>
-              <p className="text-sm font-bold text-gray-800">則留言</p>
-              <p className="text-xs text-gray-500">球友交流與提問</p>
+              <p className="text-sm font-bold text-gray-800">
+                {t("comments.statsUnit")}
+              </p>
+              <p className="text-xs text-gray-500">{t("comments.statsDesc")}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-[#005caf]">
             <MessageCircle size={18} />
-            <span className="text-xs font-bold">歡迎留下你的想法與照片</span>
+            <span className="text-xs font-bold">{t("comments.invite")}</span>
           </div>
         </div>
         <div>
-          <p className="text-sm font-bold text-gray-900 mb-3">球友最常提到</p>
+          <p className="text-sm font-bold text-gray-900 mb-3">
+            {t("comments.commonTagsTitle")}
+          </p>
           <div className="flex flex-wrap gap-2">
-            {["新手友善", "場地", "時段", "費用", "教練", "報名"].map((t) => (
+            {(t("comments.tags", { returnObjects: true }) || []).map((tag) => (
               <span
-                key={t}
+                key={tag}
                 className="text-xs font-bold px-3 py-1.5 rounded-full bg-white border border-[#005caf]/30 text-[#005caf]"
               >
-                {t}
+                {tag}
               </span>
             ))}
           </div>
@@ -504,10 +514,10 @@ export function PostCommentsBoard({ postId }) {
           value={filter}
           onChange={setFilter}
           tabs={[
-            { value: "all", label: `全部 (${comments.length})` },
+            { value: "all", label: `${t("comments.filterAll")} (${comments.length})` },
             {
               value: "media",
-              label: `含圖片 (${comments.filter((c) => (c.media || []).length).length})`,
+              label: `${t("comments.filterMedia")} (${comments.filter((c) => (c.media || []).length).length})`,
             },
           ]}
         />
@@ -515,24 +525,24 @@ export function PostCommentsBoard({ postId }) {
           onClick={handleWriteClick}
           type="button"
         >
-          撰寫留言
+          {t("comments.writeComment")}
         </BlueArrowLink>
       </div>
 
       {showForm && (
         <div className="mb-8 border border-gray-200 rounded-xl p-5 bg-white">
-          <p className="text-sm font-bold mb-3">撰寫留言</p>
+          <p className="text-sm font-bold mb-3">{t("comments.formTitle")}</p>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={4}
-            placeholder="分享你的想法、提問或心得…"
+            placeholder={t("comments.placeholder")}
             className="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:border-[#005caf] resize-y mb-3"
           />
 
           <div className="mb-4">
             <p className="text-xs font-bold text-gray-500 mb-2">
-              上傳照片（最多 6 張）
+              {t("comments.uploadLabel")}
             </p>
             <div className="flex flex-wrap gap-2">
               {selectedFiles.map((f, i) => (
@@ -565,11 +575,15 @@ export function PostCommentsBoard({ postId }) {
                   className="w-20 h-20 rounded-md border-2 border-dashed border-[#005caf]/40 text-[#005caf] flex flex-col items-center justify-center gap-1 hover:bg-[#005caf]/5 disabled:opacity-50"
                 >
                   {uploading ? (
-                    <span className="text-[10px] font-bold">上傳中</span>
+                    <span className="text-[10px] font-bold">
+                      {t("comments.uploading")}
+                    </span>
                   ) : (
                     <>
                       <Upload size={18} />
-                      <span className="text-[10px] font-bold">加圖</span>
+                      <span className="text-[10px] font-bold">
+                        {t("comments.addImage")}
+                      </span>
                     </>
                   )}
                 </button>
@@ -591,10 +605,10 @@ export function PostCommentsBoard({ postId }) {
           <div className="flex flex-wrap items-center gap-4">
             <ConfettiButton
               onClick={handleSubmit}
-              successLabel="成功送出留言"
+              successLabel={t("comments.submitSuccess")}
               className="rounded-full bg-[#005caf] px-5 py-2.5 text-sm font-bold text-white"
             >
-              送出留言
+              {t("comments.submit")}
             </ConfettiButton>
             <BlueArrowLink
               type="button"
@@ -604,21 +618,21 @@ export function PostCommentsBoard({ postId }) {
                 setError("");
               }}
             >
-              取消
+              {t("comments.cancel")}
             </BlueArrowLink>
           </div>
         </div>
       )}
 
       {loading ? (
-        <p className="text-gray-400 py-10 text-center">載入留言中…</p>
+        <p className="text-gray-400 py-10 text-center">{t("comments.loading")}</p>
       ) : filtered.length === 0 ? (
         <div className="py-16 text-center border border-dashed border-gray-200 rounded-xl">
           <ImageIcon size={40} className="mx-auto text-gray-300 mb-3" />
           <p className="text-gray-500 font-medium">
-            {filter === "media" ? "目前還沒有附圖留言" : "目前還沒有留言"}
+            {filter === "media" ? t("comments.emptyMedia") : t("comments.empty")}
           </p>
-          <p className="text-sm text-gray-400 mt-1">成為第一個分享心得的人！</p>
+          <p className="text-sm text-gray-400 mt-1">{t("comments.emptyPrompt")}</p>
         </div>
       ) : (
         <div className="divide-y divide-gray-100">
@@ -642,7 +656,7 @@ export function PostCommentsBoard({ postId }) {
                     {c.author_name}
                   </p>
                   <span className="text-xs text-gray-400">
-                    {formatTimeAgo(c.created_at)}
+                    {formatTimeAgo(c.created_at, t, i18n.language)}
                   </span>
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap mb-3">
@@ -675,7 +689,7 @@ export function PostCommentsBoard({ postId }) {
                       onClick={() => handleDelete(c.id)}
                       className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-red-600"
                     >
-                      <Trash2 size={12} /> 刪除
+                      <Trash2 size={12} /> {t("comments.delete")}
                     </button>
                   )}
               </div>

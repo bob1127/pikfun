@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import { MapPin } from "lucide-react";
 
 const PLACEHOLDER =
@@ -24,6 +25,7 @@ export default function SessionCardImageCarousel({
   hideDots = false,
   onStateChange,
 }) {
+  const { t } = useTranslation("play");
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(0);
@@ -91,7 +93,7 @@ export default function SessionCardImageCarousel({
       >
         <MapPin size={28} strokeWidth={1.5} />
         <span className="text-xs font-medium px-4 text-center line-clamp-2">
-          {session.location_name || "地點圖片"}
+          {session.location_name || t("card.location_image_fallback")}
         </span>
       </div>
     );
@@ -108,7 +110,7 @@ export default function SessionCardImageCarousel({
           <div key={src} className="h-full min-w-full shrink-0">
             <img
               src={src}
-              alt={session.location_name || session.title || "球場照片"}
+              alt={session.location_name || session.title || t("card.court_photo_alt")}
               className="w-full h-full object-cover"
               loading="lazy"
               draggable={false}

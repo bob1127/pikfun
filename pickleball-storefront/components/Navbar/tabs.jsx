@@ -20,6 +20,11 @@ import {
   Newspaper,
   CircleArrowRight,
   Truck,
+  Globe,
+  ShieldCheck,
+  MapPin,
+  BookOpen,
+  Store,
 } from "lucide-react";
 
 import { useCart } from "../../components/context/CartContext";
@@ -36,12 +41,130 @@ const COLORS = {
   menuBg: "#eef5fb",
 };
 
-const ANNOUNCEMENTS = [
-  "全場球拍九折活動開跑！",
-  "免運優惠進行中｜滿 NT$3,000 即可享有",
-  "優惠碼 PIKFUN2026 限時使用",
-  "新會員首購再享額外折扣",
-];
+/**
+ * 導覽列雙語字典：直接依 router.locale 取字，
+ * 不走 next-i18next namespace，避免個別頁面沒載入翻譯檔時顯示 key。
+ */
+const NAV_TEXT = {
+  "zh-TW": {
+    announcements: [
+      "全場球拍九折活動開跑！",
+      "免運優惠進行中｜滿 NT$3,000 即可享有",
+      "優惠碼 PIKFUN2026 限時使用",
+      "新會員首購再享額外折扣",
+    ],
+    tagline: "匹克球球拍｜活動｜教練｜開課",
+    taglineMobile: "匹克球裝備・活動・教練平台",
+    nav: {
+      home: "首頁",
+      categories: "匹克趨勢",
+      brand: "相關產品",
+      play: "揪團打球",
+      coaching: "教練開課",
+      news: "最新消息",
+      admin: "審核管理",
+      courts: "全台球場地圖",
+      blog: "裝備攻略",
+      shop: "商城",
+    },
+    tickerPrefix: { play: "揪團", class: "教練課", post: "投稿" },
+    megaCategories: "產品類別",
+    megaBrands: "精選品牌",
+    searchPlaceholder: "輸入關鍵字…",
+    searchPlaceholderMobile: "搜尋商品…",
+    searchNoResult: "找不到相關結果",
+    searchMinChars: "輸入至少 2 個字元開始搜尋",
+    login: "登入",
+    pickByStyle: "依打法挑選球拍",
+    playTitle1: "想找人打球？",
+    playTitle2: "馬上加入場次",
+    playBtn: "揪團",
+    shopTitle1: "熱銷球拍裝備",
+    shopTitle2: "立即選購！",
+    shopBtn: "商城",
+  },
+  en: {
+    announcements: [
+      "10% off all paddles — now on!",
+      "Free shipping on orders over NT$3,000",
+      "Limited-time promo code: PIKFUN2026",
+      "Extra discount on your first order",
+    ],
+    tagline: "Paddles | Events | Coaching | Classes",
+    taglineMobile: "Pickleball Gear · Events · Coaching",
+    nav: {
+      home: "Home",
+      categories: "Trends",
+      brand: "Products",
+      play: "Open Play",
+      coaching: "Coaching",
+      news: "News",
+      admin: "Review",
+      courts: "Court Map",
+      blog: "Gear Guide",
+      shop: "Shop",
+    },
+    tickerPrefix: { play: "Open Play", class: "Class", post: "Post" },
+    megaCategories: "Categories",
+    megaBrands: "Featured Brands",
+    searchPlaceholder: "Type a keyword…",
+    searchPlaceholderMobile: "Search products…",
+    searchNoResult: "No results found",
+    searchMinChars: "Type at least 2 characters to search",
+    login: "Log In",
+    pickByStyle: "Pick a Paddle by Play Style",
+    playTitle1: "Looking for a game?",
+    playTitle2: "Join a session now",
+    playBtn: "Open Play",
+    shopTitle1: "Best-Selling Gear",
+    shopTitle2: "Shop Now!",
+    shopBtn: "Shop",
+  },
+};
+
+/** 語系切換鈕（zh-TW ↔ en），沿用目前路徑切換 */
+function LanguageSwitcher({ compact = false, onSwitched }) {
+  const router = useRouter();
+  const current = router.locale === "en" ? "en" : "zh-TW";
+
+  const switchTo = (locale) => {
+    if (locale === current) return;
+    router.push(router.asPath, router.asPath, { locale, scroll: false });
+    onSwitched?.();
+  };
+
+  return (
+    <div
+      className={`flex items-center gap-1 ${compact ? "" : "pl-1"}`}
+      aria-label="切換語言 / Switch language"
+    >
+      <Globe size={compact ? 18 : 16} strokeWidth={1.5} className="text-gray-500 shrink-0" />
+      <button
+        type="button"
+        onClick={() => switchTo("zh-TW")}
+        className={`px-1.5 py-0.5 text-[12px] font-bold rounded transition-colors ${
+          current === "zh-TW"
+            ? "text-[#005caf]"
+            : "text-gray-400 hover:text-gray-700"
+        }`}
+      >
+        中
+      </button>
+      <span className="text-gray-300 text-[11px]">/</span>
+      <button
+        type="button"
+        onClick={() => switchTo("en")}
+        className={`px-1.5 py-0.5 text-[12px] font-bold rounded transition-colors ${
+          current === "en"
+            ? "text-[#005caf]"
+            : "text-gray-400 hover:text-gray-700"
+        }`}
+      >
+        EN
+      </button>
+    </div>
+  );
+}
 
 const NAV_ICONS = {
   home: Home,
@@ -50,6 +173,10 @@ const NAV_ICONS = {
   play: Users,
   coaching: GraduationCap,
   news: Newspaper,
+  admin: ShieldCheck,
+  courts: MapPin,
+  blog: BookOpen,
+  shop: Store,
 };
 
 function MenuLogo() {
@@ -194,16 +321,59 @@ export const SlideTabsExample = () => {
   const [loadingCats, setLoadingCats] = useState(true);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
   const [announceIndex, setAnnounceIndex] = useState(0);
+  const [tickerItems, setTickerItems] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const router = useRouter();
+  const T = NAV_TEXT[router.locale === "en" ? "en" : "zh-TW"];
+  // 有站內最新動態時優先輪播（揪團／教練課／投稿），否則退回靜態公告
+  const announcements = tickerItems.length
+    ? tickerItems.map((item) => ({
+        text: `【${T.tickerPrefix[item.type] || ""}】${item.title}`,
+        href: item.href,
+      }))
+    : T.announcements.map((text) => ({ text, href: null }));
+
+  // 抓站內最新動態標題（揪團／教練課／投稿 前 5 則）
+  useEffect(() => {
+    if (!mounted) return;
+    let alive = true;
+    fetch("/api/site-ticker")
+      .then((r) => (r.ok ? r.json() : { items: [] }))
+      .then((d) => {
+        if (alive) setTickerItems(d.items || []);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [mounted]);
+
+  // 最高權限管理者：導覽列顯示「審核管理」
+  useEffect(() => {
+    if (!mounted || !userInfo?.email) {
+      setIsAdmin(false);
+      return;
+    }
+    let alive = true;
+    fetch(`/api/admin/check?email=${encodeURIComponent(userInfo.email)}`)
+      .then((r) => (r.ok ? r.json() : { isAdmin: false }))
+      .then((d) => {
+        if (alive) setIsAdmin(!!d.isAdmin);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [mounted, userInfo?.email]);
 
   useEffect(() => {
     if (!mounted || !showAnnouncement) return;
     const timer = setInterval(() => {
-      setAnnounceIndex((i) => (i + 1) % ANNOUNCEMENTS.length);
+      setAnnounceIndex((i) => (i + 1) % announcements.length);
     }, 3500);
     return () => clearInterval(timer);
-  }, [mounted, showAnnouncement]);
+  }, [mounted, showAnnouncement, announcements.length]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -322,13 +492,17 @@ export const SlideTabsExample = () => {
   };
 
   const navLinks = [
-    { key: "home", label: "首頁", href: "/" },
-    { key: "categories", label: "匹克趨勢", href: "/category", hasMega: true },
-    { key: "brand", label: "相關產品", href: "/category", hasMega: true },
-    { key: "play", label: "揪團打球", href: "/play" },
-    { key: "coaching", label: "教練開課", href: "/coaching" },
-    { key: "news", label: "最新消息", href: "/news" },
+    { key: "home", label: T.nav.home, href: "/" },
+    { key: "categories", label: T.nav.categories, href: "/category", hasMega: true },
+    { key: "brand", label: T.nav.brand, href: "/category", hasMega: true },
+    { key: "play", label: T.nav.play, href: "/play" },
+    { key: "coaching", label: T.nav.coaching, href: "/coaching" },
+    { key: "news", label: T.nav.news, href: "/news" },
+    ...(isAdmin
+      ? [{ key: "admin", label: T.nav.admin, href: "/admin/community-posts", isAdminLink: true }]
+      : []),
   ];
+
 
   if (!mounted) return null;
 
@@ -367,7 +541,20 @@ export const SlideTabsExample = () => {
                         transition={{ duration: 0.4, ease: "easeInOut" }}
                         className="text-[11px] leading-5 font-normal tracking-wide text-white text-center whitespace-nowrap"
                       >
-                        {ANNOUNCEMENTS[announceIndex]}
+                        {(() => {
+                          const item =
+                            announcements[announceIndex % announcements.length];
+                          return item.href ? (
+                            <Link
+                              href={item.href}
+                              className="hover:underline underline-offset-2"
+                            >
+                              {item.text}
+                            </Link>
+                          ) : (
+                            item.text
+                          );
+                        })()}
                       </motion.p>
                     </AnimatePresence>
                   </div>
@@ -387,7 +574,7 @@ export const SlideTabsExample = () => {
                 />
                 <div className="leading-none">
                   <span className="block text-[10px] font-bold tracking-[0.14em] uppercase text-gray-900">
-                    匹克球球拍｜活動｜教練｜開課
+                    {T.tagline}
                   </span>
                   <span className="block text-[15px] font-bold tracking-[0.06em] uppercase text-gray-900 mt-1">
                     PikFun
@@ -414,12 +601,22 @@ export const SlideTabsExample = () => {
                       >
                         <Link
                           href={link.href}
-                          className={`text-[13px] font-normal tracking-[0.06em] transition-colors whitespace-nowrap ${
-                            isActive
-                              ? "text-[#005caf]"
-                              : "text-gray-900 hover:text-[#005caf]"
-                          }`}
+                          className={
+                            link.isAdminLink
+                              ? "inline-flex items-center gap-1.5 text-[13px] font-bold tracking-[0.06em] whitespace-nowrap px-3 py-1.5 rounded-full text-white hover:opacity-90 transition-opacity"
+                              : `text-[13px] font-normal tracking-[0.06em] transition-colors whitespace-nowrap ${
+                                  isActive
+                                    ? "text-[#005caf]"
+                                    : "text-gray-900 hover:text-[#005caf]"
+                                }`
+                          }
+                          style={
+                            link.isAdminLink
+                              ? { backgroundColor: COLORS.blue }
+                              : undefined
+                          }
                         >
+                          {link.isAdminLink && <ShieldCheck size={14} />}
                           {link.label}
                         </Link>
                       </div>
@@ -470,7 +667,7 @@ export const SlideTabsExample = () => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={handleSearchSubmit}
-                                placeholder="輸入關鍵字…"
+                                placeholder={T.searchPlaceholder}
                                 autoFocus
                                 className="bg-transparent text-sm w-full outline-none text-gray-700 placeholder-gray-400"
                               />
@@ -483,8 +680,8 @@ export const SlideTabsExample = () => {
                           ) : searchResults.products.length === 0 ? (
                             <div className="p-6 text-center text-sm text-gray-500">
                               {searchQuery.trim().length > 1
-                                ? "找不到相關結果"
-                                : "輸入至少 2 個字元開始搜尋"}
+                                ? T.searchNoResult
+                                : T.searchMinChars}
                             </div>
                           ) : (
                             <div className="max-h-[50vh] overflow-y-auto p-2">
@@ -538,6 +735,8 @@ export const SlideTabsExample = () => {
                       </span>
                     )}
                   </button>
+
+                  <LanguageSwitcher />
                 </div>
               </div>
             </div>
@@ -562,7 +761,7 @@ export const SlideTabsExample = () => {
                         {openMega === "categories" && (
                           <>
                             <div className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest border-b pb-2">
-                              產品類別
+                              {T.megaCategories}
                             </div>
                             <ul className="flex flex-wrap gap-8">
                               {categoriesChildren.map((cat) => (
@@ -594,7 +793,7 @@ export const SlideTabsExample = () => {
                         {openMega === "brand" && (
                           <>
                             <div className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest border-b pb-2">
-                              精選品牌
+                              {T.megaBrands}
                             </div>
                             <ul className="flex flex-wrap gap-8">
                               {brandChildren.map((brand) => (
@@ -651,7 +850,7 @@ export const SlideTabsExample = () => {
                   PikFun
                 </span>
                 <span className="hidden sm:block text-[10px] text-gray-500 tracking-wide">
-                  匹克球裝備・活動・教練平台
+                  {T.taglineMobile}
                 </span>
               </div>
             </Link>
@@ -713,7 +912,7 @@ export const SlideTabsExample = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearchSubmit}
-                placeholder="搜尋商品…"
+                placeholder={T.searchPlaceholderMobile}
                 autoFocus
                 className="bg-transparent text-sm w-full outline-none"
               />
@@ -763,9 +962,8 @@ export const SlideTabsExample = () => {
 
             {/* 主選單捲動區 */}
             <div className="flex-1 overflow-y-auto px-5 py-6 pb-44">
-              <nav className="space-y-5">
+              <nav className="block space-y-5" aria-label="主要導覽">
                 {navLinks.map((link) => {
-                  const Icon = NAV_ICONS[link.key] || Home;
                   const isActive =
                     router.pathname === link.href ||
                     (link.href !== "/" &&
@@ -776,22 +974,11 @@ export const SlideTabsExample = () => {
                       key={link.key}
                       href={link.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-4 group"
+                      className={`block text-base text-gray-900 ${
+                        isActive ? "underline underline-offset-4" : ""
+                      }`}
                     >
-                      <Icon
-                        size={22}
-                        strokeWidth={2.2}
-                        className="shrink-0 transition-transform group-hover:scale-105"
-                        style={{ color: COLORS.blue }}
-                      />
-                      <span
-                        className={`text-lg font-bold tracking-wide ${
-                          isActive ? "underline underline-offset-4" : ""
-                        }`}
-                        style={{ color: COLORS.blue }}
-                      >
-                        {link.label}
-                      </span>
+                      {link.label}
                     </Link>
                   );
                 })}
@@ -811,11 +998,16 @@ export const SlideTabsExample = () => {
                     ) : (
                       <>
                         <User size={22} style={{ color: COLORS.blue }} />
-                        登入
+                        {T.login}
                       </>
                     )}
                   </Link>
                 )}
+
+                <LanguageSwitcher
+                  compact
+                  onSwitched={() => setIsMenuOpen(false)}
+                />
 
                 <Link
                   href="/category"
@@ -829,7 +1021,7 @@ export const SlideTabsExample = () => {
                   >
                     <CircleArrowRight size={14} />
                   </span>
-                  依打法挑選球拍
+                  {T.pickByStyle}
                 </Link>
               </div>
             </div>
@@ -838,26 +1030,26 @@ export const SlideTabsExample = () => {
             <div className="shrink-0 absolute bottom-0 left-0 right-0 px-3 pb-4 pt-2">
               <div className="bg-white rounded-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.08)] overflow-hidden">
                 <div className="grid grid-cols-2 divide-x divide-gray-200">
-                  {/* 左：指南 */}
+                  {/* 左：揪團 */}
                   <div className="p-4 flex flex-col gap-3">
                     <p className="text-xs font-bold text-gray-800 leading-snug">
-                      不確定買哪支？
+                      {T.playTitle1}
                       <br />
-                      先看挑選指南
+                      {T.playTitle2}
                     </p>
                     <PillArrowButton
-                      href="/blog?category=rackets-equipment"
+                      href="/play"
                       onClick={() => setIsMenuOpen(false)}
-                      label="裝備攻略"
+                      label={T.playBtn}
                       variant="outline"
                       arrowClass="bg-[#eef5fb] text-[#005caf]"
                     />
                   </div>
 
-                  {/* 右：購物車 */}
+                  {/* 右：商城 */}
                   <div className="p-4 flex flex-col gap-3">
                     <p className="text-xs font-bold text-gray-800 leading-snug">
-                      熱銷球拍
+                      {T.shopTitle1}
                       <br />
                       <span
                         className="inline-block mt-0.5 px-1"
@@ -865,26 +1057,20 @@ export const SlideTabsExample = () => {
                           background: `linear-gradient(transparent 60%, ${COLORS.yellow} 60%)`,
                         }}
                       >
-                        立即選購！
+                        {T.shopTitle2}
                       </span>
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsCartOpen(true);
-                        setIsMenuOpen(false);
-                      }}
+                    <Link
+                      href="/products"
+                      onClick={() => setIsMenuOpen(false)}
                       className="w-full flex items-center justify-between gap-2 px-5 py-3.5 rounded-full text-white text-sm font-bold hover:opacity-90 transition-opacity"
                       style={{ backgroundColor: COLORS.blue }}
                     >
-                      <span>
-                        進入購物車
-                        {totalQty > 0 ? ` (${totalQty})` : ""}
-                      </span>
+                      <span>{T.shopBtn}</span>
                       <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                         <ChevronRight size={16} strokeWidth={2.5} />
                       </span>
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>

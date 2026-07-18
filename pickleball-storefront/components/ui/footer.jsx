@@ -1,73 +1,157 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import { ChevronRight } from "lucide-react";
 
-export default function Footer() {
-  // 匹克球專屬選單內容
-  const footerColumns = [
-    {
-      title: "關於匹克派",
-      links: [
-        { name: "平台介紹與初衷", href: "/about" },
-        { name: "最新消息・活動公告", href: "/news" },
-        { name: "匹克球新手指南", href: "/guide" },
-        { name: "常見問題", href: "/faq" },
-        { name: "聯絡我們", href: "/contact" },
-      ],
-    },
-    {
-      title: "找球場與聚落",
-      links: [
-        { name: "全台匹克球場地圖", href: "/courts" },
-        { name: "揪團打球", href: "/play" },
-        { name: "近期揪團與賽事", href: "/events" },
-        { name: "球友社群討論區", href: "/community" },
-      ],
-    },
-    {
-      title: "商城與產品",
-      links: [
-        { name: "線上商城 (球拍/裝備)", href: "/category" },
-        { name: "匹克球知識文章", href: "/blog?category=knowledge" },
-        { name: "球拍裝備攻略", href: "/blog?category=rackets-equipment" },
-        { name: "購物與退換貨須知", href: "/shipping" },
-      ],
-    },
-    {
-      title: "教練與合作",
-      links: [
-        { name: "教練開課", href: "/coaching" },
-        { name: "球場主進駐計畫", href: "/partners/courts" },
-        { name: "賣家與品牌合作洽談", href: "/partners/brands" },
-        { name: "企業贊助與廣告方案", href: "/partners/ads" },
-      ],
-    },
-  ];
+/** 頁尾雙語字典：依 router.locale 取字，不依賴各頁面的 i18n namespace */
+const FOOTER_TEXT = {
+  "zh-TW": {
+    intro_line1: "匹克方致力於打造最大的匹克球社群與資訊平台。",
+    intro_line2: "球場預約、裝備選購、教練媒合與球友討論交流，通通交給我們。",
+    login: "會員登入 / 註冊",
+    privacy: "隱私權政策",
+    terms: "服務條款",
+    columns: [
+      {
+        title: "關於匹克方",
+        links: [
+          { name: "平台介紹與初衷", href: "/about" },
+          { name: "最新消息・活動公告", href: "/news" },
+          { name: "匹克球新手指南", href: "/guide" },
+          { name: "常見問題", href: "/faq" },
+          { name: "聯絡我們", href: "/contact" },
+        ],
+      },
+      {
+        title: "找球場與聚落",
+        links: [
+          { name: "全台匹克球場地圖", href: "/courts" },
+          { name: "揪團打球", href: "/play" },
+          { name: "近期揪團與賽事", href: "/events" },
+          { name: "球友社群討論區", href: "/community" },
+        ],
+      },
+      {
+        title: "商城與產品",
+        links: [
+          { name: "線上商城 (球拍/裝備)", href: "/category" },
+          { name: "匹克球知識文章", href: "/blog?category=knowledge" },
+          { name: "球拍裝備攻略", href: "/blog?category=rackets-equipment" },
+          { name: "購物與退換貨須知", href: "/shipping" },
+        ],
+      },
+      {
+        title: "教練與合作",
+        links: [
+          { name: "教練開課", href: "/coaching" },
+          { name: "球場主進駐計畫", href: "/partners/courts" },
+          { name: "賣家與品牌合作洽談", href: "/partners/brands" },
+          { name: "企業贊助與廣告方案", href: "/partners/ads" },
+        ],
+      },
+    ],
+    quickLinks: [
+      {
+        subtitle: "運動知識與攻略",
+        title: "匹克球知識",
+        href: "/blog?category=knowledge",
+      },
+      {
+        subtitle: "球拍・裝備挑選",
+        title: "裝備攻略",
+        href: "/blog?category=rackets-equipment",
+      },
+      {
+        subtitle: "專業教練媒合",
+        title: "教練開課",
+        href: "/coaching",
+      },
+      {
+        subtitle: "找球友一起打",
+        title: "揪團打球",
+        href: "/play",
+      },
+    ],
+  },
+  en: {
+    intro_line1:
+      "PikFun is building Taiwan's largest pickleball community and information platform.",
+    intro_line2:
+      "Court booking, gear shopping, coach matching, and player community — all in one place.",
+    login: "Log In / Sign Up",
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
+    columns: [
+      {
+        title: "About PikFun",
+        links: [
+          { name: "About the Platform", href: "/about" },
+          { name: "News & Announcements", href: "/news" },
+          { name: "Beginner's Guide", href: "/guide" },
+          { name: "FAQ", href: "/faq" },
+          { name: "Contact Us", href: "/contact" },
+        ],
+      },
+      {
+        title: "Courts & Community",
+        links: [
+          { name: "Court Map of Taiwan", href: "/courts" },
+          { name: "Open Play", href: "/play" },
+          { name: "Games & Tournaments", href: "/events" },
+          { name: "Community Forum", href: "/community" },
+        ],
+      },
+      {
+        title: "Shop & Products",
+        links: [
+          { name: "Online Shop (Paddles & Gear)", href: "/category" },
+          { name: "Pickleball Knowledge", href: "/blog?category=knowledge" },
+          { name: "Gear Guides", href: "/blog?category=rackets-equipment" },
+          { name: "Shipping & Returns", href: "/shipping" },
+        ],
+      },
+      {
+        title: "Coaching & Partnership",
+        links: [
+          { name: "Coaching", href: "/coaching" },
+          { name: "Court Owner Program", href: "/partners/courts" },
+          { name: "Seller & Brand Partnership", href: "/partners/brands" },
+          { name: "Sponsorship & Ads", href: "/partners/ads" },
+        ],
+      },
+    ],
+    quickLinks: [
+      {
+        subtitle: "Tips & Knowledge",
+        title: "Pickleball 101",
+        href: "/blog?category=knowledge",
+      },
+      {
+        subtitle: "Paddles & Gear",
+        title: "Gear Guide",
+        href: "/blog?category=rackets-equipment",
+      },
+      {
+        subtitle: "Find a Coach",
+        title: "Coaching",
+        href: "/coaching",
+      },
+      {
+        subtitle: "Play with Others",
+        title: "Open Play",
+        href: "/play",
+      },
+    ],
+  },
+};
 
-  const quickLinks = [
-    {
-      subtitle: "運動知識與攻略",
-      title: "匹克球知識",
-      href: "/blog?category=knowledge",
-    },
-    {
-      subtitle: "球拍・裝備挑選",
-      title: "裝備攻略",
-      href: "/blog?category=rackets-equipment",
-    },
-    {
-      subtitle: "專業教練媒合",
-      title: "教練開課",
-      href: "/coaching",
-    },
-    {
-      subtitle: "找球友一起打",
-      title: "揪團打球",
-      href: "/play",
-    },
-  ];
+export default function Footer() {
+  const router = useRouter();
+  const T = FOOTER_TEXT[router.locale === "en" ? "en" : "zh-TW"];
+  const footerColumns = T.columns;
+  const quickLinks = T.quickLinks;
 
   return (
     <footer className="bg-[#242424] text-[#cccccc] font-sans">
@@ -86,13 +170,13 @@ export default function Footer() {
                 alt=""
               />
               <p className="text-[10px] tracking-[0.2em] text-[#999999] mt-1 uppercase">
-                Taiwan No.1 Pickleball Community
+                Taiwan Pickleball Community
               </p>
             </div>
             {/* 網站簡介 */}
             <div className="text-xs text-[#999999] leading-relaxed tracking-wider">
-              <p>匹克派是全台最大的匹克球社群與資訊平台。</p>
-              <p>球場預約、裝備選購、教練媒合與球友討論交流，通通交給我們。</p>
+              <p>{T.intro_line1}</p>
+              <p>{T.intro_line2}</p>
             </div>
           </div>
 
@@ -102,7 +186,7 @@ export default function Footer() {
             className="group flex items-center justify-center bg-white w-full md:w-[280px] py-4 rounded-sm transition-transform hover:opacity-90"
           >
             <span className="text-[#e22f5c] text-sm font-bold tracking-widest mr-2 group-hover:mr-4 transition-all">
-              會員登入 / 註冊
+              {T.login}
             </span>
             <ChevronRight size={16} className="text-[#e22f5c]" />
           </Link>
@@ -178,14 +262,30 @@ export default function Footer() {
               href="/privacy"
               className="hover:text-white transition-colors"
             >
-              隱私權政策
+              {T.privacy}
             </Link>
             <span className="text-[#444444]">|</span>
             <Link href="/terms" className="hover:text-white transition-colors">
-              服務條款
+              {T.terms}
             </Link>
           </div>
-          <p>Copyright © PikFun All rights reserved.</p>
+          <div className="flex flex-col md:flex-row items-center gap-1.5 md:gap-3 text-center">
+            <p>Copyright © PikFun All rights reserved.</p>
+            <span className="hidden md:inline text-[#444444]">|</span>
+            <p>藍鏈數位企業社 統一編號 60982396</p>
+            <span className="hidden md:inline text-[#444444]">|</span>
+            <p>
+              Design by{" "}
+              <a
+                href="https://www.jeek-webdesign.com.tw/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors underline underline-offset-2"
+              >
+                極客網頁設計
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

@@ -35,7 +35,7 @@
   "components/AnimatedGradient/components/Carousel/Carousel.jsx",
   "components/Carousel/index.jsx",
   "components/ui/footer.jsx",
-  "pages/Layout.js",
+  "components/Layout.js",
   "pages/_app.jsx"
 , "pages/Cart.jsx", "pages/checkout.jsx", "pages/api/create-order.js", "components/ScrollShowcase.jsx", "pages/api/categories.js", "kesh-backend/src/scripts/seed.ts.bak"]
 ,

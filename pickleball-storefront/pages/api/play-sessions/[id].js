@@ -1,5 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { enrichPaymentFields } from "@/lib/playUtils";
+import { getMedusaCustomer } from "@/lib/medusaCustomerAuth";
+import {
+  ensureOrganizerProfile,
+  profileMapForEmails,
+} from "@/lib/organizerProfiles";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -12,6 +17,11 @@ function enrichSession(session, participants = []) {
   const waitlist = participants.filter((p) => p.status === "waitlist");
   const joinedCount = active.length;
   const maxPlayers = session.max_players || 4;
+  const isFull = joinedCount >= maxPlayers;
+  const isPast =
+    session.status !== "cancelled" &&
+    session.starts_at &&
+    new Date(session.starts_at) <= new Date();
 
   return enrichPaymentFields({
     ...session,
@@ -20,12 +30,16 @@ function enrichSession(session, participants = []) {
     joined_count: joinedCount,
     waitlist_count: waitlist.length,
     spots_left: Math.max(0, maxPlayers - joinedCount),
-    is_full: joinedCount >= maxPlayers,
-    display_status: session.status === "cancelled"
-      ? "cancelled"
-      : joinedCount >= maxPlayers
-        ? "full"
-        : "open",
+    is_full: isFull,
+    is_past: isPast,
+    display_status:
+      session.status === "cancelled"
+        ? "cancelled"
+        : isPast
+          ? "ended"
+          : isFull
+            ? "full"
+            : "open",
   });
 }
 
@@ -78,6 +92,14 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     const { email } = req.query;
+    let verifiedCustomer = null;
+    if (req.headers.authorization) {
+      try {
+        verifiedCustomer = await getMedusaCustomer(req);
+      } catch {
+        verifiedCustomer = null;
+      }
+    }
 
     const { data: session, error } = await supabase
       .from("play_sessions")
@@ -97,6 +119,21 @@ export default async function handler(req, res) {
       .order("joined_at", { ascending: true });
 
     const enriched = enrichSession(session, participants || []);
+    const profileMap = await profileMapForEmails([session.host_email]);
+    let hostProfile = profileMap.get(
+      String(session.host_email || "").toLowerCase(),
+    );
+    if (
+      !hostProfile &&
+      verifiedCustomer &&
+      verifiedCustomer.email === String(session.host_email).toLowerCase()
+    ) {
+      try {
+        hostProfile = await ensureOrganizerProfile(verifiedCustomer);
+      } catch (error) {
+        console.error("organizer profile ensure failed:", error);
+      }
+    }
     let myStatus = null;
     if (email) {
       const mine = (participants || []).find(
@@ -109,7 +146,15 @@ export default async function handler(req, res) {
       session: {
         ...enriched,
         my_status: myStatus,
-        is_host: email ? session.host_email === email : false,
+        is_host: verifiedCustomer
+          ? session.host_email === verifiedCustomer.email
+          : email
+            ? session.host_email === email
+            : false,
+        host_profile_slug: hostProfile?.slug || null,
+        host_profile_title: hostProfile?.title || null,
+        host_profile_excerpt: hostProfile?.excerpt || null,
+        host_profile_avatar: hostProfile?.avatar || session.host_avatar || null,
       },
     });
   }

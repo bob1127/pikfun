@@ -5,6 +5,8 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
   ArrowLeft,
   ChevronRight,
@@ -21,12 +23,21 @@ import {
   Mail,
   UserCheck,
   Wallet,
+  CheckCircle2,
 } from "lucide-react";
+
+// 手動輸入球場時比對用：正規化名稱／地址（去空白、標點、臺→台）
+const normCourtText = (v) =>
+  String(v || "")
+    .toLowerCase()
+    .replace(/臺/g, "台")
+    .replace(/[\s（）()｜|,，、．.-]/g, "");
 import { useUser } from "@/components/context/UserContext";
 import {
   SKILL_RATING_PRESETS,
   getSkillLevelLabel,
-  PAYMENT_METHODS,
+  getSkillLabels,
+  getPaymentMethods,
   toLocalDatetimeValue,
   syncEndsAtOnStartChange,
   syncEndsAtOnEndChange,
@@ -41,15 +52,16 @@ import {
 import { districtMatches, sortCourtsByDistance } from "@/lib/courtDistrict";
 import { getDistrictsForCity } from "@/lib/taiwanDistricts";
 import ConfettiButton from "@/components/ui/ConfettiButton";
+import LiquidNeonBg from "@/components/play/LiquidNeonBg";
 
 /* ─── helpers ─────────────────────────────────────────── */
 function pad(n) {
   return String(n).padStart(2, "0");
 }
-function fmtDate(iso) {
+function fmtDate(iso, weekdays) {
   if (!iso) return "—";
   const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()} (${["日", "一", "二", "三", "四", "五", "六"][d.getDay()]})`;
+  return `${d.getMonth() + 1}/${d.getDate()} (${weekdays[d.getDay()]})`;
 }
 function fmtTime(iso) {
   if (!iso) return "—";
@@ -58,13 +70,15 @@ function fmtTime(iso) {
 }
 
 /* ─── skill options ────────────────────────────────────── */
-const SKILL_LEVEL_PRESETS = [
-  { value: "all", label: "不限程度" },
-  ...SKILL_RATING_PRESETS.map((value) => ({
-    value,
-    label: value === "5.5+" ? "5.5+" : value,
-  })),
-];
+function getSkillLevelPresets(t) {
+  return [
+    { value: "all", label: getSkillLabels(t).all },
+    ...SKILL_RATING_PRESETS.map((value) => ({
+      value,
+      label: value === "5.5+" ? "5.5+" : value,
+    })),
+  ];
+}
 
 function normalizeSkillRating(raw) {
   const trimmed = String(raw).trim();
@@ -115,7 +129,7 @@ function InfoTile({ label, value, onClick, wide, lime }) {
 }
 
 /* ─── Datetime bottom drawer ───────────────────────────── */
-function DatetimeDrawer({ label, value, onChange, onClose, min, max }) {
+function DatetimeDrawer({ t, label, value, onChange, onClose, min, max }) {
   return (
     <div className="crt-drawer-overlay" onClick={onClose}>
       <motion.div
@@ -142,7 +156,7 @@ function DatetimeDrawer({ label, value, onChange, onClose, min, max }) {
           className="crt-dt-input"
         />
         <button type="button" onClick={onClose} className="crt-drawer-confirm">
-          確認
+          {t("create.drawer.confirm")}
         </button>
       </motion.div>
     </div>
@@ -151,8 +165,10 @@ function DatetimeDrawer({ label, value, onChange, onClose, min, max }) {
 
 /* ─── Court picker inline ──────────────────────────────── */
 function CourtSearch({
+  t,
   locationName,
   locationAddress,
+  matchedCourtId,
   onSelect,
   onManualChange,
 }) {
@@ -171,6 +187,51 @@ function CourtSearch({
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoHint, setGeoHint] = useState("");
   const [geoCoords, setGeoCoords] = useState(null);
+  const [allCourts, setAllCourts] = useState([]);
+
+  // 進入手動輸入時載入一次全台球場快取（零 Google 用量）
+  useEffect(() => {
+    if (!manual || allCourts.length) return;
+    let alive = true;
+    fetch("/api/courts/all")
+      .then((r) => (r.ok ? r.json() : { courts: [] }))
+      .then((d) => {
+        if (alive) setAllCourts(d.courts || []);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [manual, allCourts.length]);
+
+  // 手動輸入時即時比對相符的 Google 球場（僅比對本地快取，不打 API）
+  const manualSuggestions = useMemo(() => {
+    if (!manual || matchedCourtId) return [];
+    const nameQ = normCourtText(locationName);
+    const addrQ = normCourtText(locationAddress);
+    if (nameQ.length < 2 && addrQ.length < 2) return [];
+    return allCourts
+      .filter((c) => {
+        const n = normCourtText(c.name);
+        const a = normCourtText(c.address);
+        const nameHit =
+          nameQ.length >= 2 && (n.includes(nameQ) || nameQ.includes(n));
+        const addrHit = addrQ.length >= 3 && a.includes(addrQ);
+        return nameHit || addrHit;
+      })
+      .slice(0, 6);
+  }, [manual, matchedCourtId, locationName, locationAddress, allCourts]);
+
+  const applyMatchedCourt = (court) => {
+    setEditing(false);
+    onSelect({
+      location_name: court.name,
+      location_address: court.address,
+      latitude: court.latitude,
+      longitude: court.longitude,
+      court_id: court.id,
+    });
+  };
 
   const courts = useMemo(() => {
     let list = cityCourtsAll;
@@ -252,7 +313,7 @@ function CourtSearch({
 
   const sortByMyLocation = () => {
     if (!navigator.geolocation) {
-      setGeoHint("此裝置不支援定位");
+      setGeoHint(t("create.court_search.geo_unsupported"));
       return;
     }
     setGeoLoading(true);
@@ -263,11 +324,11 @@ function CourtSearch({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         });
-        setGeoHint("已依距離排序（由近到遠）");
+        setGeoHint(t("create.court_search.sorted_by_distance"));
         setGeoLoading(false);
       },
       () => {
-        setGeoHint("無法取得位置，請允許定位權限");
+        setGeoHint(t("create.court_search.geo_denied"));
         setGeoLoading(false);
       },
       { enableHighAccuracy: false, timeout: 10000 },
@@ -289,7 +350,7 @@ function CourtSearch({
           onClick={resetPicker}
           className="crt-court-change"
         >
-          更換
+          {t("create.court_search.change")}
         </button>
       </div>
     );
@@ -303,7 +364,7 @@ function CourtSearch({
           onClick={() => setManual((v) => !v)}
           className={`crt-court-fchip ${manual ? "active" : ""}`}
         >
-          手動輸入地址
+          {t("create.court_search.manual_toggle")}
         </button>
       </div>
 
@@ -313,25 +374,79 @@ function CourtSearch({
             name="location_name"
             value={locationName}
             onChange={onManualChange}
-            placeholder="球場名稱"
+            placeholder={t("create.court_search.name_placeholder")}
             className="crt-input"
           />
           <input
             name="location_address"
             value={locationAddress}
             onChange={onManualChange}
-            placeholder="完整地址（例：台中市潭子區…）"
+            placeholder={t("create.court_search.address_placeholder")}
             className="crt-input"
           />
           <p className="crt-court-hint">
-            手動地址可能無法顯示在地圖上，建議從球場列表選擇
+            {t("create.court_search.manual_hint")}
           </p>
+
+          {matchedCourtId && (
+            <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#eafaf0] border border-[#bfe9cf]">
+              <CheckCircle2 size={16} className="text-[#16a34a] shrink-0" />
+              <p className="text-xs font-bold text-[#15803d]">
+                {t("court.map_matched")}
+              </p>
+            </div>
+          )}
+
+          {!matchedCourtId && manualSuggestions.length > 0 && (
+            <div className="rounded-2xl border border-[#e8edf3] bg-white overflow-hidden">
+              <div className="flex items-center gap-1.5 px-4 pt-3 pb-1">
+                <MapPin size={13} className="text-[#005caf]" />
+                <p className="text-[11px] font-bold text-[#005caf]">
+                  {t("court.map_match_title")}
+                </p>
+              </div>
+              <p className="px-4 pb-2 text-[11px] text-[#94a3b8] leading-relaxed">
+                {t("court.map_match_desc")}
+              </p>
+              <div className="max-h-56 overflow-y-auto" data-lenis-prevent>
+                {manualSuggestions.map((court) => (
+                  <button
+                    key={court.id}
+                    type="button"
+                    onClick={() => applyMatchedCourt(court)}
+                    className="w-full text-left px-4 py-3 hover:bg-[#005caf]/5 border-t border-[#f1f5f9] transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="w-8 h-8 rounded-xl bg-[#eef5fb] flex items-center justify-center shrink-0">
+                        <MapPin size={15} className="text-[#005caf]" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm text-[#0f172a] truncate">
+                          {court.name}
+                          {court.city && (
+                            <span className="ml-1.5 text-[10px] font-bold text-[#94a3b8]">
+                              {court.city}
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-[#64748b] truncate mt-0.5">
+                          {court.address}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <>
           <div className="crt-court-steps">
             <label className="crt-court-field">
-              <span className="crt-court-label">1. 縣市</span>
+              <span className="crt-court-label">
+                {t("create.court_search.step_city")}
+              </span>
               <select
                 value={city}
                 onChange={(e) => {
@@ -344,17 +459,19 @@ function CourtSearch({
                 }}
                 className="crt-select"
               >
-                <option value="">請選擇縣市</option>
-                {cityTags.map((t) => (
-                  <option key={t.full} value={t.full}>
-                    {t.label}
+                <option value="">{t("create.court_search.select_city")}</option>
+                {cityTags.map((tag) => (
+                  <option key={tag.full} value={tag.full}>
+                    {tag.label}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="crt-court-field">
-              <span className="crt-court-label">2. 鄉鎮市區</span>
+              <span className="crt-court-label">
+                {t("create.court_search.step_district")}
+              </span>
               <select
                 value={district}
                 onChange={(e) => {
@@ -364,7 +481,11 @@ function CourtSearch({
                 disabled={!city}
                 className="crt-select"
               >
-                <option value="">{city ? "全部區域" : "請先選縣市"}</option>
+                <option value="">
+                  {city
+                    ? t("create.court_search.all_districts")
+                    : t("create.court_search.select_city_first")}
+                </option>
                 {districts.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -375,7 +496,9 @@ function CourtSearch({
           </div>
 
           <label className="crt-court-field">
-            <span className="crt-court-label">3. 球場</span>
+            <span className="crt-court-label">
+              {t("create.court_search.step_court")}
+            </span>
             <div className="crt-court-select-row">
               <select
                 value={courtId}
@@ -385,12 +508,12 @@ function CourtSearch({
               >
                 <option value="">
                   {!city
-                    ? "請先選擇縣市"
+                    ? t("create.court_search.select_city_first")
                     : loading
-                      ? "載入中…"
+                      ? t("create.court_search.loading")
                       : courts.length === 0
-                        ? "此區域尚無球場資料"
-                        : "請選擇球場"}
+                        ? t("create.court_search.no_courts")
+                        : t("create.court_search.select_court")}
                 </option>
                 {courts.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -415,7 +538,9 @@ function CourtSearch({
                 disabled={geoLoading}
                 className="crt-court-geo-btn"
               >
-                {geoLoading ? "定位中…" : "依我的位置排序"}
+                {geoLoading
+                  ? t("create.court_search.locating")
+                  : t("create.court_search.sort_by_location")}
               </button>
               {geoHint && <span className="crt-court-hint">{geoHint}</span>}
             </div>
@@ -438,6 +563,9 @@ function CourtSearch({
 /* ═══════════════════════════════════════════════════════ */
 export default function CreatePlayPage() {
   const router = useRouter();
+  const { t, i18n } = useTranslation("play");
+  const locale = i18n.language || "zh-TW";
+  const weekdays = t("create.weekdays", { returnObjects: true });
   const { userInfo, loading: userLoading } = useUser();
   const pendingIdRef = useRef(null);
   const [drawer, setDrawer] = useState(null); // "starts_at" | "ends_at"
@@ -482,6 +610,12 @@ export default function CreatePlayPage() {
       }
       if (name === "payment_method" && value === "free")
         next.fee_per_person = 0;
+      // 手動改動場地名稱／地址時，清除先前對應到的球場，避免地圖誤標
+      if (name === "location_name" || name === "location_address") {
+        next.court_id = null;
+        next.latitude = null;
+        next.longitude = null;
+      }
       return next;
     });
 
@@ -510,16 +644,21 @@ export default function CreatePlayPage() {
 
   // Validate & call API — returns session id on success, throws on failure
   const doSubmit = async () => {
-    if (!userInfo?.email) throw new Error("請先登入");
-    if (!form.title?.trim()) throw new Error("請填寫揪團標題");
+    if (!userInfo?.email) throw new Error(t("create.errors.login_required"));
+    if (!form.title?.trim()) throw new Error(t("create.errors.title_required"));
     if (!form.location_name?.trim() || !form.location_address?.trim()) {
-      throw new Error("請選擇球場或填寫完整地址");
+      throw new Error(t("create.errors.location_required"));
     }
-    const timeError = validateSessionTimes(form.starts_at, form.ends_at);
+    const timeError = validateSessionTimes(form.starts_at, form.ends_at, t);
     if (timeError) throw new Error(timeError);
+    const token = localStorage.getItem("medusa_auth_token");
+    if (!token) throw new Error(t("create.errors.login_required"));
     const res = await fetch("/api/play-sessions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         ...form,
         starts_at: new Date(form.starts_at).toISOString(),
@@ -527,13 +666,10 @@ export default function CreatePlayPage() {
         max_players: Number(form.max_players),
         fee_per_person: Number(form.fee_per_person) || 0,
         payment_note: form.payment_note || null,
-        host_email: userInfo.email,
-        host_name: userInfo.name || "會員",
-        host_avatar: userInfo.avatar || null,
       }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "開團失敗");
+    if (!res.ok) throw new Error(data.error || t("create.errors.create_failed"));
     pendingIdRef.current = data.session.id;
   };
 
@@ -544,7 +680,7 @@ export default function CreatePlayPage() {
       // navigate after a short delay so confetti is visible
       setTimeout(() => router.push(`/play/${pendingIdRef.current}`), 1400);
     } catch (err) {
-      alert(err.message || "開團失敗，請稍後再試");
+      alert(err.message || t("create.errors.create_failed_retry"));
       throw err; // let ConfettiButton enter error state
     }
   };
@@ -555,27 +691,29 @@ export default function CreatePlayPage() {
 
   const greeting = (() => {
     const h = new Date().getHours();
-    if (h < 6) return "深夜好";
-    if (h < 12) return "早安";
-    if (h < 18) return "午安";
-    return "晚安";
+    if (h < 6) return t("create.greeting.late_night");
+    if (h < 12) return t("create.greeting.morning");
+    if (h < 18) return t("create.greeting.afternoon");
+    return t("create.greeting.evening");
   })();
 
   const todayStr = (() => {
     const d = new Date();
-    return `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+    return d.toLocaleDateString(locale, { month: "long", day: "numeric" });
   })();
 
-  const skillLabel = getSkillLevelLabel(form.skill_level);
+  const skillLevelPresets = getSkillLevelPresets(t);
+  const skillLabel = getSkillLevelLabel(form.skill_level, t);
   const isCustomSkillActive =
     form.skill_level !== "all" &&
-    !SKILL_LEVEL_PRESETS.some((option) => option.value === form.skill_level);
+    !skillLevelPresets.some((option) => option.value === form.skill_level);
   const showPaymentDetail = Number(form.fee_per_person) > 0;
+  const paymentMethods = getPaymentMethods(t);
 
   if (userLoading || !userInfo) {
     return (
       <div className="crt-page flex items-center justify-center min-h-screen text-[#94a3b8]">
-        <Loader2 className="animate-spin mr-2" size={20} /> 載入中...
+        <Loader2 className="animate-spin mr-2" size={20} /> {t("detail.loading")}
       </div>
     );
   }
@@ -586,7 +724,7 @@ export default function CreatePlayPage() {
       <section className="crt-section crt-section-full">
         <SectionTitle
           icon={FileText}
-          label="揪團資訊"
+          label={t("create.sections.info")}
           iconBg="#eef5fb"
           iconColor="#005caf"
         />
@@ -595,7 +733,7 @@ export default function CreatePlayPage() {
           value={form.title}
           onChange={handleChange}
           required
-          placeholder="揪團標題（例：週末大安公園雙打）"
+          placeholder={t("create.fields.title_placeholder")}
           className="crt-input"
         />
         <textarea
@@ -603,7 +741,7 @@ export default function CreatePlayPage() {
           value={form.description}
           onChange={handleChange}
           rows={2}
-          placeholder="補充說明：程度、裝備、注意事項…"
+          placeholder={t("create.fields.description_placeholder")}
           className="crt-input crt-textarea"
         />
       </section>
@@ -612,13 +750,15 @@ export default function CreatePlayPage() {
       <section className="crt-section crt-section-half">
         <SectionTitle
           icon={MapPin}
-          label="選擇球場"
+          label={t("create.sections.court")}
           iconBg="#e8f8ef"
           iconColor="#16a34a"
         />
         <CourtSearch
+          t={t}
           locationName={form.location_name}
           locationAddress={form.location_address}
+          matchedCourtId={form.court_id}
           onSelect={({
             location_name,
             location_address,
@@ -643,33 +783,35 @@ export default function CreatePlayPage() {
       <section className="crt-section crt-section-half">
         <SectionTitle
           icon={Calendar}
-          label="時間安排"
+          label={t("create.sections.time")}
           iconBg="#fff8e6"
           iconColor="#d97706"
         />
         <div className="crt-mobile-only">
           <div className="crt-tiles">
             <InfoTile
-              label="開始日期"
-              value={fmtDate(form.starts_at)}
+              label={t("create.fields.start_date_label")}
+              value={fmtDate(form.starts_at, weekdays)}
               onClick={() => setDrawer("starts_at")}
             />
             <InfoTile
-              label="開始時間"
+              label={t("create.fields.start_time_label")}
               value={fmtTime(form.starts_at)}
               onClick={() => setDrawer("starts_at")}
             />
             <InfoTile
-              label="結束時間"
+              label={t("create.fields.end_time_label")}
               value={fmtTime(form.ends_at)}
               onClick={() => setDrawer("ends_at")}
             />
           </div>
-          <p className="crt-time-hint">結束時間須與開始時間同一天</p>
+          <p className="crt-time-hint">{t("create.fields.time_hint_mobile")}</p>
         </div>
         <div className="crt-dsk-time-fields crt-desktop-only">
           <label className="crt-dsk-fl">
-            <span className="crt-dsk-fl-label">開始時間</span>
+            <span className="crt-dsk-fl-label">
+              {t("create.fields.start_time_label")}
+            </span>
             <input
               type="datetime-local"
               name="starts_at"
@@ -682,7 +824,9 @@ export default function CreatePlayPage() {
             />
           </label>
           <label className="crt-dsk-fl">
-            <span className="crt-dsk-fl-label">結束時間（同一天）</span>
+            <span className="crt-dsk-fl-label">
+              {t("create.fields.end_time_label_same_day")}
+            </span>
             <input
               type="datetime-local"
               name="ends_at"
@@ -694,7 +838,7 @@ export default function CreatePlayPage() {
             />
           </label>
           <p className="crt-time-hint">
-            結束時間須與開始時間同一天，且晚於開始時間
+            {t("create.fields.time_hint_desktop")}
           </p>
         </div>
       </section>
@@ -703,12 +847,12 @@ export default function CreatePlayPage() {
       <section className="crt-section crt-section-half">
         <SectionTitle
           icon={Users}
-          label="人數與程度"
+          label={t("create.sections.players")}
           iconBg="#f3eeff"
           iconColor="#7c3aed"
         />
 
-        <div className="crt-field-label">人數上限</div>
+        <div className="crt-field-label">{t("create.fields.max_players_label")}</div>
         <div className="crt-stepper">
           <button
             type="button"
@@ -721,7 +865,9 @@ export default function CreatePlayPage() {
           </button>
           <div className="crt-stepper-display">
             <span className="crt-stepper-num">{form.max_players}</span>
-            <span className="crt-stepper-unit">人</span>
+            <span className="crt-stepper-unit">
+              {t("create.fields.players_unit")}
+            </span>
           </div>
           <button
             type="button"
@@ -734,10 +880,12 @@ export default function CreatePlayPage() {
           </button>
         </div>
 
-        <div className="crt-field-label crt-field-label-spaced">程度建議</div>
-        <p className="crt-skill-hint">可選擇匹克球級數（如 3.5），或於下方自訂輸入</p>
+        <div className="crt-field-label crt-field-label-spaced">
+          {t("create.fields.skill_label")}
+        </div>
+        <p className="crt-skill-hint">{t("create.fields.skill_hint")}</p>
         <div className="crt-skill-grid">
-          {SKILL_LEVEL_PRESETS.map((option) => (
+          {skillLevelPresets.map((option) => (
             <button
               key={option.value}
               type="button"
@@ -756,11 +904,13 @@ export default function CreatePlayPage() {
           ))}
         </div>
         <div className="crt-skill-custom">
-          <span className="crt-skill-custom-label">自訂級數</span>
+          <span className="crt-skill-custom-label">
+            {t("create.fields.skill_custom_label")}
+          </span>
           <input
             type="text"
             inputMode="decimal"
-            placeholder="例：3.5"
+            placeholder={t("create.fields.skill_custom_placeholder")}
             value={skillCustom}
             onChange={(e) => {
               const next = e.target.value;
@@ -779,7 +929,7 @@ export default function CreatePlayPage() {
             className={`crt-skill-custom-input ${
               isCustomSkillActive ? "active" : ""
             }`}
-            aria-label="自訂匹克球級數"
+            aria-label={t("create.fields.skill_custom_aria")}
           />
         </div>
       </section>
@@ -788,13 +938,13 @@ export default function CreatePlayPage() {
       <section className="crt-section crt-section-half crt-section-last">
         <SectionTitle
           icon={DollarSign}
-          label="費用設定"
+          label={t("create.sections.fee")}
           iconBg="#fef2f2"
           iconColor="#dc2626"
         />
 
         <div className="crt-fee-row">
-          <span className="crt-fee-label">每人費用</span>
+          <span className="crt-fee-label">{t("create.fields.fee_label")}</span>
           <div className="crt-fee-stepper">
             <button
               type="button"
@@ -810,7 +960,9 @@ export default function CreatePlayPage() {
             </button>
             <span className="crt-fee-value">
               NT${" "}
-              {Number(form.fee_per_person) === 0 ? "免費" : form.fee_per_person}
+              {Number(form.fee_per_person) === 0
+                ? t("common.free")
+                : form.fee_per_person}
             </span>
             <button
               type="button"
@@ -839,7 +991,7 @@ export default function CreatePlayPage() {
                   onChange={handleChange}
                   className="crt-input"
                 >
-                  {PAYMENT_METHODS.map((o) => (
+                  {paymentMethods.map((o) => (
                     <option key={o.value} value={o.value}>
                       {o.label}
                     </option>
@@ -853,7 +1005,7 @@ export default function CreatePlayPage() {
                     value={form.payment_note}
                     onChange={handleChange}
                     rows={2}
-                    placeholder="付款說明（帳號、連結等）"
+                    placeholder={t("create.fields.payment_note_placeholder")}
                     className="crt-input crt-textarea"
                   />
                 )}
@@ -868,12 +1020,13 @@ export default function CreatePlayPage() {
   return (
     <>
       <Head>
-        <title>我要開團 | PikFun</title>
+        <title>{t("create.title")}</title>
       </Head>
 
       <div className="crt-page">
         {/* ── MOBILE HERO ─────────────────────────────── */}
         <div className="crt-hero crt-mobile-only">
+          <LiquidNeonBg />
           <div className="crt-hero-topbar">
             <Link href="/play" className="crt-hero-back">
               <ArrowLeft size={20} />
@@ -889,25 +1042,31 @@ export default function CreatePlayPage() {
                 <img src={userInfo.avatar} alt="" className="crt-hero-avatar" />
               ) : (
                 <span className="crt-hero-avatar crt-hero-avatar-fallback">
-                  {userInfo.name?.charAt(0) || "球"}
+                  {userInfo.name?.charAt(0) ||
+                    t("create.hero.member_fallback").charAt(0)}
                 </span>
               )}
               <div>
-                <p className="crt-hero-hi">{greeting}，</p>
-                <p className="crt-hero-name">{userInfo.name || "揪球員"}</p>
+                <p className="crt-hero-hi">
+                  {greeting}
+                  {t("create.hero.greeting_comma")}
+                </p>
+                <p className="crt-hero-name">
+                  {userInfo.name || t("create.hero.member_fallback")}
+                </p>
               </div>
             </div>
 
             <div className="crt-hero-main">
               <p className="crt-hero-date">{todayStr}</p>
-              <h1 className="crt-hero-title">開揪球局</h1>
-              <p className="crt-hero-sub">找球友一起上場 🏓</p>
+              <h1 className="crt-hero-title">{t("create.hero.title")}</h1>
+              <p className="crt-hero-sub">{t("create.hero.subtitle")}</p>
             </div>
 
             <div className="crt-hero-tags">
-              <span className="crt-hero-tag">雙打</span>
-              <span className="crt-hero-tag">單打</span>
-              <span className="crt-hero-tag">混打</span>
+              <span className="crt-hero-tag">{t("create.hero.tag_doubles")}</span>
+              <span className="crt-hero-tag">{t("create.hero.tag_singles")}</span>
+              <span className="crt-hero-tag">{t("create.hero.tag_mixed")}</span>
             </div>
           </div>
         </div>
@@ -918,10 +1077,12 @@ export default function CreatePlayPage() {
           <div className="crt-dsk-icon" aria-hidden>
             <MapPin size={36} strokeWidth={1.25} />
           </div>
-          <h1 className="crt-dsk-title">開揪球局</h1>
+          <h1 className="crt-dsk-title">{t("create.brand.title")}</h1>
           <p className="crt-dsk-sub">
-            {greeting}，{userInfo.name || "揪球員"}
-            。填寫以下資訊，找球友一起上場
+            {t("create.brand.subtitle", {
+              greeting,
+              name: userInfo.name || t("create.hero.member_fallback"),
+            })}
           </p>
         </div>
 
@@ -939,93 +1100,101 @@ export default function CreatePlayPage() {
 
         {/* ── DESKTOP CTA + INFO ──────────────────────── */}
         <div className="crt-dsk-actions crt-desktop-only">
-          <p className="crt-dsk-note">
-            發布揪團即表示你同意 PokFun 揪團使用規範，並確認所填資訊正確。
-          </p>
+          <p className="crt-dsk-note">{t("create.note")}</p>
           <ConfettiButton
             onClick={handleSubmitClick}
-            successLabel="揪團成立！🎉"
+            successLabel={t("create.submit_success")}
             className="crt-btn-submit crt-btn-submit-dsk"
           >
-            發布揪團
+            {t("create.submit")}
           </ConfettiButton>
           <Link href="/play" className="crt-dsk-footlink">
-            返回揪團列表
+            {t("create.back_to_list")}
           </Link>
         </div>
 
         <div className="crt-dsk-panel crt-desktop-only">
           <div className="crt-dsk-panel-inner">
-            <h2 className="crt-dsk-panel-title">發布後，球友即可報名</h2>
-            <p className="crt-dsk-panel-lead">
-              完成上方表單並發布，你的球局會出現在 PokFun 揪團列表
-            </p>
+            <h2 className="crt-dsk-panel-title">{t("create.panel.title")}</h2>
+            <p className="crt-dsk-panel-lead">{t("create.panel.lead")}</p>
 
             <div className="crt-dsk-panel-grid">
               <div className="crt-dsk-panel-box">
-                <p className="crt-dsk-panel-box-label">揪團預覽</p>
+                <p className="crt-dsk-panel-box-label">
+                  {t("create.panel.preview_label")}
+                </p>
                 <p className="crt-dsk-panel-highlight">
-                  <em>{form.max_players} 人</em>
+                  <em>
+                    {form.max_players} {t("create.fields.players_unit")}
+                  </em>
                   <span className="crt-dsk-panel-sep">·</span>
                   <em>{skillLabel}</em>
                 </p>
                 <p className="crt-dsk-panel-meta">
-                  {fmtDate(form.starts_at)} {fmtTime(form.starts_at)}–
+                  {fmtDate(form.starts_at, weekdays)} {fmtTime(form.starts_at)}–
                   {fmtTime(form.ends_at)}
                 </p>
                 {form.location_name ? (
                   <p className="crt-dsk-panel-meta">{form.location_name}</p>
                 ) : (
                   <p className="crt-dsk-panel-meta crt-dsk-panel-meta--muted">
-                    尚未選擇球場
+                    {t("create.panel.no_court")}
                   </p>
                 )}
               </div>
               <div className="crt-dsk-panel-box">
-                <p className="crt-dsk-panel-box-label">每人費用</p>
+                <p className="crt-dsk-panel-box-label">
+                  {t("create.panel.fee_label")}
+                </p>
                 <p className="crt-dsk-panel-fee">
                   {Number(form.fee_per_person) === 0 ? (
-                    <em>免費</em>
+                    <em>{t("common.free")}</em>
                   ) : (
                     <>
                       NT$ <em>{form.fee_per_person}</em>
                     </>
                   )}
                 </p>
-                <p className="crt-dsk-panel-meta">發布後仍可至揪團頁面編輯</p>
+                <p className="crt-dsk-panel-meta">
+                  {t("create.panel.fee_editable_note")}
+                </p>
               </div>
             </div>
 
             <div className="crt-dsk-steps">
               <div className="crt-dsk-step-col">
-                <h3 className="crt-dsk-step-heading">開團流程</h3>
+                <h3 className="crt-dsk-step-heading">
+                  {t("create.panel.steps_title")}
+                </h3>
                 <ol className="crt-dsk-step-list">
                   <li>
                     <span className="crt-dsk-step-icon">
                       <Mail size={18} strokeWidth={1.5} />
                     </span>
-                    填寫球場、時間與人數
+                    {t("create.panel.step1")}
                   </li>
                   <li>
                     <span className="crt-dsk-step-icon">
                       <UserCheck size={18} strokeWidth={1.5} />
                     </span>
-                    發布揪團，分享給球友
+                    {t("create.panel.step2")}
                   </li>
                   <li>
                     <span className="crt-dsk-step-icon">
                       <Wallet size={18} strokeWidth={1.5} />
                     </span>
-                    球友報名，到場開打
+                    {t("create.panel.step3")}
                   </li>
                 </ol>
               </div>
               <div className="crt-dsk-step-col">
-                <h3 className="crt-dsk-step-heading">小提醒</h3>
+                <h3 className="crt-dsk-step-heading">
+                  {t("create.panel.tips_title")}
+                </h3>
                 <ul className="crt-dsk-tips">
-                  <li>建議從球場列表選擇，地圖定位較準確</li>
-                  <li>程度建議可幫助球友判斷是否適合</li>
-                  <li>發布後可至揪團頁面管理報名</li>
+                  <li>{t("create.panel.tip1")}</li>
+                  <li>{t("create.panel.tip2")}</li>
+                  <li>{t("create.panel.tip3")}</li>
                 </ul>
               </div>
             </div>
@@ -1037,22 +1206,24 @@ export default function CreatePlayPage() {
           <div className="crt-sticky-inner">
             <div className="crt-sticky-info">
               <div className="crt-sticky-line">
-                <span className="crt-sticky-count">{form.max_players} 人</span>
+                <span className="crt-sticky-count">
+                  {form.max_players} {t("create.fields.players_unit")}
+                </span>
                 <span className="crt-sticky-sep">·</span>
                 <span className="crt-sticky-skill crt-skill-badge-active">
                   {skillLabel}
                 </span>
               </div>
               <div className="crt-sticky-line crt-sticky-line-sub">
-                {fmtDate(form.starts_at)} {fmtTime(form.starts_at)}
+                {fmtDate(form.starts_at, weekdays)} {fmtTime(form.starts_at)}
               </div>
             </div>
             <ConfettiButton
               onClick={handleSubmitClick}
-              successLabel="成立！🎉"
+              successLabel={t("create.submit_success_short")}
               className="crt-btn-submit crt-btn-submit-sm crt-btn-submit-sticky"
             >
-              發布揪團 <ChevronRight size={18} />
+              {t("create.submit")} <ChevronRight size={18} />
             </ConfettiButton>
           </div>
         </div>
@@ -1064,7 +1235,12 @@ export default function CreatePlayPage() {
       <AnimatePresence>
         {drawer && (
           <DatetimeDrawer
-            label={drawer === "starts_at" ? "開始時間" : "結束時間（同一天）"}
+            t={t}
+            label={
+              drawer === "starts_at"
+                ? t("create.fields.start_time_label")
+                : t("create.fields.end_time_label_same_day")
+            }
             value={form[drawer]}
             onChange={(e) => handleDatetimeChange(drawer, e.target.value)}
             onClose={() => setDrawer(null)}
@@ -1109,27 +1285,16 @@ export default function CreatePlayPage() {
         }
 
         .crt-hero {
-          background: linear-gradient(
-            155deg,
-            #0a5bb5 0%,
-            #1a3a8a 55%,
-            #0d2668 100%
-          );
+          background: #0a3d8f;
           padding: 0 1.25rem 2.75rem;
           position: relative;
           overflow: hidden;
-        }
-        .crt-hero::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='160' cy='40' r='120' fill='rgba(255,255,255,0.04)'/%3E%3Ccircle cx='20' cy='170' r='80' fill='rgba(255,255,255,0.03)'/%3E%3C/svg%3E")
-            no-repeat right top;
-          background-size: 280px;
+          isolation: isolate;
         }
 
         .crt-hero-topbar {
           position: relative;
+          z-index: 1;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -1140,8 +1305,9 @@ export default function CreatePlayPage() {
           width: 2.5rem;
           height: 2.5rem;
           border-radius: 999px;
-          background: rgba(255, 255, 255, 0.15);
-          border: none;
+          background: rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1152,11 +1318,12 @@ export default function CreatePlayPage() {
         }
         .crt-hero-back:hover,
         .crt-hero-bell:hover {
-          background: rgba(255, 255, 255, 0.25);
+          background: rgba(255, 255, 255, 0.22);
         }
 
         .crt-hero-body {
           position: relative;
+          z-index: 1;
         }
 
         .crt-hero-greeting {
@@ -2451,4 +2618,12 @@ export default function CreatePlayPage() {
       `}</style>
     </>
   );
+}
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? "zh-TW", ["play", "common"])),
+    },
+  };
 }

@@ -1,4 +1,10 @@
 {
+  "actions": {
+    "submit": "Submit",
+    "done": "Done!",
+    "retry": "Try Again",
+    "loading": "Loading"
+  },
   "navbar": {
     "categories": "Categories",
     "brand": "Brands",

@@ -176,11 +176,9 @@ export default function MemberPostsPage() {
                       </p>
                     )}
                     <div className="flex flex-wrap items-center gap-4 mt-1">
-                      {post.status !== "approved" && (
-                        <BlueArrowLink href={`/member/posts/${post.id}/edit`}>
-                          編輯
-                        </BlueArrowLink>
-                      )}
+                      <BlueArrowLink href={`/member/posts/${post.id}/edit`}>
+                        編輯
+                      </BlueArrowLink>
                       {post.status === "approved" && (
                         <BlueArrowLink href={`/news/${post.slug}`}>
                           查看文章

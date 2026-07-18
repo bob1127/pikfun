@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import { ChevronRight, ThumbsUp } from "lucide-react";
 
 const BLUE = "#005caf";
@@ -9,13 +10,14 @@ export default function FeaturedCoachCard({
   index = 0,
   variant = "grid",
 }) {
+  const { t } = useTranslation("coaching");
   const href = `/coaching/coach/${coach.slug}`;
   const subtitle =
     coach.subtitle ||
     coach.featured_label ||
     coach.tags?.[0] ||
     coach.region ||
-    "PikFun 認證教練";
+    t("featured.fallback_subtitle");
 
   if (variant === "portrait") {
     return (

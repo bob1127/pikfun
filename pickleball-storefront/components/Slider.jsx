@@ -6,13 +6,13 @@ import gsap from "gsap";
 
 const slides = [
   {
-    image: "/images/Premium_Handbags/LINE_ALBUM_美圖素材20251124_251125_7.jpg",
+    image: "/images/348884f4-61f5-482b-ab0b-8db4aa74b2fd.png",
   },
   {
-    image: "/images/Premium_Handbags/LINE_ALBUM_美圖素材20251124_251124_29.jpg",
+    image: "/images/pik01.png",
   },
   {
-    image: "/images/Premium_Handbags/LINE_ALBUM_美圖素材20251124_251125_12.jpg",
+    image: "/images/01348672-c720-431d-a511-40d987cfc1a1.png",
   },
 ];
 

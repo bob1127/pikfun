@@ -162,7 +162,8 @@ textarea {
     letter-spacing: 0;
   }
 
-  nav {
+  /* 僅隱藏 Hero Slider 內的 nav，不要影響 Navbar 手機選單 */
+  .slider nav {
     display: none;
   }
 
@@ -211,4 +212,119 @@ textarea {
   .product-gallery-inner {
     height: 100%;
   }
+}
+
+/* ── 投稿圖片牆（Photo Wall）：依張數自動套用拼貼版型 ──
+   由 PostEditor 的「圖片牆」按鈕產生：
+   <div class="pe-gallery" data-count="N"><img …/></div>
+   編輯器內與文章頁（.pe-prose / .ca-prose）共用同一套樣式 */
+.pe-gallery {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 6px;
+  margin: 1.4em 0;
+}
+.pe-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  margin: 0;
+  grid-column: span 12;
+  aspect-ratio: 4 / 3;
+  display: block;
+  cursor: zoom-in;
+}
+
+/* 1 張：保留原比例 */
+.pe-gallery[data-count="1"] img {
+  aspect-ratio: auto;
+  height: auto;
+}
+
+/* 2 張：並排 */
+.pe-gallery[data-count="2"] img {
+  grid-column: span 6;
+}
+
+/* 3 張：左大圖 + 右兩張堆疊 */
+.pe-gallery[data-count="3"] img:first-child {
+  grid-column: span 8;
+  grid-row: span 2;
+  aspect-ratio: auto;
+}
+.pe-gallery[data-count="3"] img:not(:first-child) {
+  grid-column: span 4;
+}
+
+/* 4 張：2×2 */
+.pe-gallery[data-count="4"] img {
+  grid-column: span 6;
+}
+
+/* 5 張：上 2 大 + 下 3 小 */
+.pe-gallery[data-count="5"] img:nth-child(-n + 2) {
+  grid-column: span 6;
+}
+.pe-gallery[data-count="5"] img:nth-child(n + 3) {
+  grid-column: span 4;
+  aspect-ratio: 1 / 1;
+}
+
+/* 6 張：3×2 */
+.pe-gallery[data-count="6"] img {
+  grid-column: span 4;
+  aspect-ratio: 1 / 1;
+}
+
+/* 7 張：上 3 + 下 4 */
+.pe-gallery[data-count="7"] img:nth-child(-n + 3) {
+  grid-column: span 4;
+}
+.pe-gallery[data-count="7"] img:nth-child(n + 4) {
+  grid-column: span 3;
+  aspect-ratio: 1 / 1;
+}
+
+/* 8 張：4×2 */
+.pe-gallery[data-count="8"] img {
+  grid-column: span 3;
+  aspect-ratio: 1 / 1;
+}
+
+/* 9 張：3×3 */
+.pe-gallery[data-count="9"] img {
+  grid-column: span 4;
+  aspect-ratio: 1 / 1;
+}
+
+/* 手機：3 張以上退回較大的格子，避免圖太小 */
+@media (max-width: 640px) {
+  .pe-gallery[data-count="7"] img:nth-child(n + 4),
+  .pe-gallery[data-count="8"] img {
+    grid-column: span 6;
+  }
+}
+
+/* 編輯器內選取圖片牆時的外框提示 */
+.pe-prose .pe-gallery.ProseMirror-selectednode {
+  outline: 2px solid #005caf;
+  outline-offset: 2px;
+  border-radius: 0;
+}
+
+/* 投稿內嵌影片：編輯器與公開文章頁共用 */
+.pe-video,
+.ca-prose .pe-video {
+  display: block;
+  width: 100%;
+  max-height: 72vh;
+  margin: 1.25em 0;
+  background: #000;
+}
+
+.ca-prose div[data-youtube-video] iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 1.25em 0;
 }

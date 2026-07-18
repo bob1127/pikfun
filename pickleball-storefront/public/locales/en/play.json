@@ -1,0 +1,570 @@
+{
+  "seo": {
+    "list_title": "Open Play | PikFun",
+    "list_description": "Find pickleball open play sessions near you and join fellow players",
+    "detail_title_suffix": "Open Play | PikFun",
+    "create_title": "Host a Session | PikFun"
+  },
+  "common": {
+    "search": "Search",
+    "clear_filters": "Clear Filters",
+    "retry": "Retry",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "change": "Change",
+    "loading": "Loading...",
+    "loading_ellipsis": "Loading…",
+    "free": "Free",
+    "unlimited": "Any",
+    "per_person": "Per person",
+    "person_unit": ""
+  },
+  "list": {
+    "tabs": {
+      "upcoming": "Upcoming",
+      "ended": "Ended",
+      "joined": "Joined",
+      "hosting": "Hosting"
+    },
+    "sort": {
+      "date_asc": "Soonest First",
+      "date_desc": "Latest First",
+      "spots_asc": "Most Spots Left",
+      "fee_asc": "Fee: Low to High",
+      "fee_desc": "Fee: High to Low"
+    },
+    "search_placeholder": "Search session, court, or host…",
+    "map_btn": "Session Map",
+    "result_count": "{{count}} sessions",
+    "filtered_suffix": " (filters applied)",
+    "loading": "Loading sessions...",
+    "load_failed": "Failed to load",
+    "empty_filtered": "No sessions match your filters",
+    "empty_ended": "No ended or cancelled sessions",
+    "empty_upcoming": "No upcoming sessions yet, be the first to host one!",
+    "create_cta": "Host a Session"
+  },
+  "filters": {
+    "skill_all": "Any Level",
+    "fee_any": "Any Fee",
+    "fee_free": "Free",
+    "fee_paid": "Paid",
+    "status_any": "Any Status",
+    "status_open": "Open",
+    "status_full": "Full"
+  },
+  "status": {
+    "cancelled": "Cancelled",
+    "ended": "Ended",
+    "full": "Full",
+    "joined": "Joined",
+    "joined_badge": "You've Joined",
+    "waitlist": "Waitlisted",
+    "one_spot_left": "1 Spot Left",
+    "spots_left": "{{count}} spots left",
+    "open_recruiting": "Open",
+    "recruiting_spots": "Open · {{count}} spots left"
+  },
+  "skill": {
+    "all": "Any Level",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "above": "{{value}}+",
+    "level_suffix": "Level {{value}}"
+  },
+  "payment": {
+    "free": "Free",
+    "cash": "Cash on Site",
+    "transfer": "Bank Transfer",
+    "line_pay": "LINE Pay",
+    "other": "Other",
+    "per_person": "Per person"
+  },
+  "errors": {
+    "startTimeInvalid": "Invalid start time format",
+    "startInPast": "Start time must be in the future",
+    "endTimeInvalid": "Invalid end time format",
+    "endNotSameDay": "End time must be on the same day as the start time",
+    "endBeforeStart": "End time must be after the start time",
+    "loginRequired": "Please log in first",
+    "titleRequired": "Please enter a session title",
+    "locationRequired": "Please select a court or enter a full address",
+    "createFailed": "Failed to create session",
+    "createFailedRetry": "Failed to create session, please try again later",
+    "actionFailed": "Action failed",
+    "notFound": "Session not found",
+    "loadFailed": "Failed to load"
+  },
+  "card": {
+    "location_pending": "Location TBD",
+    "host_fallback": "Host",
+    "host_label": "Host",
+    "saved": "Added to Favorites",
+    "unsaved": "Removed from Favorites",
+    "saved_hint": "View all saved sessions in your member center",
+    "view_saved": "View",
+    "aria_unsave": "Remove from favorites",
+    "aria_save": "Save session",
+    "location_image_fallback": "Location Photo",
+    "court_photo_alt": "Court Photo"
+  },
+  "detail": {
+    "loading": "Loading...",
+    "not_found": "Session not found",
+    "back_to_list": "Back to List",
+    "back_to_list_full": "Back to Sessions",
+    "line": {
+      "title_new": "Enable Reminders (Recommended)",
+      "title_returning": "LINE Reminder Not Enabled",
+      "desc": "PikFun will remind you via LINE 1 day and 2 hours before the session",
+      "desc_returning_suffix": " It's not too late to set it up now.",
+      "email_note": "Email reminder scheduled ({{email}}) · Tap to enable LINE notifications",
+      "channel_missing": "LINE Channel ID is not configured, please contact the admin",
+      "enabled": "LINE reminders enabled, you'll be notified before the session"
+    },
+    "actions": {
+      "join": "Join Session",
+      "join_waitlist": "Join Waitlist",
+      "leave": "Leave Session",
+      "leave_waitlist": "Leave Waitlist",
+      "cancel_session": "Cancel Session"
+    },
+    "login_prompt": {
+      "title": "Not registered or logged in yet?",
+      "desc1": "You need to be a PikFun member to join a session.",
+      "desc2": "Register now to join fellow players with one click.",
+      "register": "Register Now",
+      "login": "Have an account? Log in",
+      "later": "Maybe Later"
+    },
+    "info": {
+      "date": "Date",
+      "time": "Time",
+      "court": "Court",
+      "fee": "Fee",
+      "people": "Players",
+      "map_link": "Open in Google Maps →",
+      "fee_unit": "/ person",
+      "waitlist_count": "({{count}} on waitlist)",
+      "people_unit": "",
+      "description_label": "Description",
+      "ended_note": "This session has started or ended"
+    },
+    "panel": {
+      "title": "Session Overview",
+      "lead": "Confirm the time and location, then click the button above to join",
+      "signup_status": "Sign-up Status",
+      "fee_per_person": "Fee Per Person",
+      "court_location": "Court Location",
+      "join_steps_title": "How to Join",
+      "step_login": "Log in to your PikFun account",
+      "step_join": "Click \"Join Session\" to sign up",
+      "step_pay": "Complete payment per the session notes (if any)",
+      "joined_title": "Joined ({{count}})",
+      "waitlist_title": "Waitlist ({{count}})"
+    },
+    "confirm_cancel": "Are you sure you want to cancel this session?"
+  },
+  "create": {
+    "title": "Host a Session | PikFun",
+    "greeting": {
+      "late_night": "Good evening",
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "weekdays": [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ],
+    "hero": {
+      "member_fallback": "Player",
+      "title": "Host a Session",
+      "subtitle": "Find friends to play with 🏓",
+      "tag_doubles": "Doubles",
+      "tag_singles": "Singles",
+      "tag_mixed": "Mixed",
+      "greeting_comma": ","
+    },
+    "brand": {
+      "title": "Host a Session",
+      "subtitle": "{{greeting}}, {{name}}. Fill in the details below to find players."
+    },
+    "sections": {
+      "info": "Session Info",
+      "court": "Select Court",
+      "time": "Schedule",
+      "players": "Players & Skill Level",
+      "fee": "Fee Settings"
+    },
+    "fields": {
+      "title_placeholder": "Session title (e.g., Weekend Doubles at Da'an Park)",
+      "description_placeholder": "Additional notes: skill level, equipment, reminders…",
+      "start_date_label": "Start Date",
+      "start_time_label": "Start Time",
+      "end_time_label": "End Time",
+      "end_time_label_same_day": "End Time (Same Day)",
+      "time_hint_mobile": "End time must be on the same day as the start time",
+      "time_hint_desktop": "End time must be on the same day as, and after, the start time",
+      "max_players_label": "Max Players",
+      "players_unit": "",
+      "skill_label": "Suggested Skill Level",
+      "skill_hint": "Choose a pickleball rating (e.g., 3.5), or enter a custom value below",
+      "skill_custom_label": "Custom Level",
+      "skill_custom_placeholder": "e.g., 3.5",
+      "skill_custom_aria": "Custom pickleball skill level",
+      "fee_label": "Fee Per Person",
+      "payment_note_placeholder": "Payment notes (account, link, etc.)"
+    },
+    "court_search": {
+      "manual_toggle": "Enter Address Manually",
+      "name_placeholder": "Court name",
+      "address_placeholder": "Full address (e.g., Tanzi District, Taichung…)",
+      "manual_hint": "Manually entered addresses may not display on the map; selecting from the court list is recommended",
+      "step_city": "1. City",
+      "select_city": "Select a city",
+      "step_district": "2. District",
+      "all_districts": "All Districts",
+      "select_city_first": "Select a city first",
+      "step_court": "3. Court",
+      "loading": "Loading…",
+      "no_courts": "No court data for this area",
+      "select_court": "Select a court",
+      "sort_by_location": "Sort by My Location",
+      "locating": "Locating…",
+      "sorted_by_distance": "Sorted by distance (nearest first)",
+      "geo_denied": "Couldn't get your location, please allow location access",
+      "geo_unsupported": "This device doesn't support location services",
+      "change": "Change"
+    },
+    "errors": {
+      "login_required": "Please log in first",
+      "title_required": "Please enter a session title",
+      "location_required": "Please select a court or enter a full address",
+      "create_failed": "Failed to create session",
+      "create_failed_retry": "Failed to create session, please try again later"
+    },
+    "note": "By publishing a session, you agree to PikFun's session guidelines and confirm the information provided is accurate.",
+    "submit": "Publish Session",
+    "submit_success": "Session created! 🎉",
+    "submit_success_short": "Created! 🎉",
+    "back_to_list": "Back to Sessions",
+    "panel": {
+      "title": "Once published, players can sign up",
+      "lead": "Complete the form above and publish — your session will appear in the PikFun sessions list",
+      "preview_label": "Session Preview",
+      "fee_label": "Fee Per Person",
+      "fee_editable_note": "You can still edit this on the session page after publishing",
+      "no_court": "No court selected yet",
+      "steps_title": "Hosting Steps",
+      "step1": "Fill in court, time, and player count",
+      "step2": "Publish and share with fellow players",
+      "step3": "Players sign up, everyone shows up to play",
+      "tips_title": "Tips",
+      "tip1": "Selecting from the court list gives more accurate map location",
+      "tip2": "A suggested skill level helps players decide if it's a good fit",
+      "tip3": "You can manage sign-ups from the session page after publishing"
+    },
+    "drawer": {
+      "start": "Start Time",
+      "end": "End Time (Same Day)",
+      "confirm": "Confirm"
+    }
+  },
+  "editorial": {
+    "sr_title": "Open Play",
+    "hero": {
+      "marquee_text": "Open Play · Pickleball · Find your court · Join the Game · Host a Session · ",
+      "find_friends_line1": "Find your players,",
+      "find_friends_line2": "make every session a success",
+      "ongoing_count": "Upcoming Sessions",
+      "ongoing_unit": "",
+      "participants_count": "Total Participants",
+      "participants_unit": "",
+      "field_label": "Court",
+      "field_fallback": "Various Courts",
+      "popular_badge": "Popular",
+      "tag_play": "#OpenPlay",
+      "tag_pickleball": "#Pickleball",
+      "guide_title": "Hosting Guide",
+      "guide_desc": "3 easy steps to host",
+      "guide_line1": "Host",
+      "guide_line2": "Guide",
+      "guide_sub_line1": "3 Steps",
+      "guide_sub_line2": "to Host",
+      "slide_aria": "Slide {{index}}"
+    },
+    "stats": {
+      "ongoing": "Upcoming Sessions",
+      "participants": "Total Participants",
+      "available": "Open Sessions",
+      "unit_session": "",
+      "unit_person": ""
+    },
+    "placeholder_slide": "Placeholder {{index}}",
+    "meta": {
+      "field_label": "Court",
+      "field_fallback": "TBD",
+      "coming_soon_badge": "Filling Up"
+    },
+    "count_block": {
+      "one_left": "1 Spot Left",
+      "left": "{{count}} spots left",
+      "full": "Full",
+      "almost_full_desc": "Sessions almost full",
+      "starts_note": "※ Starts {{date}}",
+      "unit_person": ""
+    },
+    "carousel_dot_aria": "Session {{index}}",
+    "tags": {
+      "play": "OpenPlay",
+      "pickleball": "Pickleball"
+    },
+    "promo_card": {
+      "guide_title": "Hosting Guide",
+      "guide_desc": "New here? Host with ease",
+      "guide_line1": "Host",
+      "guide_line2": "Guide",
+      "tip_line1": "New Here?",
+      "tip_line2": "Host with Ease"
+    },
+    "almost_full": {
+      "eyebrow": "Pickleball Open Play",
+      "title_line1": "Sessions are almost full,",
+      "title_line2": "grab the last spots",
+      "description": "Browse pickleball sessions that are almost full, check the time, location, and remaining spots. When spots are running low, join in one click and meet fellow players so every session comes together smoothly.",
+      "join_now": "Join Now",
+      "create_cta": "Host a Session",
+      "browse_all": "Browse All Sessions"
+    },
+    "demo": {
+      "session1": {
+        "title": "Weekend Doubles Meetup — Shipai Sports Center | All levels welcome",
+        "location_name": "Shipai Sports Center"
+      },
+      "session2": {
+        "title": "Weekday Evening Session — Da'an Sports Center | Intermediate+",
+        "location_name": "Da'an Sports Center"
+      },
+      "session3": {
+        "title": "Weekend Morning Session — Banqiao Stadium | Casual play",
+        "location_name": "Banqiao Stadium"
+      },
+      "session4": {
+        "title": "Evening Session — Neihu Pickleball Courts | 1 spot left",
+        "location_name": "Neihu Pickleball Courts"
+      },
+      "placeholder_title": "Weekend Pickleball Session — All levels welcome",
+      "placeholder_location": "Taipei Sports Center"
+    }
+  },
+  "map": {
+    "modal": {
+      "aria_label": "Session Map",
+      "title": "Session Map",
+      "subtitle": "Click a marker to view sessions · Press Esc or the button to close",
+      "close_aria": "Close map",
+      "loading_data": "Loading map data…",
+      "loading_map": "Loading map…"
+    },
+    "no_markers": "No sessions on the map yet",
+    "loading_google": "Loading Google Maps…",
+    "providers": {
+      "google": "Google Maps",
+      "osm": "OpenStreetMap",
+      "osm_fallback": "OpenStreetMap (fallback)"
+    },
+    "toolbar": {
+      "locations": "locations",
+      "sessions_mapped": "sessions mapped",
+      "unmapped": "{{count}} sessions couldn't be mapped"
+    },
+    "empty_hint": {
+      "unmapped_note": "There are {{count}} sessions, but their locations couldn't be mapped to a court (possibly a manually entered address). Selecting from the court list when hosting will show it on the map.",
+      "no_upcoming": "There are no \"upcoming\" sessions right now (they may all have expired).",
+      "switch_to_ended": "Switch to \"Ended\"",
+      "no_upcoming_suffix": " to view past sessions, or click \"Host a Session\" to create a new one.",
+      "no_sessions": "No sessions to display yet. Be the first to host one!"
+    },
+    "info": {
+      "people_unit": ""
+    },
+    "embed_title": "{{location}} map"
+  },
+  "court": {
+    "select_label": "Select Court",
+    "manual_toggle_to_manual": "Enter Address Manually",
+    "manual_toggle_to_list": "Choose from Court List",
+    "select_city": "Select City",
+    "all_districts": "All Districts",
+    "search_placeholder": "Search court name or address...",
+    "select_city_first": "Please select a city first",
+    "searching": "Searching...",
+    "not_found": "No courts found, you can enter the address manually",
+    "name_label": "Court Name *",
+    "name_placeholder": "e.g., Da'an Sports Center Pickleball Court",
+    "address_label": "Address *",
+    "address_placeholder": "e.g., No. 55, Sec. 3, Xinhai Rd., Da'an Dist., Taipei City",
+    "address_hint": "Once you enter a full address, the detail page will automatically show a Google Map",
+    "map_match_title": "Matching courts on the map",
+    "map_match_desc": "Pick one and we'll record the exact court location, so your activity shows up on the Taiwan Court Map.",
+    "map_matched": "Matched to a mapped court — this activity will appear on the Taiwan Court Map",
+    "map_match_clear": "Use a custom address instead"
+  },
+  "aria": {
+    "loading": "Loading",
+    "map_marker": "{{label}}, {{count}} sessions"
+  },
+  "summary": {
+    "title": "Session Info",
+    "date": "Date",
+    "time": "Time",
+    "location": "Location",
+    "session": "Session",
+    "max_players": "Up to {{count}} players"
+  },
+  "host_profile": {
+    "seo_title": "{{name}} | Host & Event Organizer | PikFun",
+    "seo_description": "View pickleball sessions, events, and the organizer profile for {{name}}.",
+    "eyebrow": "HOST PROFILE",
+    "fallback_title": "Pickleball Event Organizer",
+    "fallback_excerpt": "Get on court, meet new players, and enjoy every pickleball session.",
+    "about": "About the Organizer",
+    "story": "My Hosting Story",
+    "specialties": "Event Highlights",
+    "upcoming": "Upcoming Sessions",
+    "past": "Past Sessions",
+    "no_upcoming": "No upcoming sessions yet",
+    "no_past": "No past sessions yet",
+    "view_session": "View Session",
+    "contact": "Contact",
+    "city": "Primary Area",
+    "instagram": "Instagram",
+    "email": "Contact Email",
+    "hosted_count": "{{count}} sessions hosted",
+    "upcoming_count": "{{count}} upcoming",
+    "back": "Back to Sessions",
+    "edit": "Edit Profile",
+    "cancel": "Cancel",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "saved": "Profile updated",
+    "load_error": "Organizer not found",
+    "edit_title": "Edit Organizer Profile",
+    "fields": {
+      "display_name": "Display Name",
+      "title": "Role Title",
+      "city": "Primary Area",
+      "excerpt": "Short Introduction",
+      "bio": "About Me",
+      "story": "Hosting Story",
+      "specialties": "Event Highlights (comma separated)",
+      "tags": "Popular Tags (comma separated)",
+      "instagram": "Instagram Username",
+      "contact_email": "Public Contact Email",
+      "avatar": "Avatar Image URL",
+      "cover_image": "Cover Image URL"
+    },
+    "detail_cta": "View Organizer Profile",
+    "create_profile_error": "Organizer profile has not been created",
+    "breadcrumb_home": "Open Play Home",
+    "breadcrumb_fallback": "About host {{name}}",
+    "header_title_fallback": "Meet host {{name}}",
+    "owner_banner": "This is your organizer profile. Click \"Edit\" at the top right of each section to update it.",
+    "toc_title": "Contents",
+    "toc_profile": "Host Profile",
+    "toc_bio": "About the Host",
+    "toc_story": "Hosting Story",
+    "toc_features": "Event Highlights",
+    "toc_sessions": "Sessions",
+    "joined_suffix": " joined",
+    "bio_placeholder": "No introduction yet. Click \"Edit\" to write one.",
+    "bio_empty": "No introduction yet.",
+    "story_empty": "No hosting story yet.",
+    "specialties_empty": "No event highlights yet.",
+    "tags_empty": "No tags yet.",
+    "tags_label": "Popular Tags",
+    "edit_hero_label": "Edit Cover",
+    "edit_header_label": "Edit Profile",
+    "edit_bio_label": "Edit Introduction",
+    "edit_story_label": "Edit Story",
+    "edit_features_label": "Edit Highlights",
+    "edit_tags_label": "Edit Tags",
+    "edit_contact_label": "Edit Contact",
+    "cover_url_label": "Cover Image URL",
+    "mid_cta_title": "Want to play with {{name}}?",
+    "mid_cta_desc": "Check out the latest sessions hosted by {{name}} and sign up after logging in.",
+    "mid_cta_link": "See {{name}}'s Sessions",
+    "contact_title": "Contact the Host",
+    "contact_empty": "No contact info yet. Click \"Edit\" to add it.",
+    "contact_cta": "See {{name}}'s Sessions",
+    "stats_title": "Hosting Stats",
+    "popular_tags_title": "Popular Tags"
+  },
+  "map_marker": {
+    "fallback_label": "Court",
+    "fallback_initial": "P"
+  },
+  "courts_map": {
+    "seo_title": "Taiwan Pickleball Court Map | PikFun",
+    "seo_description": "Explore pickleball courts across Taiwan on the PikFun court map. Tap a pin to view court details.",
+    "eyebrow": "Court Map",
+    "title": "Taiwan Pickleball Court Map",
+    "desc": "Pickleball venues across Taiwan, sourced from Google Maps listings and updated continuously. Tap a blue pin to view court details.",
+    "all_cities": "All Cities",
+    "count_label": "{{count}} courts",
+    "loading": "Loading courts…",
+    "empty": "No courts recorded in this city yet — search for a court when hosting a session to help us add it!",
+    "map_error": "Map failed to load. Please try again later.",
+    "role": "Pickleball Venue",
+    "open_in_google": "Open in Google Maps",
+    "source_google": "Google Maps Listing",
+    "shared_note": "Some venues are multi-purpose or shared with other sports (e.g. basketball or badminton courts). Please confirm actual pickleball hours, nets and court availability directly with the venue. Map info is sourced from Google Maps and is for reference only.",
+    "activities_title": "Happening at this court",
+    "activity_play": "Open Play",
+    "activity_class": "Coaching Class",
+    "activity_spots": "{{count}} spots left",
+    "fields": {
+      "address": "Address",
+      "city": "City",
+      "source": "Source"
+    }
+  },
+  "people": {
+    "eyebrow": "Community Members",
+    "title": "Meet the Community",
+    "tabs": {
+      "coaches": "Coaches",
+      "hosts": "Hosts & Organizers",
+      "courts": "Court Owners"
+    },
+    "roles": {
+      "coach": "Certified Coach",
+      "host": "Host / Event Organizer",
+      "court": "Court Owner"
+    },
+    "fields": {
+      "credentials": "Credentials",
+      "bio": "About",
+      "specialties": "Specialties",
+      "highlights": "Event Highlights",
+      "story": "Hosting Story",
+      "tags": "Tags",
+      "city": "Area"
+    },
+    "empty": "No members yet",
+    "courts_coming_soon": "Court owner section coming soon",
+    "courts_coming_desc": "We're inviting court owners across Taiwan to join PikFun. Stay tuned.",
+    "view_profile": "View Full Profile",
+    "back": "Back",
+    "prev_aria": "Previous",
+    "next_aria": "Next",
+    "close_aria": "Close"
+  }
+}

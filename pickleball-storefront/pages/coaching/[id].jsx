@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -22,9 +24,9 @@ import {
 } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import {
-  CLASS_TYPE_LABELS,
   CLASS_TYPE_COLORS,
-  SKILL_LABELS,
+  getClassTypeLabel,
+  getSkillLabel,
   formatClassDate,
   formatClassRange,
   formatPrice,
@@ -38,6 +40,14 @@ import { fireCelebrationConfettiFromElement } from "@/lib/fireCelebrationConfett
 const ACCENT = "#3366CC";
 const NAVY = "#1a2d4a";
 const INFO_BG = "#e8f0fa";
+
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["coaching", "common"])),
+    },
+  };
+}
 
 /* ── 圖3：白底橫條 + 圓形箭頭 ── */
 function ActionLinkBar({ href, label, onClick, external }) {
@@ -83,10 +93,11 @@ function ActionLinkBar({ href, label, onClick, external }) {
 
 /* ── 圖1：左側 Menu ── */
 function SideMenu({ items, activeId }) {
+  const { t } = useTranslation("coaching");
   return (
     <nav className="hidden lg:block w-[200px] xl:w-[220px] shrink-0 pr-8 mr-6 border-r border-gray-200">
       <p className="text-xs font-bold text-[#1a2d4a] mb-5 tracking-wide">
-        Menu
+        {t("common.menu_label")}
       </p>
       <ul className="space-y-1 sticky top-28">
         {items.map((item) => (
@@ -110,7 +121,7 @@ function SideMenu({ items, activeId }) {
             className="flex items-center gap-2 py-2 text-sm text-gray-600 hover:text-[#3366CC] transition-colors"
           >
             <span className="text-[#3366CC] text-xs opacity-60">→</span>
-            返回課程列表
+            {t("detail.back_to_list")}
           </Link>
         </li>
         <li>
@@ -119,7 +130,7 @@ function SideMenu({ items, activeId }) {
             className="flex items-center gap-2 py-2 text-sm text-gray-600 hover:text-[#3366CC] transition-colors"
           >
             <span className="text-[#3366CC] text-xs opacity-60">→</span>
-            教練進駐申請
+            {t("sidebar.apply_link")}
           </Link>
         </li>
       </ul>
@@ -209,6 +220,7 @@ function InfoTile({ icon: Icon, label, children }) {
 
 /* ── 圖3：OTHER INTERVIEW 風格推薦課程卡 ── */
 function RelatedCourseCard({ course }) {
+  const { t } = useTranslation("coaching");
   return (
     <Link href={`/coaching/${course.id}`} className="group block">
       <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 mb-3">
@@ -230,7 +242,7 @@ function RelatedCourseCard({ course }) {
           className="absolute top-3 right-3 text-[10px] font-bold text-white px-2.5 py-1 rounded-full"
           style={{ backgroundColor: ACCENT }}
         >
-          {CLASS_TYPE_LABELS[course.class_type] || "課程"}
+          {getClassTypeLabel(course.class_type, t) || t("enums.class_type.fallback")}
         </span>
       </div>
       <p className="text-sm font-bold text-[#1a2d4a] leading-snug group-hover:text-[#3366CC] transition-colors line-clamp-2">
@@ -254,21 +266,22 @@ function EnrollPanel({
   onLeave,
   onCancel,
 }) {
+  const { t, i18n } = useTranslation("coaching");
   return (
     <div
       id="section-enroll"
       className="scroll-mt-28 bg-white rounded-2xl border border-gray-200 p-6 md:p-7 shadow-sm"
     >
-      <h3 className="text-lg font-bold text-[#1a2d4a] mb-5">報名資訊</h3>
+      <h3 className="text-lg font-bold text-[#1a2d4a] mb-5">{t("detail.enroll_panel.title")}</h3>
 
       <div className="space-y-3 mb-6 text-sm">
         <div className="flex items-center gap-2 text-gray-600">
           <Calendar size={16} style={{ color: ACCENT }} className="shrink-0" />
-          <span>{formatClassDate(cls.starts_at)}</span>
+          <span>{formatClassDate(cls.starts_at, i18n.language)}</span>
         </div>
         <div className="flex items-center gap-2 text-gray-600">
           <Clock size={16} style={{ color: ACCENT }} className="shrink-0" />
-          <span>{formatClassRange(cls.starts_at, cls.ends_at)}</span>
+          <span>{formatClassRange(cls.starts_at, cls.ends_at, i18n.language)}</span>
         </div>
         <div className="flex items-center gap-2 text-gray-600">
           <Users size={16} style={{ color: ACCENT }} className="shrink-0" />
@@ -276,10 +289,10 @@ function EnrollPanel({
             <span className="font-bold text-[#1a2d4a]">
               {cls.enrolled_count || 0}
             </span>
-            / {cls.max_students} 人
+            / {cls.max_students} {t("detail.enroll_panel.capacity_unit")}
             {cls.spots_left > 0 && !isCancelled && (
               <span className="text-emerald-600 ml-1">
-                （剩 {cls.spots_left} 位）
+                {t("detail.enroll_panel.spots_left", { count: cls.spots_left })}
               </span>
             )}
           </span>
@@ -308,7 +321,7 @@ function EnrollPanel({
             ) : (
               <>
                 <UserPlus size={18} />
-                {cls.is_full ? "加入候補" : "立即報名"}
+                {cls.is_full ? t("detail.enroll_panel.waitlist_btn") : t("detail.enroll_panel.enroll_btn")}
               </>
             )}
           </button>
@@ -322,7 +335,7 @@ function EnrollPanel({
             className="w-full flex items-center justify-center gap-2 border border-gray-200 text-gray-700 font-bold py-3 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             <UserMinus size={18} />
-            取消報名
+            {t("detail.enroll_panel.leave_btn")}
           </button>
         )}
 
@@ -331,12 +344,12 @@ function EnrollPanel({
             className="text-center text-sm font-bold"
             style={{ color: ACCENT }}
           >
-            ✓ 您已報名此課程
+            {t("detail.enroll_panel.enrolled_msg")}
           </p>
         )}
         {cls.my_status === "waitlist" && (
           <p className="text-center text-sm font-bold text-purple-600">
-            您在候補名單中
+            {t("detail.enroll_panel.waitlist_msg")}
           </p>
         )}
 
@@ -347,15 +360,15 @@ function EnrollPanel({
             disabled={actionLoading}
             className="w-full flex items-center justify-center gap-2 text-red-500 font-bold py-2 text-sm hover:underline disabled:opacity-50"
           >
-            <XCircle size={16} /> 取消課程
+            <XCircle size={16} /> {t("detail.enroll_panel.cancel_class_btn")}
           </button>
         )}
 
         {isPast && (
-          <p className="text-center text-sm text-gray-400">課程已結束</p>
+          <p className="text-center text-sm text-gray-400">{t("detail.enroll_panel.past_msg")}</p>
         )}
         {isCancelled && (
-          <p className="text-center text-sm text-gray-400">課程已取消</p>
+          <p className="text-center text-sm text-gray-400">{t("detail.enroll_panel.cancelled_msg")}</p>
         )}
       </div>
     </div>
@@ -375,6 +388,7 @@ function MobileEnrollSticky({
   onEnroll,
   onLeave,
 }) {
+  const { t, i18n } = useTranslation("coaching");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -400,11 +414,11 @@ function MobileEnrollSticky({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#1a2d4a]">
               <Calendar size={13} style={{ color: ACCENT }} className="shrink-0" />
-              <span className="truncate">{formatClassDate(cls.starts_at)}</span>
+              <span className="truncate">{formatClassDate(cls.starts_at, i18n.language)}</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5">
               <Clock size={13} className="shrink-0 opacity-60" />
-              <span>{formatClassRange(cls.starts_at, cls.ends_at)}</span>
+              <span>{formatClassRange(cls.starts_at, cls.ends_at, i18n.language)}</span>
             </div>
           </div>
 
@@ -414,7 +428,7 @@ function MobileEnrollSticky({
                 isFree ? "text-green-600" : "text-[#1a2d4a]"
               }`}
             >
-              {isFree ? "免費" : formatPrice(fee)}
+              {isFree ? t("detail.mobile_sticky.free") : formatPrice(fee, t)}
             </p>
           </div>
 
@@ -432,7 +446,7 @@ function MobileEnrollSticky({
                 ) : (
                   <>
                     <UserPlus size={16} />
-                    {cls.is_full ? "候補" : "報名"}
+                    {cls.is_full ? t("detail.mobile_sticky.waitlist") : t("detail.mobile_sticky.enroll")}
                   </>
                 )}
               </button>
@@ -445,26 +459,26 @@ function MobileEnrollSticky({
                 className="flex items-center justify-center gap-1.5 border border-gray-200 text-gray-700 text-sm font-bold px-4 py-2.5 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50 whitespace-nowrap"
               >
                 <UserMinus size={16} />
-                取消
+                {t("detail.mobile_sticky.leave")}
               </button>
             )}
             {!canEnroll && !canLeave && isPast && (
-              <span className="text-xs font-bold text-gray-400 px-2">已結束</span>
+              <span className="text-xs font-bold text-gray-400 px-2">{t("detail.mobile_sticky.past")}</span>
             )}
             {!canEnroll && !canLeave && isCancelled && (
-              <span className="text-xs font-bold text-gray-400 px-2">已取消</span>
+              <span className="text-xs font-bold text-gray-400 px-2">{t("detail.mobile_sticky.cancelled")}</span>
             )}
             {cls.my_status === "enrolled" && !canLeave && (
               <span
                 className="text-xs font-bold px-3 py-2 rounded-full"
                 style={{ color: ACCENT, backgroundColor: `${ACCENT}15` }}
               >
-                已報名
+                {t("detail.mobile_sticky.enrolled")}
               </span>
             )}
             {cls.my_status === "waitlist" && !canLeave && (
               <span className="text-xs font-bold text-purple-600 px-3 py-2 rounded-full bg-purple-50">
-                候補中
+                {t("detail.mobile_sticky.waitlist_status")}
               </span>
             )}
           </div>
@@ -477,6 +491,7 @@ function MobileEnrollSticky({
 }
 
 export default function CoachingDetailPage() {
+  const { t, i18n } = useTranslation("coaching");
   const router = useRouter();
   const { id } = router.query;
   const { userInfo, loading: userLoading } = useUser();
@@ -572,7 +587,7 @@ export default function CoachingDetailPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "操作失敗");
+        alert(data.error || t("detail.alert.action_failed"));
         return;
       }
       if (data.message) setMessage(data.message);
@@ -590,31 +605,31 @@ export default function CoachingDetailPage() {
   };
 
   const handleCancel = () => {
-    if (confirm("確定要取消此課程？")) patchAction("cancel");
+    if (confirm(t("detail.confirm.cancel_class"))) patchAction("cancel");
   };
 
   const menuItems = useMemo(() => {
     if (!cls) return [];
-    const items = [{ id: "section-overview", label: "課程概要" }];
-    if (cls.description) items.push({ id: "section-desc", label: "課程介紹" });
+    const items = [{ id: "section-overview", label: t("detail.menu.overview") }];
+    if (cls.description) items.push({ id: "section-desc", label: t("detail.menu.description") });
     if (cls.curriculum)
-      items.push({ id: "section-curriculum", label: "課程內容" });
-    if (cls.coach_bio) items.push({ id: "section-coach", label: "教練介紹" });
-    items.push({ id: "section-location", label: "上課地點" });
+      items.push({ id: "section-curriculum", label: t("detail.menu.curriculum") });
+    if (cls.coach_bio) items.push({ id: "section-coach", label: t("detail.menu.coach") });
+    items.push({ id: "section-location", label: t("detail.menu.location") });
     if (cls.students?.length > 0 || cls.waitlist?.length > 0) {
-      items.push({ id: "section-students", label: "已報名學員" });
+      items.push({ id: "section-students", label: t("detail.menu.students") });
     }
-    items.push({ id: "section-enroll", label: "報名資訊" });
+    items.push({ id: "section-enroll", label: t("detail.menu.enroll") });
     if (related.length > 0)
-      items.push({ id: "section-related", label: "其他課程" });
-    items.push({ id: "section-other-coaches", label: "其他教練" });
+      items.push({ id: "section-related", label: t("detail.menu.related") });
+    items.push({ id: "section-other-coaches", label: t("detail.menu.other_coaches") });
     return items;
-  }, [cls, related.length]);
+  }, [cls, related.length, t]);
 
   if (loading) {
     return (
       <main className="min-h-screen pt-24 flex items-center justify-center text-gray-500 bg-white">
-        <Loader2 className="animate-spin mr-2" size={20} /> 載入中...
+        <Loader2 className="animate-spin mr-2" size={20} /> {t("detail.loading")}
       </main>
     );
   }
@@ -622,13 +637,13 @@ export default function CoachingDetailPage() {
   if (!cls) {
     return (
       <main className="min-h-screen pt-24 text-center bg-white">
-        <p className="text-gray-600 mb-4">找不到此課程</p>
+        <p className="text-gray-600 mb-4">{t("detail.not_found")}</p>
         <Link
           href="/coaching"
           className="font-bold underline"
           style={{ color: ACCENT }}
         >
-          返回課程列表
+          {t("detail.back_to_list")}
         </Link>
       </main>
     );
@@ -670,7 +685,7 @@ export default function CoachingDetailPage() {
   return (
     <>
       <Head>
-        <title>{cls.title} | 教練開課 | PikFun</title>
+        <title>{cls.title} | {t("seo.detail_suffix")}</title>
       </Head>
 
       <AnimatePresence>
@@ -690,12 +705,12 @@ export default function CoachingDetailPage() {
               className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl text-center"
             >
               <h3 className="text-xl font-bold text-[#1a2d4a] mb-2">
-                尚未註冊或登入會員嗎？
+                {t("detail.login_prompt.title")}
               </h3>
               <p className="text-gray-500 text-sm mb-7 leading-relaxed">
-                報名課程需要先成為 PikFun 會員。
+                {t("detail.login_prompt.desc_line1")}
                 <br />
-                註冊後即可一鍵報名。
+                {t("detail.login_prompt.desc_line2")}
               </p>
               <div className="flex flex-col gap-3">
                 <button
@@ -704,7 +719,7 @@ export default function CoachingDetailPage() {
                   className="w-full text-white py-3 rounded-full text-sm font-bold"
                   style={{ backgroundColor: NAVY }}
                 >
-                  立即註冊
+                  {t("detail.login_prompt.register_btn")}
                 </button>
                 <button
                   type="button"
@@ -712,14 +727,14 @@ export default function CoachingDetailPage() {
                   className="w-full text-white py-3 rounded-full text-sm font-bold"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  已有帳號，登入
+                  {t("detail.login_prompt.login_btn")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowLoginPrompt(false)}
                   className="text-sm text-gray-400 hover:text-gray-600 py-1"
                 >
-                  稍後再說
+                  {t("detail.login_prompt.later_btn")}
                 </button>
               </div>
             </motion.div>
@@ -741,7 +756,7 @@ export default function CoachingDetailPage() {
               href="/coaching"
               className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1a2d4a]"
             >
-              <ArrowLeft size={16} /> for Coaching
+              <ArrowLeft size={16} /> {t("detail.back_link")}
             </Link>
             {canEnroll && (
               <button
@@ -751,7 +766,7 @@ export default function CoachingDetailPage() {
                 className="inline-flex items-center gap-2 text-white text-sm font-bold px-6 py-2.5 rounded-full disabled:opacity-50"
                 style={{ backgroundColor: ACCENT }}
               >
-                ENTRY
+                {t("detail.entry_btn")}
                 <ChevronRight size={15} />
               </button>
             )}
@@ -764,7 +779,7 @@ export default function CoachingDetailPage() {
                 className="text-xs font-bold tracking-[0.4em] text-gray-300 uppercase"
                 style={{ writingMode: "vertical-rl" }}
               >
-                課程詳情
+                {t("detail.vertical_label")}
               </span>
             </div>
 
@@ -788,14 +803,14 @@ export default function CoachingDetailPage() {
                   <span
                     className={`text-[10px] font-bold px-3 py-1 rounded-full ${CLASS_TYPE_COLORS[cls.class_type]}`}
                   >
-                    {CLASS_TYPE_LABELS[cls.class_type]}
+                    {getClassTypeLabel(cls.class_type, t)}
                   </span>
                   <span className="text-[10px] font-bold px-3 py-1 rounded-full border border-gray-200 text-gray-600">
-                    {SKILL_LABELS[cls.skill_level]}
+                    {getSkillLabel(cls.skill_level, t)}
                   </span>
                   {isCancelled && (
                     <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-gray-200 text-gray-600">
-                      已取消
+                      {t("detail.badge_cancelled")}
                     </span>
                   )}
                 </div>
@@ -823,7 +838,7 @@ export default function CoachingDetailPage() {
                   <div className="text-left text-sm">
                     <p className="font-bold text-[#1a2d4a]">{cls.coach_name}</p>
                     <p className="text-gray-500 text-xs">
-                      教練 · {cls.location_name || "地點待定"}
+                      {t("detail.coach_meta_prefix")}{cls.location_name || t("detail.location_pending")}
                     </p>
                   </div>
                 </div>
@@ -832,7 +847,7 @@ export default function CoachingDetailPage() {
                   className="text-2xl font-bold mt-4"
                   style={{ color: ACCENT }}
                 >
-                  {formatPrice(cls.price_per_person)}
+                  {formatPrice(cls.price_per_person, t)}
                 </p>
               </motion.header>
 
@@ -868,24 +883,24 @@ export default function CoachingDetailPage() {
                   className="text-[10px] font-bold tracking-[0.3em] uppercase mb-3"
                   style={{ color: ACCENT }}
                 >
-                  Group
+                  {t("detail.overview.eyebrow")}
                 </p>
                 <h2 className="text-xl md:text-2xl font-bold text-[#1a2d4a] mb-6 pb-4 border-b border-gray-200">
-                  課程概要
+                  {t("detail.overview.title")}
                 </h2>
 
                 <div
                   className="rounded-2xl p-6 md:p-10 grid sm:grid-cols-2 gap-8"
                   style={{ backgroundColor: INFO_BG }}
                 >
-                  <InfoTile icon={Briefcase} label="課程類型">
-                    {CLASS_TYPE_LABELS[cls.class_type]} ·{" "}
-                    {SKILL_LABELS[cls.skill_level]}
+                  <InfoTile icon={Briefcase} label={t("detail.overview.class_type_label")}>
+                    {getClassTypeLabel(cls.class_type, t)} ·{" "}
+                    {getSkillLabel(cls.skill_level, t)}
                     <span className="block text-xs text-gray-500 mt-1 font-normal">
-                      由 {cls.coach_name} 教練開設
+                      {t("detail.overview.opened_by", { name: cls.coach_name })}
                     </span>
                   </InfoTile>
-                  <InfoTile icon={MapPin} label="主要上課地點">
+                  <InfoTile icon={MapPin} label={t("detail.overview.location_label")}>
                     {cls.location_name || "—"}
                     {cls.location_address && (
                       <span className="block text-xs text-gray-500 mt-1 font-normal">
@@ -893,18 +908,17 @@ export default function CoachingDetailPage() {
                       </span>
                     )}
                   </InfoTile>
-                  <InfoTile icon={Calendar} label="上課日期">
-                    {formatClassDate(cls.starts_at)}
+                  <InfoTile icon={Calendar} label={t("detail.overview.date_label")}>
+                    {formatClassDate(cls.starts_at, i18n.language)}
                   </InfoTile>
-                  <InfoTile icon={Clock} label="上課時間">
-                    {formatClassRange(cls.starts_at, cls.ends_at)}
+                  <InfoTile icon={Clock} label={t("detail.overview.time_label")}>
+                    {formatClassRange(cls.starts_at, cls.ends_at, i18n.language)}
                   </InfoTile>
-                  <InfoTile icon={Users} label="名額">
-                    {cls.enrolled_count || 0} / {cls.max_students} 人
+                  <InfoTile icon={Users} label={t("detail.overview.capacity_label")}>
+                    {cls.enrolled_count || 0} / {cls.max_students} {t("detail.overview.capacity_unit")}
                     {cls.spots_left > 0 && !isCancelled && (
                       <span className="text-emerald-600">
-                        {" "}
-                        · 剩 {cls.spots_left} 位
+                        {t("detail.overview.spots_left", { count: cls.spots_left })}
                       </span>
                     )}
                   </InfoTile>
@@ -919,8 +933,8 @@ export default function CoachingDetailPage() {
                     <InterviewSection
                       id="section-desc"
                       tag={nextQ()}
-                      bracket="【課程介紹】"
-                      title="這堂課程是什麼？"
+                      bracket={t("detail.qa.description_bracket")}
+                      title={t("detail.qa.description_title")}
                     >
                       <p className="whitespace-pre-wrap text-[#1a2d4a]">
                         {cls.description}
@@ -932,8 +946,8 @@ export default function CoachingDetailPage() {
                     <InterviewSection
                       id="section-curriculum"
                       tag={nextQ()}
-                      bracket="【課程內容】"
-                      title="上課會做什麼？"
+                      bracket={t("detail.qa.curriculum_bracket")}
+                      title={t("detail.qa.curriculum_title")}
                     >
                       <p className="whitespace-pre-wrap">{cls.curriculum}</p>
                     </InterviewSection>
@@ -943,8 +957,8 @@ export default function CoachingDetailPage() {
                     <InterviewSection
                       id="section-coach"
                       tag={nextQ()}
-                      bracket="【教練介紹】"
-                      title={`${cls.coach_name} 教練`}
+                      bracket={t("detail.qa.coach_bracket")}
+                      title={t("detail.qa.coach_title", { name: cls.coach_name })}
                     >
                       <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-[#f5f9fd]">
                         {cls.coach_avatar ? (
@@ -966,7 +980,7 @@ export default function CoachingDetailPage() {
                             {cls.coach_name}
                           </p>
                           <p className="text-xs text-gray-500">
-                            PikFun 認證教練
+                            {t("detail.qa.coach_badge")}
                           </p>
                         </div>
                       </div>
@@ -977,8 +991,8 @@ export default function CoachingDetailPage() {
                   <InterviewSection
                     id="section-location"
                     tag={nextQ()}
-                    bracket="【上課地點】"
-                    title="在哪裡上課？"
+                    bracket={t("detail.qa.location_bracket")}
+                    title={t("detail.qa.location_title")}
                   >
                     <div className="flex items-start gap-2 mb-5">
                       <MapPin
@@ -1003,7 +1017,7 @@ export default function CoachingDetailPage() {
                             className="inline-flex items-center gap-1 text-sm font-bold mt-2 hover:underline"
                             style={{ color: ACCENT }}
                           >
-                            在 Google 地圖開啟
+                            {t("detail.qa.open_in_maps")}
                             <ChevronRight size={14} />
                           </a>
                         )}
@@ -1019,8 +1033,11 @@ export default function CoachingDetailPage() {
                     <InterviewSection
                       id="section-students"
                       tag={nextQ()}
-                      bracket="【已報名學員】"
-                      title={`目前 ${cls.enrolled_count} / ${cls.max_students} 人`}
+                      bracket={t("detail.qa.students_bracket")}
+                      title={t("detail.qa.students_title", {
+                        enrolled: cls.enrolled_count,
+                        max: cls.max_students,
+                      })}
                     >
                       <div className="bg-white rounded-xl border border-gray-200 px-4">
                         {(cls.students || []).map((s) => (
@@ -1030,7 +1047,7 @@ export default function CoachingDetailPage() {
                       {(cls.waitlist?.length || 0) > 0 && (
                         <div className="mt-4">
                           <p className="text-xs font-bold text-purple-600 mb-2">
-                            候補名單（{cls.waitlist_count}）
+                            {t("detail.qa.waitlist_label", { count: cls.waitlist_count })}
                           </p>
                           <div className="bg-white rounded-xl border border-gray-200 px-4">
                             {cls.waitlist.map((s) => (
@@ -1058,13 +1075,13 @@ export default function CoachingDetailPage() {
                     className="text-[10px] font-bold tracking-[0.3em] uppercase mb-3 text-center"
                     style={{ color: ACCENT }}
                   >
-                    Other Courses
+                    {t("detail.related.eyebrow")}
                   </p>
                   <h2
                     className="text-2xl md:text-3xl font-bold text-center mb-10"
                     style={{ color: ACCENT }}
                   >
-                    その他の課程
+                    {t("detail.related.title")}
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
                     {related.map((course) => (
@@ -1089,32 +1106,33 @@ export default function CoachingDetailPage() {
             <div className="grid lg:grid-cols-[1fr_1.2fr] gap-10 items-center">
               <div className="text-white text-center lg:text-left">
                 <p className="text-3xl md:text-4xl font-bold tracking-wide uppercase mb-2">
-                  ENTRY
+                  {t("detail.bottom_cta.title")}
                 </p>
                 <p className="text-sm text-white/75 leading-relaxed">
                   {canEnroll
-                    ? "確認課程資訊後，立即報名加入"
-                    : "更多 PikFun 教練課程"}
+                    ? t("detail.bottom_cta.desc_can_enroll")
+                    : t("detail.bottom_cta.desc_default")}
                 </p>
                 {canEnroll && (
                   <p className="text-xs text-white/60 mt-2">
-                    {formatClassDate(cls.starts_at)} ·{" "}
-                    {formatPrice(cls.price_per_person)}
+                    {formatClassDate(cls.starts_at, i18n.language)}
+                    {t("detail.bottom_cta.meta")}
+                    {formatPrice(cls.price_per_person, t)}
                   </p>
                 )}
               </div>
               <div className="space-y-3">
                 {canEnroll && (
                   <ActionLinkBar
-                    label={cls.is_full ? "加入候補名單" : "立即報名此課程"}
+                    label={cls.is_full ? t("detail.bottom_cta.waitlist_bar") : t("detail.bottom_cta.enroll_bar")}
                     onClick={(e) => patchAction("enroll", e.currentTarget)}
                   />
                 )}
-                <ActionLinkBar href="/coaching" label="返回課程列表" />
-                <ActionLinkBar href="/coaching/create" label="我要開課" />
+                <ActionLinkBar href="/coaching" label={t("detail.bottom_cta.back_to_list_bar")} />
+                <ActionLinkBar href="/coaching/create" label={t("detail.bottom_cta.create_bar")} />
                 <ActionLinkBar
                   href="/coaching/apply"
-                  label="教練進駐 PikFun 官網"
+                  label={t("detail.bottom_cta.apply_bar")}
                 />
               </div>
             </div>
@@ -1127,14 +1145,14 @@ export default function CoachingDetailPage() {
             className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4"
             style={{ color: ACCENT }}
           >
-            Group
+            {t("detail.group_links.eyebrow")}
           </p>
           <div className="grid sm:grid-cols-2 gap-0 border border-gray-200 rounded-xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
             <Link
               href="/coaching"
               className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors group"
             >
-              <span className="font-bold text-[#1a2d4a]">全部課程</span>
+              <span className="font-bold text-[#1a2d4a]">{t("detail.group_links.all_classes")}</span>
               <span className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 group-hover:border-[#3366CC] group-hover:text-[#3366CC]">
                 <ChevronRight size={14} />
               </span>
@@ -1143,7 +1161,7 @@ export default function CoachingDetailPage() {
               href="/coaching#featured-coaches"
               className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors group"
             >
-              <span className="font-bold text-[#1a2d4a]">進駐教練</span>
+              <span className="font-bold text-[#1a2d4a]">{t("detail.group_links.featured_coaches")}</span>
               <span className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 group-hover:border-[#3366CC] group-hover:text-[#3366CC]">
                 <ChevronRight size={14} />
               </span>
@@ -1153,7 +1171,7 @@ export default function CoachingDetailPage() {
 
         {/* SURUGA 風格四欄 Footer */}
         <CoachingRecruitFooter
-          entryLabel={canEnroll ? (cls.is_full ? "候補" : "ENTRY") : "開課"}
+          entryLabel={canEnroll ? (cls.is_full ? t("detail.footer_entry.waitlist") : t("detail.footer_entry.entry")) : t("detail.footer_entry.create")}
           onEntryClick={
             canEnroll ? (e) => patchAction("enroll", e?.currentTarget) : undefined
           }

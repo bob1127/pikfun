@@ -1,5 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { enrichPaymentFields, validateSessionTimes } from "@/lib/playUtils";
+import { getMedusaCustomer, AuthError } from "@/lib/medusaCustomerAuth";
+import {
+  ensureOrganizerProfile,
+  profileMapForEmails,
+} from "@/lib/organizerProfiles";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -46,6 +51,10 @@ function enrichSession(session, participants = []) {
   const maxPlayers = session.max_players || 4;
   const isFull = joinedCount >= maxPlayers;
   const spotsLeft = Math.max(0, maxPlayers - joinedCount);
+  const isPast =
+    session.status !== "cancelled" &&
+    session.starts_at &&
+    new Date(session.starts_at) <= new Date();
 
   return enrichPaymentFields({
     ...session,
@@ -55,11 +64,15 @@ function enrichSession(session, participants = []) {
     waitlist_count: waitlist.length,
     spots_left: spotsLeft,
     is_full: isFull,
-    display_status: session.status === "cancelled"
-      ? "cancelled"
-      : isFull
-        ? "full"
-        : "open",
+    is_past: isPast,
+    display_status:
+      session.status === "cancelled"
+        ? "cancelled"
+        : isPast
+          ? "ended"
+          : isFull
+            ? "full"
+            : "open",
   });
 }
 
@@ -71,9 +84,13 @@ export default async function handler(req, res) {
     let query = supabase
       .from("play_sessions")
       .select("*")
-      .order("starts_at", { ascending: true });
+      .order("starts_at", {
+        ascending: filter !== "ended",
+      });
 
-    if (filter !== "all") {
+    if (filter === "ended") {
+      // 已結束／已取消：不過濾日期，稍後用 enrich 結果篩選
+    } else if (filter !== "all") {
       query = query.gte("starts_at", now).neq("status", "cancelled");
     }
 
@@ -103,6 +120,29 @@ export default async function handler(req, res) {
     let enriched = (sessions || []).map((s) =>
       enrichSession(s, participantsBySession[s.id] || [])
     );
+
+    const profileMap = await profileMapForEmails(
+      enriched.map((session) => session.host_email),
+    );
+    enriched = enriched.map((session) => {
+      const profile = profileMap.get(
+        String(session.host_email || "").toLowerCase(),
+      );
+      return {
+        ...session,
+        host_profile_slug: profile?.slug || null,
+        host_profile_title: profile?.title || null,
+      };
+    });
+
+    if (filter === "ended") {
+      enriched = enriched.filter(
+        (s) =>
+          s.display_status === "cancelled" ||
+          s.display_status === "ended" ||
+          s.is_past,
+      );
+    }
 
     if (filter === "hosting" && email) {
       enriched = enriched.filter((s) => s.host_email === email);
@@ -145,17 +185,40 @@ export default async function handler(req, res) {
       ends_at,
       max_players,
       skill_level,
-      host_email,
-      host_name,
-      host_avatar,
       fee_per_person,
       payment_method,
       payment_note,
     } = req.body;
 
-    if (!title || !location_name || !starts_at || !host_email || !host_name) {
+    let customer;
+    try {
+      customer = await getMedusaCustomer(req);
+    } catch (error) {
+      if (error instanceof AuthError) {
+        return res.status(error.status).json({ error: error.message });
+      }
+      throw error;
+    }
+
+    if (!title || !location_name || !starts_at) {
       return res.status(400).json({ error: "請填寫必填欄位" });
     }
+
+    let organizer;
+    try {
+      organizer = await ensureOrganizerProfile(customer);
+    } catch (error) {
+      console.error("organizer profile ensure failed:", error);
+      return res.status(500).json({
+        error: /organizer_profiles/i.test(error.message || "")
+          ? "請先在 Supabase 執行 organizer_profiles.sql"
+          : "無法建立活動策辦人介紹頁",
+      });
+    }
+
+    const host_email = customer.email;
+    const host_name = organizer.display_name || customer.name;
+    const host_avatar = organizer.avatar || customer.avatar;
 
     const timeError = validateSessionTimes(starts_at, ends_at);
     if (timeError) {
@@ -181,6 +244,8 @@ export default async function handler(req, res) {
       host_email,
       host_name,
       host_avatar: host_avatar || null,
+      host_member_id: customer.id,
+      host_profile_id: organizer.id,
       fee_per_person: fee,
       payment_method: payMethod,
       payment_note: payment_note || null,
@@ -203,14 +268,18 @@ export default async function handler(req, res) {
     ]);
 
     return res.status(201).json({
-      session: enrichSession(session, [
-        {
-          participant_email: host_email,
-          participant_name: host_name,
-          participant_avatar: host_avatar,
-          status: "joined",
-        },
-      ]),
+      session: {
+        ...enrichSession(session, [
+          {
+            participant_email: host_email,
+            participant_name: host_name,
+            participant_avatar: host_avatar,
+            status: "joined",
+          },
+        ]),
+        host_profile_slug: organizer.slug,
+        host_profile_title: organizer.title || null,
+      },
       ...(result.notPersisted?.length
         ? { warning: `部分欄位未存入資料庫（${result.notPersisted.join("、")}），請執行 supabase/play_sessions_fee.sql` }
         : {}),

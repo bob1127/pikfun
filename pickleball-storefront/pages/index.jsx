@@ -9,9 +9,8 @@ import useEmblaCarousel from "embla-carousel-react";
 import ScrollServiceSection from "../components/ScrollServiceSection";
 import Store from "../components/Store";
 import AutoCarousel from "../components/AutoCarousel";
-// 移除 next-i18next 的引入
-// import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-// import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 import Image from "next/image";
 // 元件引入
 import CollectionShowcase from "@/components/ProductGridShowcase";
@@ -25,6 +24,7 @@ import { ParallaxProvider, Parallax } from "react-scroll-parallax";
 
 // 🔥 引入剛剛設計的進駐夥伴元件
 import PartnersSection from "../components/PartnersSection"; // 假設您將它放在 components 目錄下
+import HomePopupAd from "../components/HomePopupAd";
 import { fetchHomeWpPosts } from "@/lib/wordpress";
 
 export default function Home({
@@ -33,8 +33,7 @@ export default function Home({
   knowledgePosts = [],
   topicPosts = [],
 }) {
-  // 移除 { t } 的使用
-  // const { t } = useTranslation("common");
+  const { t } = useTranslation("home");
 
   // --- 1. 頁面滾動特效 ---
   const scrollRef = useRef(null);
@@ -89,10 +88,8 @@ export default function Home({
 
   // --- SEO 設定 (為 PikFun 調整) ---
   const siteUrl = getSiteUrl();
-  const siteTitle =
-    "PikFun 匹克方 | 匹克球社群、商城、球場資訊、相關資訊｜致力於打造匹克球相關聚落";
-  const siteDescription =
-    "全台最大的匹克球社群與資訊平台。提供球場預約、裝備選購、教練媒合與球友討論交流等全方位服務。";
+  const siteTitle = t("seo.title");
+  const siteDescription = t("seo.description");
 
   // 社群預覽圖
   const ogImage = `${siteUrl}/images/logo/logo.png`; // 請確保圖片存在
@@ -141,6 +138,9 @@ export default function Home({
 
       <HeroCarousel />
 
+      {/* 進站 15 秒後彈出的廣告 */}
+      <HomePopupAd />
+
       {/* 🔥 插入 TSUNORU 風格的進駐商萬元件 */}
       <PartnersSection />
       <AutoCarousel items={knowledgePosts} />
@@ -156,7 +156,7 @@ export default function Home({
         {/* 標題與控制按鈕區 */}
         <div className="flex justify-between items-end mb-10 px-2">
           <h2 className="text-2xl md:text-3xl lg:mt-10 font-black tracking-widest uppercase text-gray-900">
-            熱門裝備推薦
+            {t("featured.title")}
           </h2>
           {/* 極簡箭頭 */}
           <div className="hidden md:flex gap-6">
@@ -242,9 +242,9 @@ export default function Home({
             {/* 標題區塊 */}
             <motion.div {...fadeUpProps} className="w-full lg:w-[45%] lg:pl-10">
               <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-gray-900 leading-[1.6] tracking-wide">
-                從球場出發，
+                {t("service.heading_line1")}
                 <br className="hidden md:block" />
-                打造完整的匹克球生活圈
+                {t("service.heading_line2")}
               </h2>
             </motion.div>
 
@@ -255,11 +255,10 @@ export default function Home({
               className="w-full lg:w-[45%]"
             >
               <p className="text-gray-600 leading-[2.2] text-[14px] md:text-[15px] mb-12 text-justify">
-                我們整合購物、揪團、教練與學習內容，讓你一站搞定匹克球所需的一切。精選球拍與配件、快速找到球友與場次、專業教練一對一指導，還有規則教學與趣味小遊戲幫你輕鬆入門。不只是買裝備，更是加入一個持續成長的運動社群。PikFun
-                持續拓展服務，讓每位球友都能更輕鬆享受這項人人皆可上手的運動。
+                {t("service.desc")}
               </p>
               <button className="bg-[#0f43e7] text-white px-12 py-4 rounded-full text-sm font-medium tracking-wider hover:bg-[#0c36b8] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                全部服務
+                {t("service.btn")}
               </button>
             </motion.div>
           </div>
@@ -282,7 +281,7 @@ export default function Home({
                 {/* 請替換為你實際的圖片路徑 */}
                 <Image
                   src="/images/c7a236bf6914a2675b66bada6c4bcbf4.jpg"
-                  alt="匹克球場上揮拍"
+                  alt={t("about.img_alt")}
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-[2s] ease-out"
                   unoptimized
@@ -304,9 +303,9 @@ export default function Home({
 
               <motion.div {...fadeUpProps}>
                 <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-gray-900 leading-[1.6] tracking-wide mb-10">
-                  「先上場再說」的運動精神，
+                  {t("about.heading_line1")}
                   <br className="hidden md:block" />
-                  與每一位球友並肩同行。
+                  {t("about.heading_line2")}
                 </h2>
               </motion.div>
 
@@ -315,11 +314,10 @@ export default function Home({
                 transition={{ delay: 0.2, duration: 0.8 }}
               >
                 <p className="text-gray-600 leading-[2.2] text-[14px] md:text-[15px] mb-12 text-justify">
-                  PikFun
-                  相信，匹克球不只是一項運動，更是連結人與人的起點。從第一次握拍、第一次上手，到找到固定球友、定期開團，我們希望降低入門門檻，讓更多人在球場上相遇。無論你是剛接觸的新手，還是想找固定場次的老手，都能在這裡找到屬於自己的節奏。我們提供裝備選購、揪團開打、教練課程與學習資源，陪你從好奇到熱愛，一起在場上揮灑汗水、享受每一次擊球。
+                  {t("about.desc")}
                 </p>
                 <button className="bg-[#0f43e7] text-white px-12 py-4 rounded-full text-sm font-medium tracking-wider hover:bg-[#0c36b8] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                  關於我們
+                  {t("about.btn")}
                 </button>
               </motion.div>
             </div>
@@ -333,8 +331,9 @@ export default function Home({
   );
 }
 
-// --- SSG: 服務端抓取資料 (移除多語系處理) ---
-export async function getStaticProps() {
+// --- SSG: 服務端抓取資料 + 多語系 ---
+export async function getStaticProps({ locale }) {
+  const i18nProps = await serverSideTranslations(locale ?? "zh-TW", ["home"]);
   const wpPromise = fetchHomeWpPosts();
 
   const WC_URL = process.env.WC_SITE_URL;
@@ -346,6 +345,7 @@ export async function getStaticProps() {
     const wp = await wpPromise;
     return {
       props: {
+        ...i18nProps,
         featuredProducts: [],
         activePosts: wp.activePosts,
         knowledgePosts: wp.knowledgePosts,
@@ -404,6 +404,7 @@ export async function getStaticProps() {
 
     return {
       props: {
+        ...i18nProps,
         featuredProducts: formattedSlides,
         activePosts: wp.activePosts,
         knowledgePosts: wp.knowledgePosts,
@@ -416,6 +417,7 @@ export async function getStaticProps() {
     const wp = await wpPromise;
     return {
       props: {
+        ...i18nProps,
         featuredProducts: [],
         activePosts: wp.activePosts,
         knowledgePosts: wp.knowledgePosts,

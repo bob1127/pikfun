@@ -1,0 +1,570 @@
+{
+  "seo": {
+    "list_title": "揪團打球 | PikFun",
+    "list_description": "尋找附近的匹克球揪團，加入球友一起打球",
+    "detail_title_suffix": "揪團打球 | PikFun",
+    "create_title": "我要開團 | PikFun"
+  },
+  "common": {
+    "search": "搜尋",
+    "clear_filters": "清除篩選",
+    "retry": "重試",
+    "confirm": "確認",
+    "cancel": "取消",
+    "change": "更換",
+    "loading": "載入中...",
+    "loading_ellipsis": "載入中…",
+    "free": "免費",
+    "unlimited": "不限",
+    "per_person": "每人",
+    "person_unit": "人"
+  },
+  "list": {
+    "tabs": {
+      "upcoming": "即將開團",
+      "ended": "已結束",
+      "joined": "我加入的",
+      "hosting": "我開的團"
+    },
+    "sort": {
+      "date_asc": "最近優先",
+      "date_desc": "最晚優先",
+      "spots_asc": "空位由多到少",
+      "fee_asc": "費用：低到高",
+      "fee_desc": "費用：高到低"
+    },
+    "search_placeholder": "搜尋團名、球場、團主…",
+    "map_btn": "開團地圖",
+    "result_count": "共 {{count}} 場次",
+    "filtered_suffix": "（已套用篩選）",
+    "loading": "載入揪團中...",
+    "load_failed": "載入失敗",
+    "empty_filtered": "目前篩選條件下沒有揪團",
+    "empty_ended": "目前沒有已結束或已取消的揪團",
+    "empty_upcoming": "目前沒有即將開團的場次，成為第一個開團的人吧！",
+    "create_cta": "我要開團"
+  },
+  "filters": {
+    "skill_all": "不限程度",
+    "fee_any": "費用不限",
+    "fee_free": "免費",
+    "fee_paid": "收費",
+    "status_any": "狀態不限",
+    "status_open": "可加入",
+    "status_full": "已額滿"
+  },
+  "status": {
+    "cancelled": "已取消",
+    "ended": "已結束",
+    "full": "已額滿",
+    "joined": "已加入",
+    "joined_badge": "您已加入",
+    "waitlist": "候補中",
+    "one_spot_left": "差一人成團",
+    "spots_left": "剩 {{count}} 位",
+    "open_recruiting": "招募中",
+    "recruiting_spots": "招募中 · 剩 {{count}} 位"
+  },
+  "skill": {
+    "all": "不限程度",
+    "beginner": "初學",
+    "intermediate": "中階",
+    "advanced": "高階",
+    "above": "{{value}} 以上",
+    "level_suffix": "{{value}} 級"
+  },
+  "payment": {
+    "free": "免費",
+    "cash": "現場現金",
+    "transfer": "銀行轉帳",
+    "line_pay": "LINE Pay",
+    "other": "其他方式",
+    "per_person": "每人"
+  },
+  "errors": {
+    "startTimeInvalid": "開始時間格式不正確",
+    "startInPast": "開始時間必須在未來",
+    "endTimeInvalid": "結束時間格式不正確",
+    "endNotSameDay": "結束時間必須與開始時間同一天",
+    "endBeforeStart": "結束時間必須晚於開始時間",
+    "loginRequired": "請先登入",
+    "titleRequired": "請填寫揪團標題",
+    "locationRequired": "請選擇球場或填寫完整地址",
+    "createFailed": "開團失敗",
+    "createFailedRetry": "開團失敗，請稍後再試",
+    "actionFailed": "操作失敗",
+    "notFound": "找不到此揪團",
+    "loadFailed": "載入失敗"
+  },
+  "card": {
+    "location_pending": "地點待定",
+    "host_fallback": "團主",
+    "host_label": "團主",
+    "saved": "已加入收藏",
+    "unsaved": "已移除收藏",
+    "saved_hint": "可至會員中心查看所有收藏揪團",
+    "view_saved": "前往查看",
+    "aria_unsave": "取消收藏",
+    "aria_save": "收藏揪團",
+    "location_image_fallback": "地點圖片",
+    "court_photo_alt": "球場照片"
+  },
+  "detail": {
+    "loading": "載入中...",
+    "not_found": "找不到此揪團",
+    "back_to_list": "返回列表",
+    "back_to_list_full": "返回揪團列表",
+    "line": {
+      "title_new": "開啟活動提醒（推薦）",
+      "title_returning": "尚未開啟 LINE 提醒",
+      "desc": "活動前 1 天與 2 小時，PikFun 會透過 LINE 提醒你",
+      "desc_returning_suffix": "。現在設定也來得及。",
+      "email_note": "Email 提醒已排程（{{email}}）・點此一鍵開啟 LINE 通知",
+      "channel_missing": "LINE Channel ID 未設定，請聯絡管理員",
+      "enabled": "LINE 提醒已開啟，活動前會通知你"
+    },
+    "actions": {
+      "join": "加入揪團",
+      "join_waitlist": "加入候補",
+      "leave": "退出揪團",
+      "leave_waitlist": "退出候補",
+      "cancel_session": "取消揪團"
+    },
+    "login_prompt": {
+      "title": "尚未註冊或登入會員嗎？",
+      "desc1": "加入揪團需要先成為 PikFun 會員。",
+      "desc2": "註冊後即可一鍵加入球友行列。",
+      "register": "立即註冊",
+      "login": "已有帳號，登入",
+      "later": "稍後再說"
+    },
+    "info": {
+      "date": "日期",
+      "time": "時間",
+      "court": "球場",
+      "fee": "費用",
+      "people": "人數",
+      "map_link": "在 Google 地圖中開啟 →",
+      "fee_unit": "/ 人",
+      "waitlist_count": "（{{count}} 人候補）",
+      "people_unit": "人",
+      "description_label": "揪團說明",
+      "ended_note": "此揪團已開始或已結束"
+    },
+    "panel": {
+      "title": "球局資訊一覽",
+      "lead": "確認時間地點後，點擊上方按鈕加入揪團",
+      "signup_status": "報名狀況",
+      "fee_per_person": "每人費用",
+      "court_location": "球場位置",
+      "join_steps_title": "加入流程",
+      "step_login": "登入 PikFun 會員",
+      "step_join": "點擊「加入揪團」報名",
+      "step_pay": "依揪團說明完成付款（若有）",
+      "joined_title": "已加入 ({{count}})",
+      "waitlist_title": "候補 ({{count}})"
+    },
+    "confirm_cancel": "確定要取消此揪團嗎？"
+  },
+  "create": {
+    "title": "我要開團 | PikFun",
+    "greeting": {
+      "late_night": "深夜好",
+      "morning": "早安",
+      "afternoon": "午安",
+      "evening": "晚安"
+    },
+    "weekdays": [
+      "日",
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六"
+    ],
+    "hero": {
+      "member_fallback": "揪球員",
+      "title": "開揪球局",
+      "subtitle": "找球友一起上場 🏓",
+      "tag_doubles": "雙打",
+      "tag_singles": "單打",
+      "tag_mixed": "混打",
+      "greeting_comma": "，"
+    },
+    "brand": {
+      "title": "開揪球局",
+      "subtitle": "{{greeting}}，{{name}}。填寫以下資訊，找球友一起上場"
+    },
+    "sections": {
+      "info": "揪團資訊",
+      "court": "選擇球場",
+      "time": "時間安排",
+      "players": "人數與程度",
+      "fee": "費用設定"
+    },
+    "fields": {
+      "title_placeholder": "揪團標題（例：週末大安公園雙打）",
+      "description_placeholder": "補充說明：程度、裝備、注意事項…",
+      "start_date_label": "開始日期",
+      "start_time_label": "開始時間",
+      "end_time_label": "結束時間",
+      "end_time_label_same_day": "結束時間（同一天）",
+      "time_hint_mobile": "結束時間須與開始時間同一天",
+      "time_hint_desktop": "結束時間須與開始時間同一天，且晚於開始時間",
+      "max_players_label": "人數上限",
+      "players_unit": "人",
+      "skill_label": "程度建議",
+      "skill_hint": "可選擇匹克球級數（如 3.5），或於下方自訂輸入",
+      "skill_custom_label": "自訂級數",
+      "skill_custom_placeholder": "例：3.5",
+      "skill_custom_aria": "自訂匹克球級數",
+      "fee_label": "每人費用",
+      "payment_note_placeholder": "付款說明（帳號、連結等）"
+    },
+    "court_search": {
+      "manual_toggle": "手動輸入地址",
+      "name_placeholder": "球場名稱",
+      "address_placeholder": "完整地址（例：台中市潭子區…）",
+      "manual_hint": "手動地址可能無法顯示在地圖上，建議從球場列表選擇",
+      "step_city": "1. 縣市",
+      "select_city": "請選擇縣市",
+      "step_district": "2. 鄉鎮市區",
+      "all_districts": "全部區域",
+      "select_city_first": "請先選縣市",
+      "step_court": "3. 球場",
+      "loading": "載入中…",
+      "no_courts": "此區域尚無球場資料",
+      "select_court": "請選擇球場",
+      "sort_by_location": "依我的位置排序",
+      "locating": "定位中…",
+      "sorted_by_distance": "已依距離排序（由近到遠）",
+      "geo_denied": "無法取得位置，請允許定位權限",
+      "geo_unsupported": "此裝置不支援定位",
+      "change": "更換"
+    },
+    "errors": {
+      "login_required": "請先登入",
+      "title_required": "請填寫揪團標題",
+      "location_required": "請選擇球場或填寫完整地址",
+      "create_failed": "開團失敗",
+      "create_failed_retry": "開團失敗，請稍後再試"
+    },
+    "note": "發布揪團即表示你同意 PikFun 揪團使用規範，並確認所填資訊正確。",
+    "submit": "發布揪團",
+    "submit_success": "揪團成立！🎉",
+    "submit_success_short": "成立！🎉",
+    "back_to_list": "返回揪團列表",
+    "panel": {
+      "title": "發布後，球友即可報名",
+      "lead": "完成上方表單並發布，你的球局會出現在 PikFun 揪團列表",
+      "preview_label": "揪團預覽",
+      "fee_label": "每人費用",
+      "fee_editable_note": "發布後仍可至揪團頁面編輯",
+      "no_court": "尚未選擇球場",
+      "steps_title": "開團流程",
+      "step1": "填寫球場、時間與人數",
+      "step2": "發布揪團，分享給球友",
+      "step3": "球友報名，到場開打",
+      "tips_title": "小提醒",
+      "tip1": "建議從球場列表選擇，地圖定位較準確",
+      "tip2": "程度建議可幫助球友判斷是否適合",
+      "tip3": "發布後可至揪團頁面管理報名"
+    },
+    "drawer": {
+      "start": "開始時間",
+      "end": "結束時間（同一天）",
+      "confirm": "確認"
+    }
+  },
+  "editorial": {
+    "sr_title": "揪團打球",
+    "hero": {
+      "marquee_text": "揪團打球 · Pickleball Play · 一起上場揮拍 · Join the Game · 找球友開團 · ",
+      "find_friends_line1": "找到球友，",
+      "find_friends_line2": "讓每場揪團都順利開打",
+      "ongoing_count": "即將開團",
+      "ongoing_unit": "場",
+      "participants_count": "總參與人次",
+      "participants_unit": "人",
+      "field_label": "場地",
+      "field_fallback": "各區場地",
+      "popular_badge": "熱門揪團",
+      "tag_play": "#揪團打球",
+      "tag_pickleball": "#匹克球",
+      "guide_title": "開團指南",
+      "guide_desc": "三步驟輕鬆開團",
+      "guide_line1": "開團",
+      "guide_line2": "指南",
+      "guide_sub_line1": "三步驟",
+      "guide_sub_line2": "輕鬆開團",
+      "slide_aria": "第 {{index}} 則"
+    },
+    "stats": {
+      "ongoing": "即將開團",
+      "participants": "總參與人次",
+      "available": "可加入場次",
+      "unit_session": "場",
+      "unit_person": "人"
+    },
+    "placeholder_slide": "假圖 {{index}}",
+    "meta": {
+      "field_label": "場地",
+      "field_fallback": "待定",
+      "coming_soon_badge": "即將成團"
+    },
+    "count_block": {
+      "one_left": "差一人成團",
+      "left": "差{{count}}人成團",
+      "full": "已額滿",
+      "almost_full_desc": "即將額滿的揪團場次",
+      "starts_note": "※{{date}} 開打",
+      "unit_person": "人"
+    },
+    "carousel_dot_aria": "第 {{index}} 場揪團",
+    "tags": {
+      "play": "揪團打球",
+      "pickleball": "匹克球"
+    },
+    "promo_card": {
+      "guide_title": "開團指南",
+      "guide_desc": "新手上路輕鬆開團",
+      "guide_line1": "開團",
+      "guide_line2": "指南",
+      "tip_line1": "新手上路",
+      "tip_line2": "輕鬆開團"
+    },
+    "almost_full": {
+      "eyebrow": "匹克球揪團服務",
+      "title_line1": "快要開團成功",
+      "title_line2": "把握最後名額",
+      "description": "瀏覽即將成團的匹克球場次，查看時間、地點與剩餘名額。人數即將額滿時把握最後加入機會，一鍵報名與球友相約上場，讓每場揪團都能順利開打。",
+      "join_now": "立即加入",
+      "create_cta": "我要開團",
+      "browse_all": "瀏覽全部場次"
+    },
+    "demo": {
+      "session1": {
+        "title": "週末雙打揪團 — 石牌運動中心｜歡迎各程度球友加入",
+        "location_name": "石牌運動中心"
+      },
+      "session2": {
+        "title": "平日晚上揪團 — 大安運動中心｜中階以上",
+        "location_name": "大安運動中心"
+      },
+      "session3": {
+        "title": "假日早上揪團 — 板橋體育場｜輕鬆交流局",
+        "location_name": "板橋體育場"
+      },
+      "session4": {
+        "title": "夜間揪團 — 內湖匹克球場｜差一人即可開打",
+        "location_name": "內湖匹克球場"
+      },
+      "placeholder_title": "週末匹克球揪團 — 歡迎各程度球友加入",
+      "placeholder_location": "台北運動中心"
+    }
+  },
+  "map": {
+    "modal": {
+      "aria_label": "揪團地圖",
+      "title": "揪團地圖",
+      "subtitle": "點選標記查看場次 · Esc 或右上角關閉",
+      "close_aria": "關閉地圖",
+      "loading_data": "載入地圖資料中…",
+      "loading_map": "載入地圖中…"
+    },
+    "no_markers": "地圖上尚無揪團標記",
+    "loading_google": "載入 Google 地圖中…",
+    "providers": {
+      "google": "Google Maps",
+      "osm": "OpenStreetMap",
+      "osm_fallback": "OpenStreetMap（備援）"
+    },
+    "toolbar": {
+      "locations": "個地標",
+      "sessions_mapped": "場揪團已標示",
+      "unmapped": "{{count}} 場無法對應球場座標"
+    },
+    "empty_hint": {
+      "unmapped_note": "有 {{count}} 場揪團，但地點無法對應球場座標（可能為手動輸入地址）。建議開團時從球場列表選擇，即可顯示在地圖上。",
+      "no_upcoming": "目前沒有「即將開團」的揪團（可能都已過期）。",
+      "switch_to_ended": "切換至「已結束」",
+      "no_upcoming_suffix": "可查看過往揪團；或點「我要開團」建立新活動。",
+      "no_sessions": "目前沒有揪團可顯示。成為第一個開團的人吧！"
+    },
+    "info": {
+      "people_unit": "人"
+    },
+    "embed_title": "{{location}} 地圖"
+  },
+  "court": {
+    "select_label": "選擇球場",
+    "manual_toggle_to_manual": "改為手動輸入地址",
+    "manual_toggle_to_list": "改從球場列表選擇",
+    "select_city": "選擇縣市",
+    "all_districts": "全部區域",
+    "search_placeholder": "搜尋球場名稱或地址...",
+    "select_city_first": "請先選擇縣市",
+    "searching": "搜尋中...",
+    "not_found": "找不到球場，可改用手動輸入",
+    "name_label": "球場名稱 *",
+    "name_placeholder": "例：大安運動中心匹克球場",
+    "address_label": "地址 *",
+    "address_placeholder": "例：台北市大安區辛亥路三段55號",
+    "address_hint": "填寫完整地址後，詳情頁會自動顯示 Google 地圖",
+    "map_match_title": "地圖上的相符球場",
+    "map_match_desc": "點選後系統會精準記錄球場位置，你的活動就會顯示在「全台球場地圖」上。",
+    "map_matched": "已對應到地圖球場，活動會標記在全台球場地圖上",
+    "map_match_clear": "改回自訂地址"
+  },
+  "aria": {
+    "loading": "載入中",
+    "map_marker": "{{label}}，{{count}} 場揪團"
+  },
+  "summary": {
+    "title": "揪團資訊",
+    "date": "日期",
+    "time": "時間",
+    "location": "地點",
+    "session": "場次",
+    "max_players": "最多 {{count}} 人"
+  },
+  "host_profile": {
+    "seo_title": "{{name}}｜揪團主・活動策辦人｜PikFun",
+    "seo_description": "查看 {{name}} 的匹克球揪團、活動與策辦人介紹。",
+    "eyebrow": "HOST PROFILE",
+    "fallback_title": "匹克球活動策辦人",
+    "fallback_excerpt": "一起上場、認識球友，享受每一場匹克球活動。",
+    "about": "關於策辦人",
+    "story": "我的揪團故事",
+    "specialties": "活動特色",
+    "upcoming": "即將舉辦",
+    "past": "過往活動",
+    "no_upcoming": "目前尚無即將舉辦的活動",
+    "no_past": "目前尚無過往活動",
+    "view_session": "查看活動",
+    "contact": "聯絡資訊",
+    "city": "活動地區",
+    "instagram": "Instagram",
+    "email": "聯絡信箱",
+    "hosted_count": "已策辦 {{count}} 場",
+    "upcoming_count": "{{count}} 場即將舉辦",
+    "back": "返回揪團列表",
+    "edit": "編輯介紹頁",
+    "cancel": "取消",
+    "save": "儲存變更",
+    "saving": "儲存中...",
+    "saved": "介紹頁已更新",
+    "load_error": "找不到此活動策辦人",
+    "edit_title": "編輯活動策辦人介紹",
+    "fields": {
+      "display_name": "顯示名稱",
+      "title": "身份標題",
+      "city": "主要活動地區",
+      "excerpt": "一句話介紹",
+      "bio": "關於我",
+      "story": "揪團故事",
+      "specialties": "活動特色（以逗號分隔）",
+      "tags": "熱門標籤（以逗號分隔）",
+      "instagram": "Instagram 帳號",
+      "contact_email": "公開聯絡信箱",
+      "avatar": "頭像圖片網址",
+      "cover_image": "封面圖片網址"
+    },
+    "detail_cta": "查看策辦人介紹",
+    "create_profile_error": "策辦人介紹頁尚未建立",
+    "breadcrumb_home": "揪團首頁",
+    "breadcrumb_fallback": "{{name}} 的揪團介紹",
+    "header_title_fallback": "認識揪團主 {{name}}",
+    "owner_banner": "這是你的策辦人介紹頁，可直接點各區塊右上角的「編輯」修改內容。",
+    "toc_title": "目次",
+    "toc_profile": "策辦人檔案",
+    "toc_bio": "關於策辦人",
+    "toc_story": "揪團故事",
+    "toc_features": "活動特色",
+    "toc_sessions": "揪團場次",
+    "joined_suffix": " 加入",
+    "bio_placeholder": "還沒有自我介紹，點右上角「編輯」開始撰寫。",
+    "bio_empty": "尚未填寫介紹。",
+    "story_empty": "尚未填寫揪團故事。",
+    "specialties_empty": "尚未設定活動特色。",
+    "tags_empty": "尚未設定標籤。",
+    "tags_label": "熱門標籤",
+    "edit_hero_label": "編輯封面",
+    "edit_header_label": "編輯檔案",
+    "edit_bio_label": "編輯介紹",
+    "edit_story_label": "編輯故事",
+    "edit_features_label": "編輯特色",
+    "edit_tags_label": "編輯標籤",
+    "edit_contact_label": "編輯聯絡資訊",
+    "cover_url_label": "封面圖片網址",
+    "mid_cta_title": "想跟 {{name}} 一起打球嗎？",
+    "mid_cta_desc": "到揪團列表看看 {{name}} 最新開的場次，登入後即可直接報名參加。",
+    "mid_cta_link": "查看 {{name}} 開的揪團",
+    "contact_title": "聯絡策辦人",
+    "contact_empty": "尚未填寫聯絡資訊，點「編輯」補上。",
+    "contact_cta": "看 {{name}} 開的揪團",
+    "stats_title": "揪團數據",
+    "popular_tags_title": "熱門標籤"
+  },
+  "map_marker": {
+    "fallback_label": "球場",
+    "fallback_initial": "球"
+  },
+  "courts_map": {
+    "seo_title": "全台匹克球場地圖｜PikFun 匹克方",
+    "seo_description": "PikFun 全台匹克球場地圖，收錄各縣市匹克球場館位置與資訊，點擊地圖即可查看球場詳情。",
+    "eyebrow": "Court Map",
+    "title": "全台匹克球場地圖",
+    "desc": "收錄全台各縣市的匹克球場館，資料來自 Google 地圖商家並持續累積更新。點擊地圖上的藍色圖釘即可查看球場資訊。",
+    "all_cities": "全部縣市",
+    "count_label": "共 {{count}} 個球場",
+    "loading": "球場資料載入中…",
+    "empty": "這個縣市目前還沒有收錄球場，歡迎開團時搜尋球場幫我們補上！",
+    "map_error": "地圖載入失敗，請稍後再試",
+    "role": "匹克球場館",
+    "open_in_google": "在 Google 地圖開啟",
+    "source_google": "Google 地圖商家",
+    "shared_note": "部分場地為多功能場館或與其他運動共用（如籃球、羽球場地），實際匹克球開放時段、球網與場地數量請先向該球場電話或官方管道確認。地圖資訊來自 Google 地圖，僅供參考。",
+    "activities_title": "這裡正在揪團／開課",
+    "activity_play": "揪團",
+    "activity_class": "教練課",
+    "activity_spots": "剩 {{count}} 位",
+    "fields": {
+      "address": "地址",
+      "city": "縣市",
+      "source": "資料來源"
+    }
+  },
+  "people": {
+    "eyebrow": "Community Members",
+    "title": "社群夥伴介紹",
+    "tabs": {
+      "coaches": "教練",
+      "hosts": "揪團主／活動策辦人",
+      "courts": "球場主"
+    },
+    "roles": {
+      "coach": "認證教練",
+      "host": "揪團主／活動策辦人",
+      "court": "球場主"
+    },
+    "fields": {
+      "credentials": "專業認證",
+      "bio": "簡介",
+      "specialties": "專長",
+      "highlights": "活動特色",
+      "story": "揪團故事",
+      "tags": "標籤",
+      "city": "地區"
+    },
+    "empty": "目前尚無資料",
+    "courts_coming_soon": "球場主專區即將開放",
+    "courts_coming_desc": "我們正在邀請全台球場主進駐 PikFun，敬請期待。",
+    "view_profile": "查看完整介紹頁",
+    "back": "返回",
+    "prev_aria": "上一位",
+    "next_aria": "下一位",
+    "close_aria": "關閉"
+  }
+}
