@@ -1,10 +1,14 @@
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
 import { join } from "path";
 import { readPlacesCache } from "@/lib/googlePlacesCache";
 import { TAIWAN_CITIES } from "@/lib/courtCities";
 import { checkRateLimit, getClientIp } from "@/lib/apiRateLimit";
 
-const PHOTO_DIR = join(process.cwd(), "data", "court-photos");
+// Vercel 的專案目錄唯讀，只能寫 /tmp（warm 實例間共用，冷啟後失效）
+const PHOTO_DIR = process.env.VERCEL
+  ? join(tmpdir(), "court-photos")
+  : join(process.cwd(), "data", "court-photos");
 const REFS_DIR = join(PHOTO_DIR, "_refs");
 const MAX_PHOTOS = 6;
 

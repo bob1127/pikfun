@@ -50,9 +50,9 @@ export function getBlogTopicLabel(categoryKey, locale = "zh-TW") {
 
 // 站點概要中僅少數欄位需依語系顯示不同文字，其餘（網址、Email、Logo）為固定值
 const SITE_PROFILE_I18N_FIELDS = {
-  industry: { "zh-TW": "運動休閒／匹克球", en: "Sports & Leisure / Pickleball" },
+  industry: { "zh-TW": "匹克球", en: "Pickleball" },
   region: { "zh-TW": "台灣", en: "Taiwan" },
-  representative: { "zh-TW": "PikFun 團隊", en: "PikFun Team" },
+  representative: { "zh-TW": "PikFun", en: "PikFun" },
   established: { "zh-TW": "2024年", en: "2024" },
 };
 
@@ -60,7 +60,7 @@ const SITE_PROFILE_I18N_FIELDS = {
 export const SITE_PROFILE = {
   name: "PikFun 匹克方",
   tagline: "台灣匹克球資訊與裝備平台",
-  logo: "/images/company-logo.png",
+  logo: "/images/logo/pikfun-logo.png",
   url: DEFAULT_SITE_URL,
   contact: DEFAULT_SERVICE_EMAIL,
   followers: "1,200+",

@@ -1,0 +1,56 @@
+{
+  "name": "PikFun 匹克方",
+  "short_name": "PikFun",
+  "description": "全台最大的匹克球社群與資訊平台：球場搜尋、揪團臨打、裝備選購、教練媒合。",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#005caf",
+  "lang": "zh-TW",
+  "icons": [
+    {
+      "src": "/images/pikfun-logo-pwa.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/pikfun-logo-pwa.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "揪團",
+      "url": "/play",
+      "icons": [{ "src": "/images/pikfun-logo-pwa.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "球場地圖",
+      "url": "/courts",
+      "icons": [{ "src": "/images/pikfun-logo-pwa.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "商城",
+      "url": "/products",
+      "icons": [{ "src": "/images/pikfun-logo-pwa.png", "sizes": "512x512" }]
+    }
+  ]
+}

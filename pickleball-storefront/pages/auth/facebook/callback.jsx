@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { consumeLoginRedirect } from "@/lib/loginRedirect";
 
 export default function FacebookCallback() {
   const router = useRouter();
@@ -43,11 +44,8 @@ export default function FacebookCallback() {
             localStorage.removeItem("is_google_login");
             localStorage.removeItem("is_line_login");
 
-            // ✅ 關鍵修改：強制硬重載跳轉，確保右上角狀態更新
-            window.location.href =
-              router.locale === "zh-TW" || !router.locale
-                ? "/"
-                : `/${router.locale}`;
+            // 硬重載跳轉（確保右上角狀態更新），並導回登入前的頁面
+            window.location.href = consumeLoginRedirect(router.locale);
           } else {
             throw new Error(data.error || "登入失敗");
           }

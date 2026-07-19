@@ -13,6 +13,24 @@
   "list": {
     "empty": "此分類尚無文章。"
   },
+  "detail": {
+    "eyebrow": "PIKFUN BLOG",
+    "ctaMore": "看更多文章",
+    "breadcrumbBlog": "部落格",
+    "highlightsTitle": "本文重點資訊",
+    "highlightsCategory": "分類：",
+    "highlightsTopic": "主題：",
+    "highlightsDate": "發布日期：",
+    "sidebarCategoriesTitle": "文章分類",
+    "sidebarPopularTitle": "熱門文章",
+    "sidebarTagsTitle": "文章標籤",
+    "tagPikfun": "PikFun",
+    "tagPickleball": "匹克球",
+    "shareLabel": "分享",
+    "copyLink": "複製連結",
+    "copied": "已複製",
+    "tocTitle": "文章地圖"
+  },
   "topics": {
     "active": "球場與活動",
     "knowledge": "運動教學",
@@ -47,10 +65,10 @@
       "backHome": "返回首頁",
       "labels": {
         "url": "官方網站",
-        "industry": "業種",
-        "region": "服務地區",
+        "industry": "社群",
+        "region": "地區",
         "contact": "聯絡方式",
-        "representative": "營運單位",
+        "representative": "單位",
         "established": "成立"
       }
     },

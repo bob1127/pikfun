@@ -7,7 +7,6 @@ import Image from "next/image";
 import NewsCarousel from "../components/EmblaCarouselFeatureCarousel/NewsCarousel"; // 檔案路徑依你的實際放置調整
 
 import React from "react";
-import { ReactLenis } from "@studio-freight/react-lenis";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import Marquee from "react-fast-marquee";

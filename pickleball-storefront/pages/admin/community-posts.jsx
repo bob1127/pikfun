@@ -95,6 +95,9 @@ export default function AdminCommunityPostsPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-5">
+              <BlueArrowLink href="/admin/push">
+                推播通知中心
+              </BlueArrowLink>
               <BlueArrowLink href="/admin/partner-applications">
                 進駐申請審核
               </BlueArrowLink>

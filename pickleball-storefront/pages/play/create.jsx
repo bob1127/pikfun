@@ -52,7 +52,7 @@ import {
 import { districtMatches, sortCourtsByDistance } from "@/lib/courtDistrict";
 import { getDistrictsForCity } from "@/lib/taiwanDistricts";
 import ConfettiButton from "@/components/ui/ConfettiButton";
-import LiquidNeonBg from "@/components/play/LiquidNeonBg";
+import { DateCardPicker } from "@/components/play/DateCard";
 
 /* ─── helpers ─────────────────────────────────────────── */
 function pad(n) {
@@ -109,56 +109,6 @@ function SectionTitle({
         <Icon size={15} />
       </span>
       <span className="crt-sec-label">{label}</span>
-    </div>
-  );
-}
-
-/* ─── Blue info tile ───────────────────────────────────── */
-function InfoTile({ label, value, onClick, wide, lime }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`crt-tile ${wide ? "crt-tile-wide" : ""} ${lime ? "crt-tile-lime" : ""}`}
-    >
-      <span className="crt-tile-label">{label}</span>
-      <span className="crt-tile-value">{value}</span>
-      {onClick && <ChevronRight size={14} className="crt-tile-arrow" />}
-    </button>
-  );
-}
-
-/* ─── Datetime bottom drawer ───────────────────────────── */
-function DatetimeDrawer({ t, label, value, onChange, onClose, min, max }) {
-  return (
-    <div className="crt-drawer-overlay" onClick={onClose}>
-      <motion.div
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 28, stiffness: 300 }}
-        className="crt-drawer"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="crt-drawer-handle" />
-        <div className="crt-drawer-head">
-          <span className="crt-drawer-title">{label}</span>
-          <button type="button" onClick={onClose} className="crt-drawer-close">
-            <X size={18} />
-          </button>
-        </div>
-        <input
-          type="datetime-local"
-          value={value}
-          onChange={onChange}
-          min={min || undefined}
-          max={max || undefined}
-          className="crt-dt-input"
-        />
-        <button type="button" onClick={onClose} className="crt-drawer-confirm">
-          {t("create.drawer.confirm")}
-        </button>
-      </motion.div>
     </div>
   );
 }
@@ -568,7 +518,6 @@ export default function CreatePlayPage() {
   const weekdays = t("create.weekdays", { returnObjects: true });
   const { userInfo, loading: userLoading } = useUser();
   const pendingIdRef = useRef(null);
-  const [drawer, setDrawer] = useState(null); // "starts_at" | "ends_at"
   const formRef = useRef(null);
 
   const defaultStart = new Date();
@@ -641,6 +590,15 @@ export default function CreatePlayPage() {
       return now;
     })(),
   );
+
+  // 日期卡選擇器用：拆出日期與時間片段
+  const sessionDateStr = form.starts_at.slice(0, 10);
+  const sessionStartTime = form.starts_at.slice(11, 16);
+  const sessionEndTime = (form.ends_at || "").slice(11, 16);
+
+  const handleSessionDateChange = (dateStr) => {
+    handleDatetimeChange("starts_at", `${dateStr}T${sessionStartTime}`);
+  };
 
   // Validate & call API — returns session id on success, throws on failure
   const doSubmit = async () => {
@@ -787,26 +745,53 @@ export default function CreatePlayPage() {
           iconBg="#fff8e6"
           iconColor="#d97706"
         />
+
+        {/* 手機版：中文日期卡 + 月曆選擇器 */}
         <div className="crt-mobile-only">
-          <div className="crt-tiles">
-            <InfoTile
-              label={t("create.fields.start_date_label")}
-              value={fmtDate(form.starts_at, weekdays)}
-              onClick={() => setDrawer("starts_at")}
-            />
-            <InfoTile
-              label={t("create.fields.start_time_label")}
-              value={fmtTime(form.starts_at)}
-              onClick={() => setDrawer("starts_at")}
-            />
-            <InfoTile
-              label={t("create.fields.end_time_label")}
-              value={fmtTime(form.ends_at)}
-              onClick={() => setDrawer("ends_at")}
-            />
+          <DateCardPicker
+            value={sessionDateStr}
+            min={startsAtMin.slice(0, 10)}
+            onChange={handleSessionDateChange}
+            chinese
+          />
+          <div className="crt-time-inputs">
+            <label className="crt-dsk-fl">
+              <span className="crt-dsk-fl-label">
+                {t("create.fields.start_time_label")}
+              </span>
+              <input
+                type="time"
+                value={sessionStartTime}
+                onChange={(e) =>
+                  handleDatetimeChange(
+                    "starts_at",
+                    `${sessionDateStr}T${e.target.value}`,
+                  )
+                }
+                className="crt-input"
+              />
+            </label>
+            <label className="crt-dsk-fl">
+              <span className="crt-dsk-fl-label">
+                {t("create.fields.end_time_label_same_day")}
+              </span>
+              <input
+                type="time"
+                value={sessionEndTime}
+                onChange={(e) =>
+                  handleDatetimeChange(
+                    "ends_at",
+                    `${sessionDateStr}T${e.target.value}`,
+                  )
+                }
+                className="crt-input"
+              />
+            </label>
           </div>
           <p className="crt-time-hint">{t("create.fields.time_hint_mobile")}</p>
         </div>
+
+        {/* 電腦版：恢復原本的日期時間欄位 */}
         <div className="crt-dsk-time-fields crt-desktop-only">
           <label className="crt-dsk-fl">
             <span className="crt-dsk-fl-label">
@@ -833,7 +818,9 @@ export default function CreatePlayPage() {
               value={form.ends_at}
               min={endsAtBounds.min}
               max={endsAtBounds.max}
-              onChange={(e) => handleDatetimeChange("ends_at", e.target.value)}
+              onChange={(e) =>
+                handleDatetimeChange("ends_at", e.target.value)
+              }
               className="crt-input"
             />
           </label>
@@ -1026,7 +1013,6 @@ export default function CreatePlayPage() {
       <div className="crt-page">
         {/* ── MOBILE HERO ─────────────────────────────── */}
         <div className="crt-hero crt-mobile-only">
-          <LiquidNeonBg />
           <div className="crt-hero-topbar">
             <Link href="/play" className="crt-hero-back">
               <ArrowLeft size={20} />
@@ -1055,6 +1041,12 @@ export default function CreatePlayPage() {
                   {userInfo.name || t("create.hero.member_fallback")}
                 </p>
               </div>
+            </div>
+
+            {/* 斜切綠色緞帶 + 白色大字（圖二風格） */}
+            <div className="crt-hero-band" aria-hidden>
+              <span className="crt-hero-word">LET&rsquo;S PLAY</span>
+              <span className="crt-hero-chevron">&raquo;</span>
             </div>
 
             <div className="crt-hero-main">
@@ -1231,26 +1223,18 @@ export default function CreatePlayPage() {
         <div className="crt-mobile-spacer crt-mobile-only" aria-hidden />
       </div>
 
-      {/* ── Datetime Drawer ────────────────────────────── */}
-      <AnimatePresence>
-        {drawer && (
-          <DatetimeDrawer
-            t={t}
-            label={
-              drawer === "starts_at"
-                ? t("create.fields.start_time_label")
-                : t("create.fields.end_time_label_same_day")
-            }
-            value={form[drawer]}
-            onChange={(e) => handleDatetimeChange(drawer, e.target.value)}
-            onClose={() => setDrawer(null)}
-            min={drawer === "starts_at" ? startsAtMin : endsAtBounds.min}
-            max={drawer === "ends_at" ? endsAtBounds.max : undefined}
-          />
-        )}
-      </AnimatePresence>
-
       <style jsx global>{`
+        /* ─── 時間輸入列（日期卡下方） ───────────── */
+        .crt-time-inputs {
+          display: flex;
+          gap: 12px;
+          margin-top: 16px;
+        }
+        .crt-time-inputs .crt-dsk-fl {
+          flex: 1;
+          max-width: 220px;
+        }
+
         /* ─── layout visibility ───────────────────── */
         .crt-mobile-only {
           display: block;
@@ -1285,8 +1269,8 @@ export default function CreatePlayPage() {
         }
 
         .crt-hero {
-          background: #0a3d8f;
-          padding: 0 1.25rem 2.75rem;
+          background: #f3f0e7;
+          padding: 0 1.25rem 2rem;
           position: relative;
           overflow: hidden;
           isolation: isolate;
@@ -1305,20 +1289,19 @@ export default function CreatePlayPage() {
           width: 2.5rem;
           height: 2.5rem;
           border-radius: 999px;
-          background: rgba(255, 255, 255, 0.12);
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          backdrop-filter: blur(8px);
+          background: #fff;
+          border: 1px solid #ddd8c8;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #fff;
+          color: #23301f;
           cursor: pointer;
           text-decoration: none;
           transition: background 0.2s;
         }
         .crt-hero-back:hover,
         .crt-hero-bell:hover {
-          background: rgba(255, 255, 255, 0.22);
+          background: #eef5ea;
         }
 
         .crt-hero-body {
@@ -1330,19 +1313,19 @@ export default function CreatePlayPage() {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          margin-bottom: 1.25rem;
+          margin-bottom: 0.5rem;
         }
         .crt-hero-avatar {
           width: 3rem;
           height: 3rem;
           border-radius: 999px;
           object-fit: cover;
-          border: 2.5px solid rgba(255, 255, 255, 0.6);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+          border: 2.5px solid #fff;
+          box-shadow: 0 4px 14px rgba(35, 60, 30, 0.18);
         }
         .crt-hero-avatar-fallback {
-          background: linear-gradient(135deg, #c8f542, #86efac);
-          color: #0f172a;
+          background: #2eb44d;
+          color: #fff;
           font-size: 1.125rem;
           font-weight: 900;
           display: flex;
@@ -1352,15 +1335,67 @@ export default function CreatePlayPage() {
         }
         .crt-hero-hi {
           font-size: 0.75rem;
-          color: rgba(255, 255, 255, 0.7);
+          color: #6d745f;
           margin: 0;
           font-weight: 500;
         }
         .crt-hero-name {
           font-size: 1rem;
           font-weight: 800;
-          color: #fff;
+          color: #20281c;
           margin: 0;
+        }
+
+        /* ─── 斜切綠色緞帶（圖二風格） ────────────── */
+        .crt-hero-band {
+          position: relative;
+          height: 122px;
+          margin: 0.25rem -1.25rem 0.875rem;
+          pointer-events: none;
+        }
+        .crt-hero-band::before {
+          content: "";
+          position: absolute;
+          left: -8%;
+          right: -8%;
+          top: 24px;
+          height: 62px;
+          background: #2eb44d;
+          transform: rotate(-6deg);
+        }
+        .crt-hero-band::after {
+          content: "";
+          position: absolute;
+          left: -8%;
+          right: -8%;
+          top: 96px;
+          height: 14px;
+          background: #2eb44d;
+          opacity: 0.85;
+          transform: rotate(-6deg);
+        }
+        .crt-hero-word {
+          position: absolute;
+          left: 1.5rem;
+          top: 32px;
+          transform: rotate(-6deg);
+          transform-origin: left center;
+          color: #fff;
+          font-size: 1.875rem;
+          font-weight: 900;
+          letter-spacing: 0.08em;
+          line-height: 1;
+          white-space: nowrap;
+        }
+        .crt-hero-chevron {
+          position: absolute;
+          right: 1.25rem;
+          top: 14px;
+          transform: rotate(-6deg);
+          color: #fff;
+          font-size: 2.25rem;
+          font-weight: 900;
+          line-height: 1;
         }
 
         .crt-hero-main {
@@ -1368,22 +1403,22 @@ export default function CreatePlayPage() {
         }
         .crt-hero-date {
           font-size: 0.6875rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: #2b9c46;
           letter-spacing: 0.08em;
           margin: 0 0 0.25rem;
-          font-weight: 600;
+          font-weight: 800;
         }
         .crt-hero-title {
           font-size: 2.5rem;
           font-weight: 900;
-          color: #fff;
+          color: #20281c;
           line-height: 1.1;
           margin: 0 0 0.375rem;
           letter-spacing: -0.01em;
         }
         .crt-hero-sub {
           font-size: 0.9375rem;
-          color: rgba(255, 255, 255, 0.75);
+          color: #5d6653;
           margin: 0;
         }
 
@@ -1396,9 +1431,9 @@ export default function CreatePlayPage() {
           border-radius: 999px;
           font-size: 0.75rem;
           font-weight: 700;
-          color: rgba(255, 255, 255, 0.85);
-          border: 1.5px solid rgba(255, 255, 255, 0.3);
-          background: rgba(255, 255, 255, 0.08);
+          color: #1f7a36;
+          border: 1.5px solid #2eb44d;
+          background: #fff;
         }
 
         /* ─── desktop brand (THEO) ────────────────── */

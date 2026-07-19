@@ -1,7 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import {
+  rememberLoginRedirect,
+  consumeLoginRedirect,
+} from "@/lib/loginRedirect";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useTranslation } from "next-i18next";
@@ -29,14 +33,20 @@ const GoogleIcon = () => (
   </svg>
 );
 
-// 🟢 LINE 圖示組件
+// 🟢 LINE 圖示組件（官方樣式：綠色圓角方塊 + 白色對話框）
 const LineIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#06C755">
-    <path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.036 9.608.391.084.922.258 1.057.592.122.298.079.76.038 1.057l-.239 1.442c-.063.385-.296 1.442 1.265.783 1.562-.659 8.438-4.966 10.87-8.006 1.139-1.42 1.745-2.834 1.745-4.436z" />
-    <path
-      fill="#FFF"
-      d="M5.385 13.06h-1.57A.428.428 0 013.4 12.63V7.936a.428.428 0 01.415-.428h1.57c.236 0 .428.192.428.428v4.268h2.083c.236 0 .428.192.428.428v.428a.428.428 0 01-.428.428zM10.426 13.06h-1.57a.428.428 0 01-.428-.428V7.936a.428.428 0 01.428-.428h1.57c.236 0 .428.192.428.428v4.696a.428.428 0 01-.428.428zM16.666 13.06h-1.57a.428.428 0 01-.428-.428V9.736l-2.028 2.927a.428.428 0 01-.352.185h-1.129a.428.428 0 01-.428-.428V7.936a.428.428 0 01.428-.428h1.57c.236 0 .428.192.428.428v2.896l2.028-2.927a.428.428 0 01.352-.185h1.129c.236 0 .428.192.428.428v4.696a.428.428 0 01-.428.428zM20.6 8.364h-2.083v1.285h2.083c.236 0 .428.192.428.428v.428a.428.428 0 01-.428.428H18.51v1.285H20.6c.236 0 .428.192.428.428v.428a.428.428 0 01-.428.428h-2.511a.428.428 0 01-.428-.428V7.936a.428.428 0 01.428-.428H20.6c.236 0 .428.192.428.428v.428a.428.428 0 01-.428.428z"
-    />
+  <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24">
+    <rect width="24" height="24" rx="5.4" fill="#06C755" />
+    <g transform="translate(3.1 3.8) scale(0.74)">
+      <path
+        fill="#FFF"
+        d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.036 9.608.391.084.922.258 1.057.592.122.298.079.76.038 1.057l-.239 1.442c-.063.385-.296 1.442 1.265.783 1.562-.659 8.438-4.966 10.87-8.006 1.139-1.42 1.745-2.834 1.745-4.436z"
+      />
+      <path
+        fill="#06C755"
+        d="M5.385 13.06h-1.57A.428.428 0 013.4 12.63V7.936a.428.428 0 01.415-.428h1.57c.236 0 .428.192.428.428v4.268h2.083c.236 0 .428.192.428.428v.428a.428.428 0 01-.428.428zM10.426 13.06h-1.57a.428.428 0 01-.428-.428V7.936a.428.428 0 01.428-.428h1.57c.236 0 .428.192.428.428v4.696a.428.428 0 01-.428.428zM16.666 13.06h-1.57a.428.428 0 01-.428-.428V9.736l-2.028 2.927a.428.428 0 01-.352.185h-1.129a.428.428 0 01-.428-.428V7.936a.428.428 0 01.428-.428h1.57c.236 0 .428.192.428.428v2.896l2.028-2.927a.428.428 0 01.352-.185h1.129c.236 0 .428.192.428.428v4.696a.428.428 0 01-.428.428zM20.6 8.364h-2.083v1.285h2.083c.236 0 .428.192.428.428v.428a.428.428 0 01-.428.428H18.51v1.285H20.6c.236 0 .428.192.428.428v.428a.428.428 0 01-.428.428h-2.511a.428.428 0 01-.428-.428V7.936a.428.428 0 01.428-.428H20.6c.236 0 .428.192.428.428v.428a.428.428 0 01-.428.428z"
+      />
+    </g>
   </svg>
 );
 
@@ -74,6 +84,26 @@ export default function Login() {
   const [otpExpires, setOtpExpires] = useState("");
 
   const isProcessing = useRef(false);
+
+  // 記住登入前所在的頁面，登入成功後導回（含社群登入跳轉外站的情況）
+  useEffect(() => {
+    if (!router.isReady) return;
+    const q = router.query.redirect;
+    if (typeof q === "string" && q) {
+      rememberLoginRedirect(q);
+      return;
+    }
+    try {
+      if (document.referrer) {
+        const ref = new URL(document.referrer);
+        if (ref.origin === window.location.origin) {
+          rememberLoginRedirect(ref.pathname + ref.search + ref.hash);
+        }
+      }
+    } catch {
+      /* referrer 解析失敗時略過 */
+    }
+  }, [router.isReady, router.query.redirect]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -178,9 +208,8 @@ export default function Login() {
         localStorage.setItem("medusa_auth_token", data.token);
       }
 
-      // ✅ 關鍵修改：將 router.push 改為硬重載跳轉
-      window.location.href =
-        router.locale === "zh-TW" || !router.locale ? "/" : `/${router.locale}`;
+      // 硬重載跳轉（確保右上角登入狀態更新），並導回登入前的頁面
+      window.location.href = consumeLoginRedirect(router.locale);
     } catch (error) {
       setErrorMsg(error.message || "系統連線異常，請稍後再試");
     } finally {

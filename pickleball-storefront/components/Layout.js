@@ -9,13 +9,11 @@ import Footer from "@/components/ui/footer.jsx";
 import Head from "next/head";
 import { getSiteUrl } from "@/lib/siteUrl";
 import CartSidebar from "@/components/CartSidebar"; 
-import { ReactLenis } from "@studio-freight/react-lenis";
+import PwaSetupPrompt from "@/components/PwaSetupPrompt";
 
 export default function Layout({ children }) {
   const router = useRouter();
   const isStandalonePage = router.pathname === "/about-pikfun";
-  const disableLenis =
-    router.pathname.startsWith("/product/") || isStandalonePage;
 
   useEffect(() => {
     AOS.init({
@@ -60,7 +58,7 @@ export default function Layout({ children }) {
     },
   };
 
-  const faviconVersion = "PikFun-20260622";
+  const faviconVersion = "PikFun-20260719-pwa";
 
   return (
     <>
@@ -81,7 +79,20 @@ export default function Layout({ children }) {
         <link rel="icon" type="image/png" sizes="32x32" href={`/icon-32.png?v=${faviconVersion}`} key="icon32" />
         <link rel="icon" type="image/png" sizes="192x192" href={`/icon.png?v=${faviconVersion}`} key="icon192" />
         <link rel="shortcut icon" href={`/favicon.ico?v=${faviconVersion}`} key="shortcut" />
-        <link rel="apple-touch-icon" href={`/apple-touch-icon.png?v=${faviconVersion}`} key="apple" />
+        <link rel="apple-touch-icon" href={`/images/pikfun-logo-pwa.png?v=${faviconVersion}`} key="apple" />
+
+        {/* PWA：可加入主畫面 + 推播 */}
+        <link rel="manifest" href="/manifest.json" key="manifest" />
+        <meta name="theme-color" content="#005caf" key="themecolor" />
+        <meta name="mobile-web-app-capable" content="yes" key="mwac" />
+        <meta name="apple-mobile-web-app-capable" content="yes" key="amwac" />
+        <meta name="apple-mobile-web-app-title" content="PikFun" key="amwat" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="default"
+          key="amwasbs"
+        />
+
         <link rel="canonical" href={siteUrl} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -122,30 +133,17 @@ export default function Layout({ children }) {
 
       {!isStandalonePage && <Navbar />}
       <CartSidebar />
+      <PwaSetupPrompt />
 
-      {disableLenis ? (
-        <div className={isStandalonePage ? "" : "flex flex-col justify-between"}>
-          <main>{children}</main>
-          {!isStandalonePage && (
-            <div>
-              <Banner />
-              <Footer />
-            </div>
-          )}
-        </div>
-      ) : (
-      <ReactLenis root>
-        <div className="flex flex-col justify-between">
-           <main>
-             {children}
-           </main>
-           <div>
-             <Banner />
-             <Footer />
-           </div>
-        </div>
-      </ReactLenis>
-      )}
+      <div className={isStandalonePage ? "" : "flex flex-col justify-between"}>
+        <main>{children}</main>
+        {!isStandalonePage && (
+          <div>
+            <Banner />
+            <Footer />
+          </div>
+        )}
+      </div>
     </>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { persistSocialProfile } from "@/lib/socialProfile";
+import { consumeLoginRedirect } from "@/lib/loginRedirect";
 
 export default function LineCallback() {
   const router = useRouter();
@@ -50,10 +51,8 @@ export default function LineCallback() {
             localStorage.removeItem("facebook_name");
             localStorage.removeItem("facebook_avatar");
 
-            window.location.href =
-              router.locale === "zh-TW" || !router.locale
-                ? "/"
-                : `/${router.locale}`;
+            // 導回登入前的頁面
+            window.location.href = consumeLoginRedirect(router.locale);
             return;
           }
           throw new Error(data.error || "登入失敗");

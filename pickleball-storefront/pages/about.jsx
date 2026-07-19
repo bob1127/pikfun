@@ -1,5 +1,4 @@
 import React from "react";
-import { ReactLenis } from "@studio-freight/react-lenis";
 import Slider from "../components/HeroSlider/page";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -95,7 +94,7 @@ export default function About() {
   ];
 
   return (
-    <ReactLenis root>
+    <>
       <Head>
         <title>{seo.title}</title>
         <meta name="description" content={seo.description} />
@@ -486,7 +485,7 @@ export default function About() {
           </section>
         </main>
       </div>
-    </ReactLenis>
+    </>
   );
 }
 

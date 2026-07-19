@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { getTransporter } from "@/lib/mailer";
+import { sendWebPushToEmail, isWebPushEnabled } from "@/lib/webPush";
 import {
   buildReminderContext,
   buildLineFlexMessage,
@@ -132,6 +133,21 @@ export default async function handler(req, res) {
         await sendLineMessage(profile.line_user_id, session, reminder);
       } else {
         await sendEmail(reminder.participant_email, session, reminder);
+      }
+
+      // PWA 網頁推播：額外推給該會員已訂閱的裝置（失敗不影響主通知）
+      if (isWebPushEnabled()) {
+        try {
+          const ctx = buildReminderContext(session, reminder);
+          await sendWebPushToEmail(reminder.participant_email, {
+            title: `PikFun 揪團提醒｜${ctx.timingLabel}`,
+            body: `${ctx.title}\n${ctx.dateLabel} ${ctx.timeRange}\n${ctx.locationName}`,
+            url: `/play/${session.id}`,
+            tag: `play-reminder-${reminder.id}`,
+          });
+        } catch (e) {
+          console.error("[cron/reminders] web push:", e.message);
+        }
       }
 
       await markReminder(reminder.id, {

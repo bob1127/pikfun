@@ -87,7 +87,7 @@ export function buildOrderCreatedEmail({ order, siteUrl }) {
       <div><strong>訂單編號：</strong>#${order.id}</div>
       <div><strong>訂單狀態：</strong>${statusLabel(order.status)}</div>
       <div><strong>訂單日期：</strong>${String(order.date_created || "").slice(0,10)}</div>
-      <div><strong>付款方式：</strong>${order.payment_method_title || "PayUni 統一支付"}</div>
+      <div><strong>付款方式：</strong>${order.payment_method_title || "綠界 ECPay"}</div>
       <div><strong>總金額：</strong>${money(order.total)}</div>
     </div>
 
@@ -100,7 +100,7 @@ export function buildOrderCreatedEmail({ order, siteUrl }) {
     <h3 style="margin:24px 0 8px;">付款提醒</h3>
     <ul style="margin:8px 0 0;padding-left:18px;">
       <li>若您選擇 <strong>信用卡 / Apple Pay / Google Pay</strong>，請回到結帳流程完成付款。</li>
-      <li>若您選擇 <strong>ATM 轉帳</strong>，請依 PayUni 付款頁面指示完成轉帳（款項入帳後系統會更新訂單狀態）。</li>
+      <li>若您選擇 <strong>ATM 轉帳</strong>，請依綠界（ECPay）付款頁面提供的虛擬帳號完成轉帳（款項入帳後系統會更新訂單狀態）。</li>
     </ul>
 
     <p style="margin:20px 0 0;">
@@ -139,7 +139,7 @@ export function buildPaymentSuccessEmail({ order, siteUrl, transactionId }) {
       <div><strong>訂單編號：</strong>#${order.id}</div>
       <div><strong>訂單狀態：</strong>${statusLabel(order.status)}</div>
       <div><strong>訂單日期：</strong>${String(order.date_created || "").slice(0,10)}</div>
-      <div><strong>付款方式：</strong>${order.payment_method_title || "PayUni 統一支付"}</div>
+      <div><strong>付款方式：</strong>${order.payment_method_title || "綠界 ECPay"}</div>
       <div><strong>總金額：</strong>${money(order.total)}</div>
       ${
         transactionId

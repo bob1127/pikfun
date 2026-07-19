@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
-import { ReactLenis } from "@studio-freight/react-lenis";
 import { motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -59,7 +58,7 @@ export default function TermsOfService() {
   };
 
   return (
-    <ReactLenis root>
+    <>
       <Head>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDesc} />
@@ -170,7 +169,7 @@ export default function TermsOfService() {
           </div>
         </div>
       </div>
-    </ReactLenis>
+    </>
   );
 }
 

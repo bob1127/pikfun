@@ -1,5 +1,36 @@
+import { readPlacesCache } from "@/lib/googlePlacesCache";
+import { TAIWAN_CITIES } from "@/lib/courtCities";
+
 const PHOTO_CACHE = new Map();
 const PHOTO_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+// place_id → photo_refs 索引，來源是 Supabase 的球場快取（prewarm 時已含照片參照），
+// 命中時完全不需要打 Place Details
+let _refsIndex = null;
+let _refsIndexBuiltAt = 0;
+const REFS_INDEX_TTL_MS = 30 * 60 * 1000;
+
+async function getCachedPhotoRefs(placeId) {
+  const now = Date.now();
+  if (!_refsIndex || now - _refsIndexBuiltAt > REFS_INDEX_TTL_MS) {
+    const index = new Map();
+    for (const city of TAIWAN_CITIES) {
+      try {
+        const entry = await readPlacesCache(city);
+        for (const c of entry?.data?.courts || []) {
+          if (c.place_id && Array.isArray(c.photo_refs) && c.photo_refs.length) {
+            index.set(c.place_id, c.photo_refs);
+          }
+        }
+      } catch {
+        /* 單一縣市讀取失敗不影響其他 */
+      }
+    }
+    _refsIndex = index;
+    _refsIndexBuiltAt = now;
+  }
+  return _refsIndex.get(placeId) || [];
+}
 
 function getApiKey() {
   return (
@@ -129,11 +160,16 @@ export async function getPlacePhotoUrls({
   const cached = readPhotoCache(cacheKey);
   if (cached) return cached;
 
-  const details = await fetchPlaceDetails(placeId, apiKey);
-  const refs = (details?.photos || [])
-    .slice(0, maxPhotos)
-    .map((p) => p.photo_reference)
-    .filter(Boolean);
+  // 優先用 Supabase 球場快取裡的照片參照（零 Google 用量），
+  // 只有快取沒有這個地點時才打一次 Place Details
+  let refs = (await getCachedPhotoRefs(placeId)).slice(0, maxPhotos);
+  if (!refs.length) {
+    const details = await fetchPlaceDetails(placeId, apiKey);
+    refs = (details?.photos || [])
+      .slice(0, maxPhotos)
+      .map((p) => p.photo_reference)
+      .filter(Boolean);
+  }
 
   const photos = refs.map((ref) => buildPhotoProxyUrl(ref, maxWidth));
 

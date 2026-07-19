@@ -29,6 +29,7 @@ import {
   formatFee,
   buildGoogleMapsLink,
 } from "@/lib/playUtils";
+import { MiniDateCard } from "@/components/play/DateCard";
 import MapEmbed from "@/components/play/MapEmbed";
 import { fireCelebrationConfettiFromElement } from "@/lib/fireCelebrationConfetti";
 
@@ -530,12 +531,21 @@ export default function PlayDetailPage() {
           className="pld-sheet"
         >
           <div className="pld-info">
-            <InfoRow label={t("detail.info.date")}>
-              {formatSessionDate(session.starts_at, locale)}
-            </InfoRow>
-            <InfoRow label={t("detail.info.time")}>
-              {formatSessionRange(session.starts_at, session.ends_at, locale)}
-            </InfoRow>
+            <div className="pld-datetime-wrap">
+              <div className="pld-datetime-rows">
+                <InfoRow label={t("detail.info.date")}>
+                  {formatSessionDate(session.starts_at, locale)}
+                </InfoRow>
+                <InfoRow label={t("detail.info.time")}>
+                  {formatSessionRange(
+                    session.starts_at,
+                    session.ends_at,
+                    locale,
+                  )}
+                </InfoRow>
+              </div>
+              <MiniDateCard date={session.starts_at} />
+            </div>
             <InfoRow label={t("detail.info.court")}>
               <p className="pld-loc-name">{session.location_name}</p>
               {session.location_address && (
@@ -1004,6 +1014,16 @@ export default function PlayDetailPage() {
           }
         }
 
+        .pld-datetime-wrap {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        .pld-datetime-rows {
+          flex: 1;
+          min-width: 0;
+        }
         .pld-row {
           padding: 0.875rem 0;
           border-bottom: 1px solid #e8edf3;

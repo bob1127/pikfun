@@ -13,10 +13,18 @@ import Layout from "@/components/Layout";
 import { FontSizeProvider } from "@/components/blog/FontSizeContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const isProductPage = router.pathname.startsWith("/product/");
+
+  // PWA：註冊 service worker（推播與加入主畫面所需）
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, []);
 
   return (
     <>

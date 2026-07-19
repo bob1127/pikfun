@@ -25,6 +25,7 @@ import { ParallaxProvider, Parallax } from "react-scroll-parallax";
 // 🔥 引入剛剛設計的進駐夥伴元件
 import PartnersSection from "../components/PartnersSection"; // 假設您將它放在 components 目錄下
 import HomePopupAd from "../components/HomePopupAd";
+import VelocityText from "../components/VelocityText";
 import { fetchHomeWpPosts } from "@/lib/wordpress";
 
 export default function Home({
@@ -217,18 +218,13 @@ export default function Home({
         {/* =========================================
           Section 1: 巨大文字與 Service 介紹
           ========================================= */}
-        <section className="relative pt-20 pb-32">
-          {/* 背景巨大裝飾文字 (跨出螢幕) */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className="whitespace-nowrap text-[#807977] font-bold text-[13vw] leading-[0.8] tracking-tighter opacity-95 -ml-[3vw] select-none pointer-events-none"
-          >
+        <section className="relative pt-12 pb-32">
+          {/* 背景巨大裝飾文字：滾動速度傾斜 + 水平位移 */}
+          <VelocityText className="text-[#807977] font-bold text-[13vw] leading-[0.8] tracking-tighter opacity-95 -ml-[3vw]">
             ing the Joy of Pickleball
-          </motion.div>
+          </VelocityText>
 
-          <div className="max-w-[1440px] mx-auto px-6 md:px-16 mt-24 md:mt-40 flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-0">
+          <div className="max-w-[1440px] mx-auto px-6 md:px-16 mt-8 md:mt-16 flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-0">
             {/* 垂直標籤 (僅在桌面版顯示) */}
             <div
               className="hidden lg:flex flex-col items-center gap-6 text-[11px] font-bold tracking-[0.3em] text-gray-800 uppercase"

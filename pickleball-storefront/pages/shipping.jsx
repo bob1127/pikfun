@@ -1,7 +1,6 @@
 import React from "react";
 import Head from "next/head";
 import Image from "next/image";
-import { ReactLenis } from "@studio-freight/react-lenis";
 import { motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -28,7 +27,7 @@ export default function Shipping() {
   const pageDesc = t("shipping.seo_desc");
 
   return (
-    <ReactLenis root>
+    <>
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDesc} />
@@ -208,7 +207,7 @@ export default function Shipping() {
           </motion.section>
         </div>
       </div>
-    </ReactLenis>
+    </>
   );
 }
 

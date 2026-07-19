@@ -18,6 +18,19 @@ export function stripHtml(html) {
   if (!html) return "";
   return String(html)
     .replace(/<[^>]+>/g, "")
+    // WP 摘要結尾的 [&hellip;] / […] 與常見 HTML entity
+    .replace(/\[?(?:&hellip;|&#8230;|…)\]?/g, "…")
+    .replace(/&nbsp;|&#160;/g, " ")
+    .replace(/&#8216;|&lsquo;/g, "'")
+    .replace(/&#8217;|&rsquo;|&#39;|&apos;/g, "'")
+    .replace(/&#8220;|&ldquo;/g, "\u201c")
+    .replace(/&#8221;|&rdquo;/g, "\u201d")
+    .replace(/&#8211;|&ndash;/g, "–")
+    .replace(/&#8212;|&mdash;/g, "—")
+    .replace(/&quot;|&#34;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;|&#38;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
 }

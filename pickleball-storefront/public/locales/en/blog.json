@@ -13,6 +13,24 @@
   "list": {
     "empty": "No articles in this category yet."
   },
+  "detail": {
+    "eyebrow": "PIKFUN BLOG",
+    "ctaMore": "More Articles",
+    "breadcrumbBlog": "Blog",
+    "highlightsTitle": "Article Highlights",
+    "highlightsCategory": "Category: ",
+    "highlightsTopic": "Topic: ",
+    "highlightsDate": "Published: ",
+    "sidebarCategoriesTitle": "Categories",
+    "sidebarPopularTitle": "Popular Articles",
+    "sidebarTagsTitle": "Tags",
+    "tagPikfun": "PikFun",
+    "tagPickleball": "Pickleball",
+    "shareLabel": "Share",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "tocTitle": "Article Map"
+  },
   "topics": {
     "active": "Courts & Events",
     "knowledge": "Sports Education",
@@ -47,10 +65,10 @@
       "backHome": "Back to Home",
       "labels": {
         "url": "Official Website",
-        "industry": "Industry",
-        "region": "Service Region",
+        "industry": "Community",
+        "region": "Region",
         "contact": "Contact",
-        "representative": "Operated By",
+        "representative": "Team",
         "established": "Established"
       }
     },
