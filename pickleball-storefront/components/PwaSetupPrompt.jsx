@@ -4,17 +4,16 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Bell, Download, Share, CheckCircle2 } from "lucide-react";
+import {
+  urlBase64ToUint8Array,
+  postPushSubscription,
+  enableWebPush,
+  isPushSupported,
+} from "@/lib/webPushClient";
 
 const SNOOZE_KEY = "pikfun_pwa_prompt_snooze";
 const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
 const SHOW_DELAY_MS = 6000;
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const raw = window.atob(base64);
-  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
-}
 
 function isStandalone() {
   return (
@@ -25,28 +24,6 @@ function isStandalone() {
 
 function isIos() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-}
-
-/** 避免 serviceWorker.ready / subscribe 永遠 pending 造成 UI 卡死 */
-function withTimeout(promise, ms, label) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error(`${label} 逾時`)), ms),
-    ),
-  ]);
-}
-
-async function postSubscription(subscription) {
-  const token = localStorage.getItem("medusa_auth_token");
-  await fetch("/api/push/subscribe", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({ subscription: subscription.toJSON() }),
-  });
 }
 
 /**
@@ -66,10 +43,7 @@ export default function PwaSetupPrompt() {
     setMounted(true);
     if (typeof window === "undefined") return;
 
-    const supported =
-      "serviceWorker" in navigator &&
-      "PushManager" in window &&
-      "Notification" in window;
+    const supported = isPushSupported();
 
     // 權限已允許：靜默同步訂閱與 email 綁定，不打擾使用者。
     // App 模式（加入 Dock／桌面）下若還沒有訂閱，直接補建立——
@@ -85,7 +59,7 @@ export default function PwaSetupPrompt() {
               applicationServerKey: urlBase64ToUint8Array(vapidKey),
             });
           }
-          if (sub) await postSubscription(sub);
+          if (sub) await postPushSubscription(sub);
         })
         .catch(() => {});
     }
@@ -127,50 +101,13 @@ export default function PwaSetupPrompt() {
   }, []);
 
   const enablePush = useCallback(async () => {
-    const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-    if (
-      !vapidKey ||
-      !("serviceWorker" in navigator) ||
-      !("PushManager" in window)
-    ) {
-      setPushState("unsupported");
-      return;
-    }
-
     setPushState("working");
     try {
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        setPushState(permission === "denied" ? "blocked" : "idle");
-        return;
-      }
-      // 確保 SW 已註冊：註冊失敗時 serviceWorker.ready 會永遠 pending，
-      // 所以先主動補註冊，且各步驟都加逾時
-      let reg = await navigator.serviceWorker.getRegistration();
-      if (!reg) {
-        reg = await withTimeout(
-          navigator.serviceWorker.register("/sw.js"),
-          10000,
-          "Service Worker 註冊",
-        );
-      }
-      await withTimeout(
-        navigator.serviceWorker.ready,
-        10000,
-        "Service Worker 啟動",
-      );
-      const sub =
-        (await reg.pushManager.getSubscription()) ||
-        (await withTimeout(
-          reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidKey),
-          }),
-          15000,
-          "推播訂閱",
-        ));
-      await withTimeout(postSubscription(sub), 10000, "訂閱儲存");
-      setPushState("done");
+      const result = await enableWebPush();
+      if (result === "done") setPushState("done");
+      else if (result === "blocked") setPushState("blocked");
+      else if (result === "unsupported") setPushState("unsupported");
+      else setPushState("idle");
     } catch (e) {
       console.error("[push] subscribe failed:", e);
       setPushState("error");
