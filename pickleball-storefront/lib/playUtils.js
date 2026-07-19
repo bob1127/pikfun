@@ -56,6 +56,9 @@ export function getSkillLevelColor(value) {
   return "bg-sky-100 text-sky-700";
 }
 
+/** 全站活動時間一律以台灣時區顯示（伺服器端跑在 UTC，未指定會差 8 小時） */
+const SESSION_TIME_ZONE = "Asia/Taipei";
+
 export function formatSessionDate(iso, locale = "zh-TW") {
   if (!iso) return "";
   const d = new Date(iso);
@@ -63,6 +66,7 @@ export function formatSessionDate(iso, locale = "zh-TW") {
     month: "long",
     day: "numeric",
     weekday: "short",
+    timeZone: SESSION_TIME_ZONE,
   });
 }
 
@@ -73,6 +77,7 @@ export function formatSessionTime(iso, locale = "zh-TW") {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+    timeZone: SESSION_TIME_ZONE,
   });
 }
 
@@ -92,10 +97,13 @@ export function formatCardTimeRange(startsAt, endsAt, locale = "zh-TW") {
 /** 揪團卡片：2026.07.09 18:00-19:00 */
 export function formatCardDateTime(startsAt, endsAt, locale = "zh-TW") {
   if (!startsAt) return "";
-  const d = new Date(startsAt);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: SESSION_TIME_ZONE,
+  }).format(new Date(startsAt)); // en-CA → YYYY-MM-DD
+  const [y, m, day] = parts.split("-");
   return `${y}.${m}.${day} ${formatCardTimeRange(startsAt, endsAt, locale)}`;
 }
 
