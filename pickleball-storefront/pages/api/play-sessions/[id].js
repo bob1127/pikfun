@@ -272,7 +272,7 @@ export default async function handler(req, res) {
         })
         .eq("id", id);
 
-      // ── Email 提醒（預設）：算出前 24h、前 2h，時間未過才寫入 ──────────
+      // ── 提醒排程：前 24h、前 2h；已綁 LINE 則走 LINE，否則 Email ──
       const now = new Date();
       const reminderTimes = [
         new Date(new Date(session.starts_at).getTime() - 24 * 60 * 60 * 1000),
@@ -280,7 +280,13 @@ export default async function handler(req, res) {
       ].filter((t) => t > now);
 
       if (reminderTimes.length > 0) {
-        // 先清掉同一人同場次的舊提醒（避免重複）
+        const { data: lineProfile } = await supabase
+          .from("user_line_profiles")
+          .select("line_user_id")
+          .eq("customer_email", participant_email)
+          .maybeSingle();
+        const channel = lineProfile?.line_user_id ? "line" : "email";
+
         await supabase
           .from("play_session_reminders")
           .delete()
@@ -293,7 +299,7 @@ export default async function handler(req, res) {
             session_id: id,
             participant_email,
             remind_at: t.toISOString(),
-            channel: "email",
+            channel,
           }))
         );
       }

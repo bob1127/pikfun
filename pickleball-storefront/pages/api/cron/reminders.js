@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import nodemailer from "nodemailer";
+import { getTransporter } from "@/lib/mailer";
 import {
   buildReminderContext,
   buildLineFlexMessage,
@@ -9,12 +9,6 @@ import {
 
 const LINE_CHANNEL_ACCESS_TOKEN =
   process.env.LINE_MESSAGING_CHANNEL_ACCESS_TOKEN || "";
-
-const SMTP_HOST = process.env.SMTP_HOST || "";
-const SMTP_PORT = Number(process.env.SMTP_PORT) || 465;
-const SMTP_USER = process.env.SMTP_USER || "";
-const SMTP_PASS = process.env.SMTP_PASS || "";
-const MAIL_FROM = process.env.MAIL_FROM || "";
 
 const CRON_SECRET = process.env.CRON_SECRET || "";
 const LOOK_AHEAD_MINUTES = 15;
@@ -27,7 +21,9 @@ const supabase = createClient(
 
 async function sendLineMessage(lineUserId, session, reminder) {
   if (!LINE_CHANNEL_ACCESS_TOKEN) {
-    console.warn("[cron/reminders] LINE_MESSAGING_CHANNEL_ACCESS_TOKEN 未設定，略過 LINE 通知");
+    console.warn(
+      "[cron/reminders] LINE_MESSAGING_CHANNEL_ACCESS_TOKEN 未設定，略過 LINE 通知"
+    );
     return;
   }
 
@@ -53,26 +49,25 @@ async function sendLineMessage(lineUserId, session, reminder) {
 }
 
 async function sendEmail(toEmail, session, reminder) {
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
-    console.warn("[cron/reminders] SMTP 未設定，略過 Email 通知");
+  // 與全站其他寄信 API 一致，使用 GMAIL_USER / GMAIL_PASS
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
+    console.warn("[cron/reminders] GMAIL_USER/PASS 未設定，略過 Email 通知");
     return;
   }
 
   const ctx = buildReminderContext(session, reminder);
-
-  const transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_PORT === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
+  const transporter = getTransporter();
 
   await transporter.sendMail({
-    from: MAIL_FROM || `PikFun <${SMTP_USER}>`,
+    from: `PikFun <${process.env.GMAIL_USER}>`,
     to: toEmail,
     subject: buildReminderEmailSubject(ctx),
     html: buildReminderEmailHtml(ctx),
   });
+}
+
+async function markReminder(id, patch) {
+  await supabase.from("play_session_reminders").update(patch).eq("id", id);
 }
 
 export default async function handler(req, res) {
@@ -109,15 +104,15 @@ export default async function handler(req, res) {
     const session = reminder.play_sessions;
     if (!session) continue;
 
-    if (session.status === "cancelled") {
-      await supabase
-        .from("play_session_reminders")
-        .update({
-          sent: true,
-          sent_at: new Date().toISOString(),
-          error_msg: "session cancelled",
-        })
-        .eq("id", reminder.id);
+    // 活動已取消，或開始時間已過 → 標記略過，避免補發過期提醒
+    const sessionStarted =
+      session.starts_at && new Date(session.starts_at).getTime() <= now.getTime();
+    if (session.status === "cancelled" || sessionStarted) {
+      await markReminder(reminder.id, {
+        sent: true,
+        sent_at: now.toISOString(),
+        error_msg: session.status === "cancelled" ? "session cancelled" : "session already started",
+      });
       results.skipped++;
       continue;
     }
@@ -136,18 +131,15 @@ export default async function handler(req, res) {
         await sendEmail(reminder.participant_email, session, reminder);
       }
 
-      await supabase
-        .from("play_session_reminders")
-        .update({ sent: true, sent_at: new Date().toISOString() })
-        .eq("id", reminder.id);
-
+      await markReminder(reminder.id, {
+        sent: true,
+        sent_at: now.toISOString(),
+        error_msg: null,
+      });
       results.sent++;
     } catch (e) {
       console.error(`[cron/reminders] id=${reminder.id}`, e.message);
-      await supabase
-        .from("play_session_reminders")
-        .update({ error_msg: e.message })
-        .eq("id", reminder.id);
+      await markReminder(reminder.id, { error_msg: e.message });
       results.errors.push({ id: reminder.id, error: e.message });
     }
   }
