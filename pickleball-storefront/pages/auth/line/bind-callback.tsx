@@ -290,7 +290,11 @@ export default function LineBindCallback() {
   );
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getServerSideProps({
+  locale,
+}: {
+  locale?: string;
+}) {
   return {
     props: {
       ...(await serverSideTranslations(locale || "zh-TW", ["common", "play"])),
