@@ -27,6 +27,16 @@ function isIos() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 }
 
+/** 避免 serviceWorker.ready / subscribe 永遠 pending 造成 UI 卡死 */
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} 逾時`)), ms),
+    ),
+  ]);
+}
+
 async function postSubscription(subscription) {
   const token = localStorage.getItem("medusa_auth_token");
   await fetch("/api/push/subscribe", {
@@ -46,7 +56,7 @@ async function postSubscription(subscription) {
 export default function PwaSetupPrompt() {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [pushState, setPushState] = useState("idle"); // idle | working | done | unsupported
+  const [pushState, setPushState] = useState("idle"); // idle | working | done | error | blocked | unsupported
   const [installed, setInstalled] = useState(false);
   const [showIosHint, setShowIosHint] = useState(false);
   const [canInstall, setCanInstall] = useState(false);
@@ -119,21 +129,39 @@ export default function PwaSetupPrompt() {
     try {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
-        setPushState("idle");
+        setPushState(permission === "denied" ? "blocked" : "idle");
         return;
       }
-      const reg = await navigator.serviceWorker.ready;
+      // 確保 SW 已註冊：註冊失敗時 serviceWorker.ready 會永遠 pending，
+      // 所以先主動補註冊，且各步驟都加逾時
+      let reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) {
+        reg = await withTimeout(
+          navigator.serviceWorker.register("/sw.js"),
+          10000,
+          "Service Worker 註冊",
+        );
+      }
+      await withTimeout(
+        navigator.serviceWorker.ready,
+        10000,
+        "Service Worker 啟動",
+      );
       const sub =
         (await reg.pushManager.getSubscription()) ||
-        (await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(vapidKey),
-        }));
-      await postSubscription(sub);
+        (await withTimeout(
+          reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(vapidKey),
+          }),
+          15000,
+          "推播訂閱",
+        ));
+      await withTimeout(postSubscription(sub), 10000, "訂閱儲存");
       setPushState("done");
     } catch (e) {
       console.error("[push] subscribe failed:", e);
-      setPushState("unsupported");
+      setPushState("error");
     }
   }, []);
 
@@ -223,7 +251,9 @@ export default function PwaSetupPrompt() {
                   推播已開啟
                 </div>
               ) : (
-                notifDefault && (
+                (notifDefault ||
+                  pushState === "working" ||
+                  pushState === "error") && (
                   <button
                     type="button"
                     onClick={enablePush}
@@ -231,9 +261,25 @@ export default function PwaSetupPrompt() {
                     className="w-full flex items-center justify-center gap-2 border border-[#e8edf3] text-[#0f172a] text-sm font-bold rounded-2xl py-3 hover:bg-[#f8fafc] transition-colors disabled:opacity-60"
                   >
                     <Bell size={16} />
-                    {pushState === "working" ? "設定中…" : "開啟推播通知"}
+                    {pushState === "working"
+                      ? "設定中…"
+                      : pushState === "error"
+                        ? "再試一次"
+                        : "開啟推播通知"}
                   </button>
                 )
+              )}
+
+              {pushState === "error" && (
+                <p className="text-xs text-[#dc2626] text-center leading-relaxed">
+                  推播設定沒有完成（連線逾時或被瀏覽器擋下），請再試一次。
+                </p>
+              )}
+
+              {pushState === "blocked" && (
+                <p className="text-xs text-[#94a3b8] text-center leading-relaxed">
+                  通知權限已被封鎖：請點網址列左側的鎖頭圖示，把「通知」改為允許後再試。
+                </p>
               )}
 
               {pushState === "unsupported" && (
