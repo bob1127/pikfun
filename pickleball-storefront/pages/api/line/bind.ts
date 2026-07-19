@@ -13,14 +13,19 @@ const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-/** 計算提醒時間（前 24h、前 2h），若時間已過就略過 */
+/** 計算提醒時間（前 24h、前 2h）；臨時揪團兩個時間點都過了就立即補發一則 */
 function buildRemindTimes(startsAt: string): Date[] {
   const start = new Date(startsAt);
   const now = new Date();
-  return [
+  const times = [
     new Date(start.getTime() - 24 * 60 * 60 * 1000), // 前 24 小時
     new Date(start.getTime() -  2 * 60 * 60 * 1000), // 前 2 小時
   ].filter((t) => t > now);
+
+  if (times.length === 0 && start > now) {
+    times.push(now);
+  }
+  return times;
 }
 
 /** 寫入 play_session_reminders（先刪同 session+email 的舊筆，再重建） */

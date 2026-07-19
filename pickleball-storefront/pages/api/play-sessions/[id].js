@@ -274,10 +274,16 @@ export default async function handler(req, res) {
 
       // ── 提醒排程：前 24h、前 2h；已綁 LINE 則走 LINE，否則 Email ──
       const now = new Date();
+      const startsAtMs = new Date(session.starts_at).getTime();
       const reminderTimes = [
-        new Date(new Date(session.starts_at).getTime() - 24 * 60 * 60 * 1000),
-        new Date(new Date(session.starts_at).getTime() -  2 * 60 * 60 * 1000),
+        new Date(startsAtMs - 24 * 60 * 60 * 1000),
+        new Date(startsAtMs - 2 * 60 * 60 * 1000),
       ].filter((t) => t > now);
+
+      // 臨時揪團：兩個標準時間點都已過、但活動還沒開始 → 立即補發一則提醒
+      if (reminderTimes.length === 0 && startsAtMs > now.getTime()) {
+        reminderTimes.push(now);
+      }
 
       if (reminderTimes.length > 0) {
         const { data: lineProfile } = await supabase

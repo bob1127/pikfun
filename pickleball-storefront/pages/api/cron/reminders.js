@@ -104,9 +104,12 @@ export default async function handler(req, res) {
     const session = reminder.play_sessions;
     if (!session) continue;
 
-    // 活動已取消，或開始時間已過 → 標記略過，避免補發過期提醒
+    // 活動已取消，或開始超過 10 分鐘 → 標記略過，避免補發過期提醒
+    // （保留 10 分鐘緩衝，讓臨時揪團的即時提醒不會因 cron 間隔被誤略過）
+    const GRACE_MS = 10 * 60 * 1000;
     const sessionStarted =
-      session.starts_at && new Date(session.starts_at).getTime() <= now.getTime();
+      session.starts_at &&
+      new Date(session.starts_at).getTime() + GRACE_MS <= now.getTime();
     if (session.status === "cancelled" || sessionStarted) {
       await markReminder(reminder.id, {
         sent: true,

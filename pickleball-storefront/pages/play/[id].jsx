@@ -66,41 +66,34 @@ function LineReminderCard({ t, sessionId, userEmail, isReturning = false }) {
     window.location.href = url;
   };
 
+  const label = isReturning
+    ? t("detail.line.title_returning")
+    : t("detail.line.title_new");
+
   return (
-    <motion.button
-      type="button"
+    <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      onClick={handleClick}
-      className="mb-6 w-full text-left rounded-2xl p-5 transition-all hover:opacity-95 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#06C755]"
-      style={{ backgroundColor: "#06C755" }}
+      className="mb-6"
     >
-      <div className="flex items-start gap-3">
-        <BellRing size={22} className="text-white/90 shrink-0 mt-0.5" />
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-white text-[16px]">
-            {isReturning
-              ? t("detail.line.title_returning")
-              : t("detail.line.title_new")}
-          </p>
-          <p className="text-[14px] text-white/80 mt-1 font-bold leading-relaxed">
-            {t("detail.line.desc")}
-            {isReturning ? t("detail.line.desc_returning_suffix") : ""}
-          </p>
-          <p className="text-[12px] text-white/65 mt-2.5 leading-relaxed">
-            {t("detail.line.email_note", { email: userEmail })}
-          </p>
-        </div>
-        <svg
-          className="w-5 h-5 shrink-0 mt-0.5 text-white/90"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden
-        >
-          <path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.036 9.608.391.084.922.258 1.057.592.122.298.079.76.038 1.057l-.239 1.442c-.063.385-.296 1.442 1.265.783 1.562-.659 8.438-4.966 10.87-8.006 1.139-1.42 1.745-2.834 1.745-4.476z" />
-        </svg>
-      </div>
-    </motion.button>
+      <button
+        type="button"
+        onClick={handleClick}
+        aria-label={label}
+        className="block w-full overflow-hidden rounded-xl transition-opacity hover:opacity-95 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#06C755] focus-visible:ring-offset-2"
+      >
+        <img
+          src="/images/line-notify.png"
+          alt={label}
+          className="w-full h-auto block select-none"
+        />
+      </button>
+      {userEmail ? (
+        <p className="mt-2 text-[12px] text-gray-500 leading-relaxed px-0.5">
+          {t("detail.line.email_note", { email: userEmail })}
+        </p>
+      ) : null}
+    </motion.div>
   );
 }
 

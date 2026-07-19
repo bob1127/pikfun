@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { Loader2, XCircle, BellRing } from "lucide-react";
 import { useRouter } from "next/router";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useUser } from "@/components/context/UserContext";
 import { fireCelebrationConfettiFromElement } from "@/lib/fireCelebrationConfetti";
 import LineFriendRequiredModal, {
@@ -287,4 +288,12 @@ export default function LineBindCallback() {
       />
     </>
   );
+}
+
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || "zh-TW", ["common", "play"])),
+    },
+  };
 }

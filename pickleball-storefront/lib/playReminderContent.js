@@ -27,13 +27,14 @@ function getSiteUrlForReminder() {
   return getSiteUrl();
 }
 
-/** 依 remind_at 與 starts_at 判斷是 1 天前或 2 小時前 */
+/** 依 remind_at 與 starts_at 判斷是 1 天前、2 小時前，或臨時揪團的即時提醒 */
 export function getReminderTimingLabel(remindAt, startsAt) {
   if (!remindAt || !startsAt) return "活動提醒";
   const diffMs = new Date(startsAt).getTime() - new Date(remindAt).getTime();
   const hours = diffMs / (60 * 60 * 1000);
   if (hours >= 20) return "活動前 1 天";
-  return "活動前 2 小時";
+  if (hours >= 1.75) return "活動前 2 小時";
+  return "活動即將開始";
 }
 
 export function buildReminderContext(session, reminder = null) {
