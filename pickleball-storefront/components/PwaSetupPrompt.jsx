@@ -98,8 +98,11 @@ export default function PwaSetupPrompt() {
 
     // 已是 App 模式且通知也處理過 → 沒有可設定的東西，不再跳出
     const nothingToOffer = permissionHandled && isStandalone();
+    // App 模式但通知還沒設定 → 忽略瀏覽器帶進來的「下次再說」冷卻
+    //（Safari 加入 Dock 會複製網站的 localStorage，冷卻會被一起帶進 App）
+    const mustOffer = isStandalone() && !permissionHandled;
     const timer = setTimeout(() => {
-      if (!snoozed && !nothingToOffer) setVisible(true);
+      if ((!snoozed || mustOffer) && !nothingToOffer) setVisible(true);
     }, SHOW_DELAY_MS);
 
     return () => {
