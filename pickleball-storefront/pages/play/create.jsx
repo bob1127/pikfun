@@ -1283,7 +1283,18 @@ export default function CreatePlayPage() {
           inset: 0;
           z-index: 0;
           pointer-events: none;
-          filter: blur(48px) saturate(1.15);
+          filter: blur(56px) saturate(1.2);
+        }
+        /* 毛玻璃霧面層：蓋在色暈上，增加磨砂質感 */
+        .crt-hero::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          background: rgba(255, 255, 255, 0.22);
+          backdrop-filter: blur(22px) saturate(1.35);
+          -webkit-backdrop-filter: blur(22px) saturate(1.35);
         }
         .crt-blob {
           position: absolute;
@@ -1297,10 +1308,10 @@ export default function CreatePlayPage() {
           left: -18vw;
           background: radial-gradient(
             circle at 35% 35%,
-            rgba(120, 156, 255, 0.85),
+            rgba(120, 156, 255, 0.9),
             rgba(120, 156, 255, 0) 68%
           );
-          animation: crtDrift1 16s ease-in-out infinite alternate;
+          animation: crtDrift1 13s ease-in-out infinite;
         }
         .crt-blob-2 {
           width: 64vw;
@@ -1309,10 +1320,11 @@ export default function CreatePlayPage() {
           right: -24vw;
           background: radial-gradient(
             circle at 60% 40%,
-            rgba(255, 172, 128, 0.75),
+            rgba(255, 172, 128, 0.82),
             rgba(255, 172, 128, 0) 68%
           );
-          animation: crtDrift2 19s ease-in-out infinite alternate;
+          animation: crtDrift2 17s ease-in-out infinite;
+          animation-delay: -6s;
         }
         .crt-blob-3 {
           width: 78vw;
@@ -1321,10 +1333,11 @@ export default function CreatePlayPage() {
           left: -12vw;
           background: radial-gradient(
             circle at 40% 40%,
-            rgba(168, 130, 255, 0.8),
+            rgba(168, 130, 255, 0.85),
             rgba(168, 130, 255, 0) 70%
           );
-          animation: crtDrift3 22s ease-in-out infinite alternate;
+          animation: crtDrift3 21s ease-in-out infinite;
+          animation-delay: -11s;
         }
         .crt-blob-4 {
           width: 56vw;
@@ -1333,26 +1346,40 @@ export default function CreatePlayPage() {
           right: -14vw;
           background: radial-gradient(
             circle at 50% 50%,
-            rgba(126, 208, 255, 0.8),
+            rgba(126, 208, 255, 0.85),
             rgba(126, 208, 255, 0) 70%
           );
-          animation: crtDrift4 18s ease-in-out infinite alternate;
+          animation: crtDrift4 15s ease-in-out infinite;
+          animation-delay: -3s;
         }
+        /* 多段不規則路徑，讓漂移看起來更隨機 */
         @keyframes crtDrift1 {
-          from { transform: translate(0, 0) scale(1); }
-          to { transform: translate(9vw, 7vw) scale(1.18); }
+          0% { transform: translate(0, 0) scale(1); }
+          27% { transform: translate(14vw, 6vw) scale(1.22); }
+          58% { transform: translate(4vw, 16vw) scale(0.94); }
+          82% { transform: translate(-8vw, 5vw) scale(1.12); }
+          100% { transform: translate(0, 0) scale(1); }
         }
         @keyframes crtDrift2 {
-          from { transform: translate(0, 0) scale(1.1); }
-          to { transform: translate(-8vw, 9vw) scale(0.92); }
+          0% { transform: translate(0, 0) scale(1.1); }
+          22% { transform: translate(-12vw, 10vw) scale(0.9); }
+          49% { transform: translate(-4vw, 20vw) scale(1.2); }
+          76% { transform: translate(8vw, 6vw) scale(1); }
+          100% { transform: translate(0, 0) scale(1.1); }
         }
         @keyframes crtDrift3 {
-          from { transform: translate(0, 0) scale(1); }
-          to { transform: translate(10vw, -8vw) scale(1.15); }
+          0% { transform: translate(0, 0) scale(1); }
+          31% { transform: translate(15vw, -10vw) scale(1.2); }
+          55% { transform: translate(2vw, -18vw) scale(0.92); }
+          79% { transform: translate(-10vw, -4vw) scale(1.14); }
+          100% { transform: translate(0, 0) scale(1); }
         }
         @keyframes crtDrift4 {
-          from { transform: translate(0, 0) scale(1.12); }
-          to { transform: translate(-9vw, -6vw) scale(0.95); }
+          0% { transform: translate(0, 0) scale(1.12); }
+          24% { transform: translate(-14vw, -8vw) scale(0.94); }
+          52% { transform: translate(-5vw, -18vw) scale(1.22); }
+          80% { transform: translate(9vw, -5vw) scale(1); }
+          100% { transform: translate(0, 0) scale(1.12); }
         }
         @media (prefers-reduced-motion: reduce) {
           .crt-blob { animation: none; }
@@ -1371,10 +1398,11 @@ export default function CreatePlayPage() {
           width: 2.5rem;
           height: 2.5rem;
           border-radius: 999px;
-          background: rgba(255, 255, 255, 0.7);
-          border: 1px solid rgba(255, 255, 255, 0.9);
-          backdrop-filter: blur(8px);
-          box-shadow: 0 2px 10px rgba(80, 100, 180, 0.1);
+          background: rgba(255, 255, 255, 0.45);
+          border: 1px solid rgba(255, 255, 255, 0.75);
+          backdrop-filter: blur(18px) saturate(1.4);
+          -webkit-backdrop-filter: blur(18px) saturate(1.4);
+          box-shadow: 0 2px 12px rgba(80, 100, 180, 0.14);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1464,10 +1492,11 @@ export default function CreatePlayPage() {
           font-size: 0.75rem;
           font-weight: 700;
           color: #3d55c0;
-          border: 1px solid rgba(255, 255, 255, 0.9);
-          background: rgba(255, 255, 255, 0.65);
-          backdrop-filter: blur(6px);
-          box-shadow: 0 2px 8px rgba(80, 100, 180, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.75);
+          background: rgba(255, 255, 255, 0.4);
+          backdrop-filter: blur(16px) saturate(1.4);
+          -webkit-backdrop-filter: blur(16px) saturate(1.4);
+          box-shadow: 0 2px 10px rgba(80, 100, 180, 0.14);
         }
 
         /* ─── desktop brand (THEO) ────────────────── */
