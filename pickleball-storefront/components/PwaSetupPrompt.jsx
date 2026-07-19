@@ -71,12 +71,21 @@ export default function PwaSetupPrompt() {
       "PushManager" in window &&
       "Notification" in window;
 
-    // 已訂閱：靜默同步 email 綁定（登入後補綁），不打擾使用者
+    // 權限已允許：靜默同步訂閱與 email 綁定，不打擾使用者。
+    // App 模式（加入 Dock／桌面）下若還沒有訂閱，直接補建立——
+    // 否則 App 的權限雖是「允許」，卻永遠不會產生自己的推播訂閱。
     if (supported && Notification.permission === "granted") {
       navigator.serviceWorker.ready
-        .then((reg) => reg.pushManager.getSubscription())
-        .then((sub) => {
-          if (sub) postSubscription(sub).catch(() => {});
+        .then(async (reg) => {
+          let sub = await reg.pushManager.getSubscription();
+          const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+          if (!sub && vapidKey && isStandalone()) {
+            sub = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(vapidKey),
+            });
+          }
+          if (sub) await postSubscription(sub);
         })
         .catch(() => {});
     }
@@ -281,7 +290,10 @@ export default function PwaSetupPrompt() {
 
               {pushState === "blocked" && (
                 <p className="text-xs text-[#94a3b8] text-center leading-relaxed">
-                  通知權限已被封鎖：請點網址列左側的鎖頭圖示，把「通知」改為允許後再試。
+                  通知權限已被封鎖，請改回「允許」後重新整理再試：Chrome／Edge
+                  點網址列左側鎖頭圖示 →
+                  通知；Safari：上方選單「Safari →
+                  設定 → 網站 → 通知」把 pikfun.com.tw 改為允許。
                 </p>
               )}
 
