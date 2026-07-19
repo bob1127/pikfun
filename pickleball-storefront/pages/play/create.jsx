@@ -1013,6 +1013,13 @@ export default function CreatePlayPage() {
       <div className="crt-page">
         {/* ── MOBILE HERO ─────────────────────────────── */}
         <div className="crt-hero crt-mobile-only">
+          {/* 柔和漸層暈染背景（緩慢流動） */}
+          <div className="crt-hero-mesh" aria-hidden>
+            <span className="crt-blob crt-blob-1" />
+            <span className="crt-blob crt-blob-2" />
+            <span className="crt-blob crt-blob-3" />
+            <span className="crt-blob crt-blob-4" />
+          </div>
           <div className="crt-hero-topbar">
             <Link href="/play" className="crt-hero-back">
               <ArrowLeft size={20} />
@@ -1041,12 +1048,6 @@ export default function CreatePlayPage() {
                   {userInfo.name || t("create.hero.member_fallback")}
                 </p>
               </div>
-            </div>
-
-            {/* 斜切綠色緞帶 + 白色大字（圖二風格） */}
-            <div className="crt-hero-band" aria-hidden>
-              <span className="crt-hero-word">LET&rsquo;S PLAY</span>
-              <span className="crt-hero-chevron">&raquo;</span>
             </div>
 
             <div className="crt-hero-main">
@@ -1269,11 +1270,92 @@ export default function CreatePlayPage() {
         }
 
         .crt-hero {
-          background: #f3f0e7;
+          background: #f6f7fb;
           padding: 0 1.25rem 2rem;
           position: relative;
           overflow: hidden;
           isolation: isolate;
+        }
+
+        /* ─── 漸層暈染流動背景 ────────────────────── */
+        .crt-hero-mesh {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          filter: blur(48px) saturate(1.15);
+        }
+        .crt-blob {
+          position: absolute;
+          border-radius: 50%;
+          will-change: transform;
+        }
+        .crt-blob-1 {
+          width: 72vw;
+          height: 72vw;
+          top: -28vw;
+          left: -18vw;
+          background: radial-gradient(
+            circle at 35% 35%,
+            rgba(120, 156, 255, 0.85),
+            rgba(120, 156, 255, 0) 68%
+          );
+          animation: crtDrift1 16s ease-in-out infinite alternate;
+        }
+        .crt-blob-2 {
+          width: 64vw;
+          height: 64vw;
+          top: -10vw;
+          right: -24vw;
+          background: radial-gradient(
+            circle at 60% 40%,
+            rgba(255, 172, 128, 0.75),
+            rgba(255, 172, 128, 0) 68%
+          );
+          animation: crtDrift2 19s ease-in-out infinite alternate;
+        }
+        .crt-blob-3 {
+          width: 78vw;
+          height: 78vw;
+          bottom: -34vw;
+          left: -12vw;
+          background: radial-gradient(
+            circle at 40% 40%,
+            rgba(168, 130, 255, 0.8),
+            rgba(168, 130, 255, 0) 70%
+          );
+          animation: crtDrift3 22s ease-in-out infinite alternate;
+        }
+        .crt-blob-4 {
+          width: 56vw;
+          height: 56vw;
+          bottom: -18vw;
+          right: -14vw;
+          background: radial-gradient(
+            circle at 50% 50%,
+            rgba(126, 208, 255, 0.8),
+            rgba(126, 208, 255, 0) 70%
+          );
+          animation: crtDrift4 18s ease-in-out infinite alternate;
+        }
+        @keyframes crtDrift1 {
+          from { transform: translate(0, 0) scale(1); }
+          to { transform: translate(9vw, 7vw) scale(1.18); }
+        }
+        @keyframes crtDrift2 {
+          from { transform: translate(0, 0) scale(1.1); }
+          to { transform: translate(-8vw, 9vw) scale(0.92); }
+        }
+        @keyframes crtDrift3 {
+          from { transform: translate(0, 0) scale(1); }
+          to { transform: translate(10vw, -8vw) scale(1.15); }
+        }
+        @keyframes crtDrift4 {
+          from { transform: translate(0, 0) scale(1.12); }
+          to { transform: translate(-9vw, -6vw) scale(0.95); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .crt-blob { animation: none; }
         }
 
         .crt-hero-topbar {
@@ -1289,19 +1371,21 @@ export default function CreatePlayPage() {
           width: 2.5rem;
           height: 2.5rem;
           border-radius: 999px;
-          background: #fff;
-          border: 1px solid #ddd8c8;
+          background: rgba(255, 255, 255, 0.7);
+          border: 1px solid rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 2px 10px rgba(80, 100, 180, 0.1);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #23301f;
+          color: #2b3350;
           cursor: pointer;
           text-decoration: none;
           transition: background 0.2s;
         }
         .crt-hero-back:hover,
         .crt-hero-bell:hover {
-          background: #eef5ea;
+          background: rgba(255, 255, 255, 0.95);
         }
 
         .crt-hero-body {
@@ -1313,18 +1397,18 @@ export default function CreatePlayPage() {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          margin-bottom: 0.5rem;
+          margin-bottom: 1.25rem;
         }
         .crt-hero-avatar {
           width: 3rem;
           height: 3rem;
           border-radius: 999px;
           object-fit: cover;
-          border: 2.5px solid #fff;
-          box-shadow: 0 4px 14px rgba(35, 60, 30, 0.18);
+          border: 2.5px solid rgba(255, 255, 255, 0.9);
+          box-shadow: 0 4px 14px rgba(80, 100, 180, 0.22);
         }
         .crt-hero-avatar-fallback {
-          background: #2eb44d;
+          background: linear-gradient(135deg, #789cff, #a882ff);
           color: #fff;
           font-size: 1.125rem;
           font-weight: 900;
@@ -1335,67 +1419,15 @@ export default function CreatePlayPage() {
         }
         .crt-hero-hi {
           font-size: 0.75rem;
-          color: #6d745f;
+          color: #6a7290;
           margin: 0;
           font-weight: 500;
         }
         .crt-hero-name {
           font-size: 1rem;
           font-weight: 800;
-          color: #20281c;
+          color: #1e2438;
           margin: 0;
-        }
-
-        /* ─── 斜切綠色緞帶（圖二風格） ────────────── */
-        .crt-hero-band {
-          position: relative;
-          height: 122px;
-          margin: 0.25rem -1.25rem 0.875rem;
-          pointer-events: none;
-        }
-        .crt-hero-band::before {
-          content: "";
-          position: absolute;
-          left: -8%;
-          right: -8%;
-          top: 24px;
-          height: 62px;
-          background: #2eb44d;
-          transform: rotate(-6deg);
-        }
-        .crt-hero-band::after {
-          content: "";
-          position: absolute;
-          left: -8%;
-          right: -8%;
-          top: 96px;
-          height: 14px;
-          background: #2eb44d;
-          opacity: 0.85;
-          transform: rotate(-6deg);
-        }
-        .crt-hero-word {
-          position: absolute;
-          left: 1.5rem;
-          top: 32px;
-          transform: rotate(-6deg);
-          transform-origin: left center;
-          color: #fff;
-          font-size: 1.875rem;
-          font-weight: 900;
-          letter-spacing: 0.08em;
-          line-height: 1;
-          white-space: nowrap;
-        }
-        .crt-hero-chevron {
-          position: absolute;
-          right: 1.25rem;
-          top: 14px;
-          transform: rotate(-6deg);
-          color: #fff;
-          font-size: 2.25rem;
-          font-weight: 900;
-          line-height: 1;
         }
 
         .crt-hero-main {
@@ -1403,7 +1435,7 @@ export default function CreatePlayPage() {
         }
         .crt-hero-date {
           font-size: 0.6875rem;
-          color: #2b9c46;
+          color: #4f6ee0;
           letter-spacing: 0.08em;
           margin: 0 0 0.25rem;
           font-weight: 800;
@@ -1411,14 +1443,14 @@ export default function CreatePlayPage() {
         .crt-hero-title {
           font-size: 2.5rem;
           font-weight: 900;
-          color: #20281c;
+          color: #1e2438;
           line-height: 1.1;
           margin: 0 0 0.375rem;
           letter-spacing: -0.01em;
         }
         .crt-hero-sub {
           font-size: 0.9375rem;
-          color: #5d6653;
+          color: #5b6380;
           margin: 0;
         }
 
@@ -1431,9 +1463,11 @@ export default function CreatePlayPage() {
           border-radius: 999px;
           font-size: 0.75rem;
           font-weight: 700;
-          color: #1f7a36;
-          border: 1.5px solid #2eb44d;
-          background: #fff;
+          color: #3d55c0;
+          border: 1px solid rgba(255, 255, 255, 0.9);
+          background: rgba(255, 255, 255, 0.65);
+          backdrop-filter: blur(6px);
+          box-shadow: 0 2px 8px rgba(80, 100, 180, 0.1);
         }
 
         /* ─── desktop brand (THEO) ────────────────── */
