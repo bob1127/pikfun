@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Loader2, Check, X } from "lucide-react";
+import { Loader2, Check, X, Instagram } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import { AUTHOR_ROLE_LABEL, categoryLabel } from "@/lib/communityPosts";
 import { BlueArrowLink, BluePillButton } from "@/components/ui/BlueCta";
+import CommunityInstagramPosts from "@/components/news/CommunityInstagramPosts";
 
 export default function AdminCommunityPostDetailPage() {
   const router = useRouter();
@@ -140,6 +141,42 @@ export default function AdminCommunityPostDetailPage() {
                 className="prose prose-sm max-w-none prose-img:rounded-lg prose-a:text-[#005caf]"
                 dangerouslySetInnerHTML={{ __html: post.content_html }}
               />
+
+              {Array.isArray(post.instagram_urls) &&
+              post.instagram_urls.length > 0 ? (
+                <>
+                  <div className="mt-8 rounded-lg border border-[#005caf]/15 bg-[#f3f7fc] p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <Instagram size={15} className="text-[#005caf]" />
+                      <p className="text-xs font-black text-gray-800">
+                        附加 Instagram 貼文（{post.instagram_urls.length}）
+                      </p>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {post.instagram_urls.map((url) => (
+                        <li key={url}>
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="break-all text-[11px] font-medium text-[#005caf] hover:underline"
+                          >
+                            {url}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <CommunityInstagramPosts
+                    urls={post.instagram_urls}
+                    className="mt-8 border-t border-gray-100 pt-8"
+                  />
+                </>
+              ) : (
+                <p className="mt-8 text-xs text-gray-400">
+                  此投稿未附加 Instagram 貼文
+                </p>
+              )}
 
               <p className="text-xs text-gray-400 mt-8">
                 投稿時間：

@@ -3,6 +3,9 @@ import {
   checkPostingEligibility,
   generateUniqueCommunitySlug,
   CATEGORY_OPTIONS,
+  formatCommunityPostsDbError,
+  getInstagramUrlsValidationError,
+  normalizeInstagramPostUrls,
 } from "@/lib/communityPosts";
 
 export default async function handler(req, res) {
@@ -36,6 +39,7 @@ export default async function handler(req, res) {
       cover_image,
       content_html,
       category,
+      instagram_urls,
     } = req.body;
 
     if (!author_email || !author_name) {
@@ -56,6 +60,11 @@ export default async function handler(req, res) {
     const validCategory = CATEGORY_OPTIONS.some((c) => c.value === category)
       ? category
       : "active";
+    const instagramError = getInstagramUrlsValidationError(instagram_urls);
+    if (instagramError) {
+      return res.status(400).json({ error: instagramError });
+    }
+    const cleanInstagramUrls = normalizeInstagramPostUrls(instagram_urls);
 
     const slug = await generateUniqueCommunitySlug(title);
 
@@ -72,6 +81,7 @@ export default async function handler(req, res) {
       cover_image: cover_image || null,
       content_html,
       category: validCategory,
+      instagram_urls: cleanInstagramUrls,
     };
 
     const { data, error } = await communitySupabase
@@ -81,13 +91,8 @@ export default async function handler(req, res) {
       .single();
 
     if (error) {
-      const isRls =
-        error.message?.includes("row-level security") ||
-        error.message?.includes("RLS");
       return res.status(500).json({
-        error: isRls
-          ? "資料庫權限不足：請在 Supabase SQL Editor 執行 supabase/community_posts_rls_fix.sql"
-          : error.message,
+        error: formatCommunityPostsDbError(error),
       });
     }
 

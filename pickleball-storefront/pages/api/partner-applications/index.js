@@ -35,6 +35,9 @@ export default async function handler(req, res) {
       city,
       website,
       instagram,
+      line_url,
+      instagram_url,
+      facebook_url,
       message,
     } = req.body || {};
 
@@ -48,6 +51,15 @@ export default async function handler(req, res) {
 
     if (!message?.trim()) {
       return res.status(400).json({ error: "請填寫申請說明" });
+    }
+
+    const socialLinks = { line_url, instagram_url, facebook_url };
+    for (const [field, value] of Object.entries(socialLinks)) {
+      if (value?.trim() && !/^https?:\/\//i.test(value.trim())) {
+        return res.status(400).json({
+          error: `${field.replace("_url", "")} 請填寫完整的 http:// 或 https:// 網址`,
+        });
+      }
     }
 
     const { data: pending } = await partnerSupabase
@@ -76,6 +88,9 @@ export default async function handler(req, res) {
       city: city?.trim() || null,
       website: website?.trim() || null,
       instagram: instagram?.trim() || null,
+      line_url: line_url?.trim() || null,
+      instagram_url: instagram_url?.trim() || null,
+      facebook_url: facebook_url?.trim() || null,
       message: message.trim(),
     };
 

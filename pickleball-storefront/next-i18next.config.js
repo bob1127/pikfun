@@ -10,4 +10,6 @@ module.exports = {
   localePath: typeof window === 'undefined'
     ? path.resolve('./public/locales')
     : '/locales',
+  // 開發模式下每次 SSR 重新讀取語系檔，新增翻譯 key 不必重啟
+  reloadOnPrerender: process.env.NODE_ENV === 'development',
 };

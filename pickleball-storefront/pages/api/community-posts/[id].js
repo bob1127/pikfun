@@ -1,4 +1,10 @@
-import { communitySupabase, CATEGORY_OPTIONS } from "@/lib/communityPosts";
+import {
+  communitySupabase,
+  CATEGORY_OPTIONS,
+  formatCommunityPostsDbError,
+  getInstagramUrlsValidationError,
+  normalizeInstagramPostUrls,
+} from "@/lib/communityPosts";
 import { isAdminEmail } from "@/lib/adminAuth";
 
 async function loadOwnedPost(id, email) {
@@ -33,8 +39,15 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "PATCH") {
-    const { email, title, excerpt, cover_image, content_html, category } =
-      req.body;
+    const {
+      email,
+      title,
+      excerpt,
+      cover_image,
+      content_html,
+      category,
+      instagram_urls,
+    } = req.body;
 
     const { post, isOwner } = await loadOwnedPost(id, email);
     if (!post) return res.status(404).json({ error: "找不到文章" });
@@ -47,6 +60,11 @@ export default async function handler(req, res) {
     const validCategory = CATEGORY_OPTIONS.some((c) => c.value === category)
       ? category
       : post.category;
+    const instagramError = getInstagramUrlsValidationError(instagram_urls);
+    if (instagramError) {
+      return res.status(400).json({ error: instagramError });
+    }
+    const cleanInstagramUrls = normalizeInstagramPostUrls(instagram_urls);
 
     const { data, error } = await communitySupabase
       .from("community_posts")
@@ -56,6 +74,7 @@ export default async function handler(req, res) {
         cover_image: cover_image || null,
         content_html,
         category: validCategory,
+        instagram_urls: cleanInstagramUrls,
         status: "pending",
         admin_note: null,
         reviewed_by: null,
@@ -66,7 +85,9 @@ export default async function handler(req, res) {
       .select()
       .single();
 
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      return res.status(500).json({ error: formatCommunityPostsDbError(error) });
+    }
 
     return res.status(200).json({ post: data });
   }

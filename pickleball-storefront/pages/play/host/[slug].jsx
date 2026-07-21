@@ -10,12 +10,12 @@ import { motion } from "framer-motion";
 import {
   MapPin,
   Mail,
-  Instagram,
   ChevronRight,
   Loader2,
   CalendarDays,
   Users,
 } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaLine } from "react-icons/fa";
 import CoachEditableSection from "@/components/coaching/CoachEditableSection";
 import TagPickerField from "@/components/coaching/TagPickerField";
 import { useUser } from "@/components/context/UserContext";
@@ -26,7 +26,7 @@ const CYAN = "#0E9BB5";
 const CARD_BG = "#F6F6F4";
 const DEFAULT_HERO_IMAGE = "/images/3d96081d-fdbe-49fc-8b9a-f117eedc68a8.png";
 
-const SPECIALTY_PRESETS = [
+const SPECIALTY_PRESET_VALUES = [
   "新手友善",
   "固定週開團",
   "室內場地",
@@ -39,7 +39,7 @@ const SPECIALTY_PRESETS = [
   "提供球拍",
 ];
 
-const TAG_PRESETS = [
+const TAG_PRESET_VALUES = [
   "新手團",
   "進階團",
   "混合團",
@@ -51,6 +51,24 @@ const TAG_PRESETS = [
   "夜貓團",
   "週末團",
 ];
+
+function getLocalizedHostPresets(values, group, t) {
+  return values.map((value, index) => ({
+    // 保留既有資料值；英文介面只翻譯可選標籤。
+    value,
+    label: t(`host_profile.presets.${group}.${index}`, {
+      defaultValue: value,
+    }),
+  }));
+}
+
+function getLocalizedHostPresetLabel(value, values, group, t) {
+  const index = values.indexOf(value);
+  if (index < 0) return value;
+  return t(`host_profile.presets.${group}.${index}`, {
+    defaultValue: value,
+  });
+}
 
 export async function getStaticProps({ locale }) {
   return {
@@ -207,7 +225,9 @@ function HostProfileSidebar({ profile, stats, isOwner, editProps, tocItems }) {
             startEdit("contact", {
               city: profile.city || "",
               contact_email: profile.contact_email || "",
-              instagram: profile.instagram || "",
+              line_url: profile.line_url || "",
+              instagram_url: profile.instagram_url || "",
+              facebook_url: profile.facebook_url || "",
             })
           }
           onCancel={cancelEdit}
@@ -243,21 +263,38 @@ function HostProfileSidebar({ profile, stats, isOwner, editProps, tocItems }) {
                   className={fieldClass()}
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">
-                  {t("host_profile.fields.instagram")}
-                </label>
-                <input
-                  value={draft.instagram || ""}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      instagram: e.target.value.replace("@", ""),
-                    })
-                  }
-                  className={fieldClass()}
-                />
-              </div>
+              {[
+                {
+                  key: "line_url",
+                  label: t("host_profile.fields.line_url"),
+                  placeholder: "https://line.me/ti/p/...",
+                },
+                {
+                  key: "instagram_url",
+                  label: t("host_profile.fields.instagram_url"),
+                  placeholder: "https://www.instagram.com/...",
+                },
+                {
+                  key: "facebook_url",
+                  label: t("host_profile.fields.facebook_url"),
+                  placeholder: "https://www.facebook.com/...",
+                },
+              ].map((field) => (
+                <div key={field.key}>
+                  <label className="block text-xs font-bold text-gray-500 mb-1">
+                    {field.label}
+                  </label>
+                  <input
+                    type="url"
+                    value={draft[field.key] || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, [field.key]: e.target.value })
+                    }
+                    placeholder={field.placeholder}
+                    className={fieldClass()}
+                  />
+                </div>
+              ))}
             </div>
           }
         >
@@ -281,20 +318,48 @@ function HostProfileSidebar({ profile, stats, isOwner, editProps, tocItems }) {
                   <span className="truncate">{profile.contact_email}</span>
                 </a>
               )}
-              {profile.instagram && (
-                <a
-                  href={`https://instagram.com/${profile.instagram.replace("@", "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-gray-600 hover:text-[#3157B5]"
-                >
-                  <Instagram size={15} className="shrink-0 text-gray-400" />
-                  <span>@{profile.instagram.replace("@", "")}</span>
-                </a>
+              {(profile.line_url ||
+                profile.instagram_url ||
+                profile.facebook_url) && (
+                <div className="flex items-center gap-2 pt-1">
+                  {[
+                    {
+                      href: profile.line_url,
+                      label: "LINE",
+                      Icon: FaLine,
+                    },
+                    {
+                      href: profile.instagram_url,
+                      label: "Instagram",
+                      Icon: FaInstagram,
+                    },
+                    {
+                      href: profile.facebook_url,
+                      label: "Facebook",
+                      Icon: FaFacebookF,
+                    },
+                  ]
+                    .filter((item) => item.href)
+                    .map(({ href, label, Icon }) => (
+                      <a
+                        key={label}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                        title={label}
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-all hover:-translate-y-0.5 hover:border-[#3157B5] hover:text-[#3157B5]"
+                      >
+                        <Icon size={16} />
+                      </a>
+                    ))}
+                </div>
               )}
               {!profile.city &&
                 !profile.contact_email &&
-                !profile.instagram &&
+                !profile.line_url &&
+                !profile.instagram_url &&
+                !profile.facebook_url &&
                 isOwner && (
                   <p className="text-xs text-gray-400">
                     {t("host_profile.contact_empty")}
@@ -349,7 +414,12 @@ function HostProfileSidebar({ profile, stats, isOwner, editProps, tocItems }) {
                 href={`/play?q=${encodeURIComponent(tag)}`}
                 className="text-[10px] font-bold px-2 py-[3px] rounded-[3px] border bg-white text-[#3157B5] border-[#3157B5]/60 hover:bg-[#EFF4FC] transition-colors"
               >
-                {tag}
+                {getLocalizedHostPresetLabel(
+                  tag,
+                  TAG_PRESET_VALUES,
+                  "tags",
+                  t,
+                )}
               </Link>
             ))}
           </div>
@@ -361,6 +431,12 @@ function HostProfileSidebar({ profile, stats, isOwner, editProps, tocItems }) {
 
 export default function OrganizerProfilePage() {
   const { t, i18n } = useTranslation("play");
+  const specialtyPresets = getLocalizedHostPresets(
+    SPECIALTY_PRESET_VALUES,
+    "specialties",
+    t,
+  );
+  const tagPresets = getLocalizedHostPresets(TAG_PRESET_VALUES, "tags", t);
   const router = useRouter();
   const { slug } = router.query;
   const { userInfo } = useUser();
@@ -569,12 +645,14 @@ export default function OrganizerProfilePage() {
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-transparent" />
             <div className="relative max-w-[1200px] mx-auto px-6 md:px-10 h-full flex flex-col justify-center">
-              <p
+              {t("host_profile.eyebrow") ? (
+                <p
                 className="text-[11px] md:text-xs font-black tracking-[0.25em] uppercase mb-3"
                 style={{ color: BLUE }}
               >
                 {t("host_profile.eyebrow")}
               </p>
+              ) : null}
               <h1 className="text-3xl md:text-5xl font-black text-[#1A1A1A] leading-tight">
                 {title} {profile.display_name}
               </h1>
@@ -927,7 +1005,7 @@ export default function OrganizerProfilePage() {
                             onChange={(v) =>
                               setDraft({ ...draft, specialties: v })
                             }
-                            presets={SPECIALTY_PRESETS}
+                            presets={specialtyPresets}
                             mode="comma"
                           />
                         </div>
@@ -945,7 +1023,12 @@ export default function OrganizerProfilePage() {
                                 className="text-[11px] font-bold px-2.5 py-1 rounded-[3px] border bg-white"
                                 style={{ color: CYAN, borderColor: CYAN }}
                               >
-                                {s}
+                                {getLocalizedHostPresetLabel(
+                                  s,
+                                  SPECIALTY_PRESET_VALUES,
+                                  "specialties",
+                                  t,
+                                )}
                               </span>
                             ))}
                           </div>
@@ -980,7 +1063,7 @@ export default function OrganizerProfilePage() {
                             label={t("host_profile.tags_label")}
                             value={draft.tags || ""}
                             onChange={(v) => setDraft({ ...draft, tags: v })}
-                            presets={TAG_PRESETS}
+                            presets={tagPresets}
                             mode="comma"
                           />
                         </div>
@@ -997,7 +1080,12 @@ export default function OrganizerProfilePage() {
                                 key={tag}
                                 className="text-[10px] font-bold px-2 py-[3px] rounded-[3px] border text-[#3157B5] border-[#3157B5]/60 bg-white"
                               >
-                                {tag}
+                                {getLocalizedHostPresetLabel(
+                                  tag,
+                                  TAG_PRESET_VALUES,
+                                  "tags",
+                                  t,
+                                )}
                               </span>
                             ))}
                           </div>

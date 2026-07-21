@@ -20,8 +20,8 @@
     "clear": "清除",
     "all": "全部",
     "free": "免費",
-    "group_label": "Group",
-    "menu_label": "Menu",
+    "group_label": "",
+    "menu_label": "",
     "vertical_course_intro": "課程介紹",
     "weekdays": [
       "日",
@@ -34,7 +34,7 @@
     ]
   },
   "list": {
-    "eyebrow": "Coaching",
+    "eyebrow": "",
     "title": "教練開課",
     "subtitle": "— 匹克球教練課程 · 從新手入門到進階技術",
     "index_mark": "{01}",
@@ -92,7 +92,7 @@
       "other_coaches": "其他教練"
     },
     "overview": {
-      "eyebrow": "Group",
+      "eyebrow": "",
       "title": "課程概要",
       "class_type_label": "課程類型",
       "location_label": "主要上課地點",
@@ -150,7 +150,7 @@
       "later_btn": "稍後再說"
     },
     "related": {
-      "eyebrow": "Other Courses",
+      "eyebrow": "",
       "title": "その他の課程"
     },
     "bottom_cta": {
@@ -165,7 +165,7 @@
       "apply_bar": "教練進駐 PikFun 官網"
     },
     "group_links": {
-      "eyebrow": "Group",
+      "eyebrow": "",
       "all_classes": "全部課程",
       "featured_coaches": "進駐教練"
     },
@@ -274,7 +274,7 @@
     "back_to_review": "返回審核狀態",
     "back_to_coaching": "返回教練開課",
     "approved": {
-      "badge": "Approved Coach",
+      "badge": "",
       "title": "教練進駐已審核通過",
       "desc": "您的教練頁已上架 PikFun 官網，球友可以搜尋並報名您的課程。",
       "reviewed_at": "審核通過日期：{{date}}",
@@ -307,8 +307,8 @@
       "reapply_btn": "重新申請"
     },
     "form": {
-      "eyebrow_edit": "Edit Application",
-      "eyebrow_new": "Apply as Coach",
+      "eyebrow_edit": "",
+      "eyebrow_new": "",
       "title_edit": "編輯進駐申請",
       "title_new": "申請進駐 PikFun 官網",
       "bound_member": "已綁定會員：",
@@ -381,7 +381,7 @@
       "articles": "教練專欄"
     },
     "hero": {
-      "eyebrow": "Special Coach",
+      "eyebrow": "",
       "edit_label": "編輯封面",
       "cover_url_label": "封面圖片網址（Hero 大圖）",
       "video_url_label": "YouTube / Vimeo 嵌入網址（顯示於教練檔案區）"
@@ -403,18 +403,18 @@
       "profile_title_fallback": "{{name}} 的教練檔案"
     },
     "sections": {
-      "bio_eyebrow": "Profile",
+      "bio_eyebrow": "",
       "bio_title": "教練簡介",
       "bio_edit_label": "編輯簡介",
       "bio_empty": "尚未撰寫教練簡介",
-      "story_eyebrow": "Story",
+      "story_eyebrow": "",
       "story_title": "教練故事",
       "story_edit_label": "編輯故事",
       "story_empty": "尚未撰寫教練故事",
-      "instagram_eyebrow": "Instagram",
+      "instagram_eyebrow": "",
       "instagram_title": "社群動態",
       "instagram_edit_label": "編輯 Instagram",
-      "skills_eyebrow": "Career & Skill",
+      "skills_eyebrow": "",
       "skills_title": "經歷與專長",
       "credentials_title": "經歷與認證",
       "credentials_empty": "尚未填寫",
@@ -440,19 +440,19 @@
       "email_label": "Email",
       "instagram_label": "Instagram",
       "instagram_placeholder": "帳號不含 @",
-      "pickup_badge_line1": "Coach",
-      "pickup_badge_line2": "Pick up",
+      "pickup_badge_line1": "",
+      "pickup_badge_line2": "",
       "view_coach_page": "查看教練頁",
       "popular_tags_title": "熱門標籤"
     },
     "recommended": {
-      "eyebrow": "Recommended Coach",
-      "pickup_badge_line1": "Coach",
-      "pickup_badge_line2": "Pick up",
+      "eyebrow": "",
+      "pickup_badge_line1": "",
+      "pickup_badge_line2": "",
       "view_coach_page": "查看教練頁"
     },
     "articles": {
-      "eyebrow": "Coach Articles",
+      "eyebrow": "",
       "title": "{{name}} 教練的投稿文章",
       "coming_soon": "文章投稿功能即將開放",
       "prev_aria": "上一篇",
@@ -511,7 +511,7 @@
     "enroll_btn": "立即報名"
   },
   "sidebar": {
-    "menu_label": "Menu",
+    "menu_label": "",
     "nav": {
       "all": "全部課程",
       "group": "團體班",
@@ -520,7 +520,7 @@
       "beginner": "新手班"
     },
     "apply_link": "教練進駐申請",
-    "search_label": "Search",
+    "search_label": "",
     "search_placeholder": "課程、教練、球場...",
     "clear_search_aria": "清除搜尋",
     "search_aria": "搜尋",
@@ -574,7 +574,7 @@
     "privacy_link": "個人資料保護方針",
     "contact_link": "聯絡我們",
     "rights": "Copyright © {{year}} PikFun. All Rights Reserved.",
-    "page_top": "PAGE TOP"
+    "page_top": "回到頂部"
   },
   "instagram": {
     "editor": {
@@ -622,6 +622,46 @@
     "tag_picker": {
       "default_hint": "點選常用項目，或直接輸入自訂內容"
     }
+  },
+  "presets": {
+    "credentials": [
+      "PPR 認證教練",
+      "體育署合格教練",
+      "運動科學背景",
+      "運動防護基礎證照",
+      "協會特約教練",
+      "5 年以上教學經驗",
+      "競賽選手經歷",
+      "國家級運動員"
+    ],
+    "specialties": [
+      "新手入門",
+      "雙打策略",
+      "網前短球",
+      "第三拍",
+      "發球接發",
+      "動作矯正",
+      "比賽心理",
+      "女性專班",
+      "銀髮族",
+      "青少年",
+      "親子班",
+      "私人課"
+    ],
+    "tags": [
+      "初學入門",
+      "團體班",
+      "私人課",
+      "主題班",
+      "新手班",
+      "女性專班",
+      "銀髮族",
+      "比賽準備",
+      "雙打",
+      "室內",
+      "室外",
+      "週末班"
+    ]
   },
   "enums": {
     "class_type": {

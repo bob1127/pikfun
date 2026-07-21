@@ -1,39 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  GoogleMap,
-  useJsApiLoader,
-  OverlayView,
-} from "@react-google-maps/api";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useTranslation } from "next-i18next";
-import { MapPin, Loader2 } from "lucide-react";
 
 const TAIWAN_CENTER = { lat: 23.72, lng: 120.96 };
 const TAIWAN_ZOOM = 8;
 const MAP_STYLE = { width: "100%", height: "100%" };
 const PIN_BLUE = "#2F9BFF";
 
-const GOOGLE_MAP_OPTIONS = {
-  disableDefaultUI: false,
-  zoomControl: true,
-  mapTypeControl: false,
-  streetViewControl: false,
-  fullscreenControl: false,
-  gestureHandling: "greedy",
-  minZoom: 6,
-  maxZoom: 18,
-  clickableIcons: false,
-};
-
 const OSM_TILE = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
-
-const pinOffset = () => ({ x: -17, y: -40 });
 
 const PIN_STYLES = `
   .pf-court-pin {
@@ -183,100 +162,6 @@ function OsmCourtsMap({ courts, activeKey, onSelect, fitToCourts, activityCounts
   );
 }
 
-/* ── Google Maps 版本 ── */
-function GoogleCourtsMap({ courts, activeKey, onSelect, fitToCourts, activityCounts }) {
-  const mapRef = useRef(null);
-
-  const applyView = useCallback(
-    (map) => {
-      if (!map || typeof window === "undefined" || !window.google?.maps) {
-        return;
-      }
-      if (fitToCourts && courts.length > 1) {
-        const b = new window.google.maps.LatLngBounds();
-        courts.forEach((c) => b.extend({ lat: c.latitude, lng: c.longitude }));
-        map.fitBounds(b, { top: 60, right: 60, bottom: 60, left: 60 });
-      } else if (fitToCourts && courts.length === 1) {
-        map.setCenter({ lat: courts[0].latitude, lng: courts[0].longitude });
-        map.setZoom(14);
-      } else {
-        map.setCenter(TAIWAN_CENTER);
-        map.setZoom(TAIWAN_ZOOM);
-      }
-    },
-    [courts, fitToCourts],
-  );
-
-  useEffect(() => {
-    applyView(mapRef.current);
-  }, [applyView]);
-
-  return (
-    <GoogleMap
-      mapContainerStyle={MAP_STYLE}
-      center={TAIWAN_CENTER}
-      zoom={TAIWAN_ZOOM}
-      options={GOOGLE_MAP_OPTIONS}
-      onLoad={(map) => {
-        mapRef.current = map;
-        applyView(map);
-      }}
-      onClick={() => onSelect?.(null)}
-    >
-      {courts.map((court) => {
-        const key = court.place_id || court.id;
-        return (
-          <OverlayView
-            key={key}
-            position={{ lat: court.latitude, lng: court.longitude }}
-            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-            getPixelPositionOffset={pinOffset}
-          >
-            <button
-              type="button"
-              title={court.name}
-              aria-label={court.name}
-              className={`pf-court-pin${activeKey === key ? " is-active" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect?.(key);
-              }}
-            >
-              <span className="pf-court-pin-pulse" />
-              <MapPin
-                size={34}
-                strokeWidth={1.8}
-                className="pf-court-pin-icon"
-                fill={PIN_BLUE}
-                color="#ffffff"
-              />
-              {(activityCounts?.[key] || 0) > 0 && (
-                <span className="pf-court-pin-badge">
-                  {activityCounts[key]}
-                </span>
-              )}
-            </button>
-          </OverlayView>
-        );
-      })}
-    </GoogleMap>
-  );
-}
-
-function GoogleLoaderGate({ apiKey, children, fallback, loadingNode }) {
-  const { i18n } = useTranslation("play");
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: "PikFun-play-map",
-    googleMapsApiKey: apiKey,
-    language: i18n.language || "zh-TW",
-    region: "TW",
-  });
-
-  if (loadError) return fallback;
-  if (!isLoaded) return loadingNode;
-  return children;
-}
-
 export default function CourtsTaiwanMap({
   courts = [],
   activeKey,
@@ -284,20 +169,11 @@ export default function CourtsTaiwanMap({
   fitToCourts = false,
   activityCounts = {},
 }) {
-  const { t } = useTranslation("play");
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
   if (!mounted) return null;
-
-  const loadingNode = (
-    <div className="flex flex-col items-center justify-center h-full min-h-[420px] bg-white">
-      <Loader2 size={28} className="animate-spin text-[#3157B5] mb-3" />
-      <p className="text-sm text-gray-500">{t("map.loading_google")}</p>
-    </div>
-  );
 
   const osmMap = (
     <OsmCourtsMap
@@ -314,23 +190,7 @@ export default function CourtsTaiwanMap({
       <style jsx global>
         {PIN_STYLES}
       </style>
-      {apiKey ? (
-        <GoogleLoaderGate
-          apiKey={apiKey}
-          fallback={osmMap}
-          loadingNode={loadingNode}
-        >
-          <GoogleCourtsMap
-            courts={courts}
-            activeKey={activeKey}
-            onSelect={onSelect}
-            fitToCourts={fitToCourts}
-            activityCounts={activityCounts}
-          />
-        </GoogleLoaderGate>
-      ) : (
-        osmMap
-      )}
+      {osmMap}
     </>
   );
 }

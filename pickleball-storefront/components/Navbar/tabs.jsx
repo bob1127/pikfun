@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -9,6 +9,7 @@ import {
   User,
   ShoppingBag,
   Search,
+  ChevronDown,
   ChevronRight,
   Loader2,
   X,
@@ -28,8 +29,8 @@ import {
 } from "lucide-react";
 
 import { useCart } from "../../components/context/CartContext";
-import { medusa } from "@/lib/medusa";
 import { useUser } from "../../components/context/UserContext";
+import GlobalSearchOverlay from "@/components/Navbar/GlobalSearchOverlay";
 
 const COLORS = {
   blue: "#005caf",
@@ -53,7 +54,7 @@ const NAV_TEXT = {
       "優惠碼 PIKFUN2026 限時使用",
       "新會員首購再享額外折扣",
     ],
-    tagline: "匹克球球拍｜活動｜教練｜開課",
+    tagline: "匹克球｜活動｜教練｜開課 | 各項運動",
     taglineMobile: "匹克球裝備・活動・教練平台",
     nav: {
       home: "首頁",
@@ -138,7 +139,11 @@ function LanguageSwitcher({ compact = false, onSwitched }) {
       className={`flex items-center gap-1 ${compact ? "" : "pl-1"}`}
       aria-label="切換語言 / Switch language"
     >
-      <Globe size={compact ? 18 : 16} strokeWidth={1.5} className="text-gray-500 shrink-0" />
+      <Globe
+        size={compact ? 18 : 16}
+        strokeWidth={1.5}
+        className="text-gray-500 shrink-0"
+      />
       <button
         type="button"
         onClick={() => switchTo("zh-TW")}
@@ -302,16 +307,10 @@ function MemberNavGreeting({ userInfo, avatarSize = 32 }) {
 export const SlideTabsExample = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openMega, setOpenMega] = useState("none");
+  const [openMobileNav, setOpenMobileNav] = useState(null);
   const [mounted, setMounted] = useState(false);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const [searchResults, setSearchResults] = useState({
-    products: [],
-    pages: [],
-  });
-  const searchContainerRef = useRef(null);
+  const [showGlobalSearch, setShowGlobalSearch] = useState(false);
 
   const { totalQty, setIsCartOpen } = useCart();
   const { userInfo, loading: userLoading } = useUser();
@@ -389,19 +388,6 @@ export const SlideTabsExample = () => {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target)
-      ) {
-        setShowSearchDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
     async function fetchMenuData() {
       try {
         setLoadingCats(true);
@@ -448,61 +434,225 @@ export const SlideTabsExample = () => {
     if (mounted) fetchMenuData();
   }, [mounted]);
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
-      if (searchQuery.trim().length > 1) {
-        setIsSearching(true);
-        setShowSearchDropdown(true);
-        try {
-          const { products } = await medusa.products.list({
-            q: searchQuery,
-            limit: 4,
-          });
-          setSearchResults({
-            products: products.map((p) => ({
-              id: p.id,
-              title: p.title,
-              slug: p.handle,
-              image: p.thumbnail,
-              price: p.variants?.[0]?.prices?.[0]
-                ? `${(p.variants[0].prices[0].amount / 100).toLocaleString()} TWD`
-                : "TBA",
-            })),
-            pages: [],
-          });
-        } catch (err) {
-          console.error(err);
-        } finally {
-          setIsSearching(false);
-        }
-      } else {
-        setShowSearchDropdown(false);
-      }
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
-
-  const handleSearchSubmit = (e) => {
-    if ((e.key === "Enter" || e.type === "click") && searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setShowSearchDropdown(false);
-      setSearchQuery("");
-      setIsMenuOpen(false);
-    }
-  };
-
   const navLinks = [
     { key: "home", label: T.nav.home, href: "/" },
-    { key: "categories", label: T.nav.categories, href: "/category", hasMega: true },
+    {
+      key: "categories",
+      label: T.nav.categories,
+      href: "/category",
+      hasMega: true,
+    },
     { key: "brand", label: T.nav.brand, href: "/category", hasMega: true },
-    { key: "play", label: T.nav.play, href: "/play" },
-    { key: "coaching", label: T.nav.coaching, href: "/coaching" },
+    {
+      key: "play",
+      label: T.nav.play,
+      href: "/play",
+      hasDropdown: true,
+    },
+    {
+      key: "coaching",
+      label: T.nav.coaching,
+      href: "/coaching",
+      hasDropdown: true,
+    },
     { key: "news", label: T.nav.news, href: "/news" },
     ...(isAdmin
-      ? [{ key: "admin", label: T.nav.admin, href: "/admin/community-posts", isAdminLink: true }]
+      ? [
+          {
+            key: "admin",
+            label: T.nav.admin,
+            href: "/admin/community-posts",
+            isAdminLink: true,
+          },
+        ]
       : []),
   ];
 
+  const coachingDropdownGroups =
+    router.locale === "en"
+      ? [
+          {
+            title: "COACH",
+            links: [
+              {
+                label: "Find a Coach",
+                desc: "Browse coach profiles and classes",
+                href: "/coaching",
+                Icon: GraduationCap,
+              },
+              {
+                label: "Apply as a Coach",
+                desc: "Create your profile and offer classes",
+                href: "/coaching/apply",
+                Icon: User,
+              },
+              {
+                label: "Create a Class",
+                desc: "Publish a new coaching class",
+                href: "/coaching/create",
+                Icon: CircleArrowRight,
+              },
+            ],
+          },
+          {
+            title: "COURT & CONTENT",
+            links: [
+              {
+                label: "Court Owner Application",
+                desc: "Promote your court on PikFun",
+                href: "/member/apply/court_owner",
+                Icon: Store,
+              },
+              {
+                label: "Court Map",
+                desc: "Explore pickleball courts",
+                href: "/courts",
+                Icon: MapPin,
+              },
+              {
+                label: "Submit an Article",
+                desc: "Share events, tips and updates",
+                href: "/member/posts/new",
+                Icon: Newspaper,
+              },
+            ],
+          },
+        ]
+      : [
+          {
+            title: "教練功能",
+            links: [
+              {
+                label: "尋找教練與課程",
+                desc: "查看教練介紹與目前開課",
+                href: "/coaching",
+                Icon: GraduationCap,
+              },
+              {
+                label: "申請成為教練",
+                desc: "建立教練頁、開課與招生",
+                href: "/coaching/apply",
+                Icon: User,
+              },
+              {
+                label: "建立教練課程",
+                desc: "發布新的匹克球課程",
+                href: "/coaching/create",
+                Icon: CircleArrowRight,
+              },
+            ],
+          },
+          {
+            title: "球場主與內容",
+            links: [
+              {
+                label: "球場主進駐申請",
+                desc: "讓更多球友找到你的球場",
+                href: "/member/apply/court_owner",
+                Icon: Store,
+              },
+              {
+                label: "全台球場地圖",
+                desc: "查看與搜尋匹克球場地",
+                href: "/courts",
+                Icon: MapPin,
+              },
+              {
+                label: "撰寫投稿文章",
+                desc: "分享活動、知識與最新消息",
+                href: "/member/posts/new",
+                Icon: Newspaper,
+              },
+            ],
+          },
+        ];
+
+  const playDropdownGroups =
+    router.locale === "en"
+      ? [
+          {
+            title: "OPEN PLAY",
+            links: [
+              {
+                label: "Browse Sessions",
+                desc: "Find an upcoming game near you",
+                href: "/play#play-sessions-list",
+              },
+              {
+                label: "Host a Session",
+                desc: "Create a game and invite players",
+                href: "/play/create",
+              },
+              {
+                label: "Court Map",
+                desc: "Explore pickleball courts",
+                href: "/courts",
+              },
+            ],
+          },
+          {
+            title: "COMMUNITY",
+            links: [
+              {
+                label: "Meet the Hosts",
+                desc: "Discover active community organizers",
+                href: "/play",
+              },
+              {
+                label: "Submit an Article",
+                desc: "Share events and community updates",
+                href: "/member/posts/new",
+              },
+              {
+                label: "Court Owner Application",
+                desc: "Promote your court on PikFun",
+                href: "/member/apply/court_owner",
+              },
+            ],
+          },
+        ]
+      : [
+          {
+            title: "揪團功能",
+            links: [
+              {
+                label: "瀏覽揪團場次",
+                desc: "尋找附近即將開始的球局",
+                href: "/play#play-sessions-list",
+              },
+              {
+                label: "發起揪團",
+                desc: "建立場次並邀請球友參加",
+                href: "/play/create",
+              },
+              {
+                label: "查看全台球場",
+                desc: "搜尋附近的匹克球場地",
+                href: "/courts",
+              },
+            ],
+          },
+          {
+            title: "主揪與社群",
+            links: [
+              {
+                label: "認識熱門主揪",
+                desc: "探索活躍的球局發起人",
+                href: "/play",
+              },
+              {
+                label: "撰寫活動文章",
+                desc: "分享活動與球友最新消息",
+                href: "/member/posts/new",
+              },
+              {
+                label: "球場主進駐申請",
+                desc: "讓更多球友找到你的球場",
+                href: "/member/apply/court_owner",
+              },
+            ],
+          },
+        ];
 
   if (!mounted) return null;
 
@@ -590,13 +740,21 @@ export const SlideTabsExample = () => {
                       router.pathname === link.href ||
                       (link.href !== "/" &&
                         router.pathname.startsWith(link.href));
+                    const dropdownGroups =
+                      link.key === "play"
+                        ? playDropdownGroups
+                        : coachingDropdownGroups;
 
                     return (
                       <div
                         key={link.key}
                         className="relative"
                         onMouseEnter={() =>
-                          setOpenMega(link.hasMega ? link.key : "none")
+                          setOpenMega(
+                            link.hasMega || link.hasDropdown
+                              ? link.key
+                              : "none",
+                          )
                         }
                       >
                         <Link
@@ -604,7 +762,7 @@ export const SlideTabsExample = () => {
                           className={
                             link.isAdminLink
                               ? "inline-flex items-center gap-1.5 text-[13px] font-bold tracking-[0.06em] whitespace-nowrap px-3 py-1.5 rounded-full text-white hover:opacity-90 transition-opacity"
-                              : `text-[13px] font-normal tracking-[0.06em] transition-colors whitespace-nowrap ${
+                              : `inline-flex items-center gap-1 text-[13px] font-normal tracking-[0.06em] transition-colors whitespace-nowrap ${
                                   isActive
                                     ? "text-[#005caf]"
                                     : "text-gray-900 hover:text-[#005caf]"
@@ -618,13 +776,72 @@ export const SlideTabsExample = () => {
                         >
                           {link.isAdminLink && <ShieldCheck size={14} />}
                           {link.label}
+                          {link.hasDropdown && (
+                            <ChevronDown
+                              size={13}
+                              strokeWidth={2}
+                              className={`transition-transform duration-200 ${
+                                openMega === link.key ? "rotate-180" : ""
+                              }`}
+                            />
+                          )}
                         </Link>
+
+                        <AnimatePresence>
+                          {link.hasDropdown && openMega === link.key && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 8 }}
+                              transition={{ duration: 0.18 }}
+                              className="absolute top-full z-50 mt-5 w-[520px] border border-gray-200 bg-white p-5"
+                              style={{ left: "-190px" }}
+                            >
+                              <div className="grid grid-cols-2 gap-5">
+                                {dropdownGroups.map((group) => (
+                                  <div key={group.title}>
+                                    <p className="mb-3 border-b border-gray-100 pb-2 text-[10px] font-black tracking-[0.18em] text-gray-400">
+                                      {group.title}
+                                    </p>
+                                    <div className="space-y-1">
+                                      {group.links.map((item) => {
+                                        return (
+                                          <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            onClick={() =>
+                                              setOpenMega("none")
+                                            }
+                                            className="group flex items-start gap-3 p-3 transition-colors duration-200 hover:bg-[#f3f7fc]"
+                                          >
+                                            <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rotate-45 bg-[#005caf] transition-transform duration-200 group-hover:scale-125" />
+                                            <span className="min-w-0">
+                                              <span className="block text-xs font-black text-gray-900 group-hover:text-[#005caf]">
+                                                {item.label}
+                                              </span>
+                                              <span className="mt-1 block text-[10px] leading-relaxed text-gray-400">
+                                                {item.desc}
+                                              </span>
+                                            </span>
+                                          </Link>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     );
                   })}
                 </nav>
 
-                <div className="flex items-center gap-5 pl-8 border-l border-gray-200">
+                <div
+                  className="flex items-center gap-5 pl-8 border-l border-gray-200"
+                  onMouseEnter={() => setOpenMega("none")}
+                >
                   {!userLoading && (
                     <Link
                       href={userInfo ? "/member" : "/login"}
@@ -632,92 +849,24 @@ export const SlideTabsExample = () => {
                       aria-label={userInfo ? "會員中心" : "登入"}
                     >
                       {userInfo ? (
-                        <MemberNavGreeting userInfo={userInfo} avatarSize={32} />
+                        <MemberNavGreeting
+                          userInfo={userInfo}
+                          avatarSize={32}
+                        />
                       ) : (
                         <User size={20} strokeWidth={1.5} />
                       )}
                     </Link>
                   )}
 
-                  <div className="relative" ref={searchContainerRef}>
-                    <button
-                      type="button"
-                      onClick={() => setShowSearchDropdown((v) => !v)}
-                      className="p-1 text-gray-900 hover:text-[#005caf] transition-colors"
-                      aria-label="搜尋商品"
-                    >
-                      <Search size={20} strokeWidth={1.5} />
-                    </button>
-                    <AnimatePresence>
-                      {showSearchDropdown && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 8 }}
-                          className="absolute top-full right-0 mt-3 w-80 bg-white shadow-2xl rounded-lg overflow-hidden border border-gray-100 z-50"
-                        >
-                          <div className="p-3 border-b border-gray-100">
-                            <div className="flex items-center gap-2 bg-[#F2F4F7] px-3 py-2 rounded-md">
-                              <Search
-                                size={14}
-                                className="text-gray-500 shrink-0"
-                              />
-                              <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={handleSearchSubmit}
-                                placeholder={T.searchPlaceholder}
-                                autoFocus
-                                className="bg-transparent text-sm w-full outline-none text-gray-700 placeholder-gray-400"
-                              />
-                            </div>
-                          </div>
-                          {isSearching ? (
-                            <div className="p-8 flex justify-center text-gray-400">
-                              <Loader2 size={24} className="animate-spin" />
-                            </div>
-                          ) : searchResults.products.length === 0 ? (
-                            <div className="p-6 text-center text-sm text-gray-500">
-                              {searchQuery.trim().length > 1
-                                ? T.searchNoResult
-                                : T.searchMinChars}
-                            </div>
-                          ) : (
-                            <div className="max-h-[50vh] overflow-y-auto p-2">
-                              {searchResults.products.map((p) => (
-                                <Link
-                                  key={p.id}
-                                  href={`/product/${p.slug}`}
-                                  onClick={() => setShowSearchDropdown(false)}
-                                  className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-md"
-                                >
-                                  <div className="w-10 h-10 bg-gray-100 rounded-md overflow-hidden relative shrink-0">
-                                    {p.image && (
-                                      <Image
-                                        src={p.image}
-                                        alt={p.title}
-                                        fill
-                                        className="object-cover"
-                                      />
-                                    )}
-                                  </div>
-                                  <div className="min-w-0">
-                                    <p className="text-sm font-bold text-gray-800 truncate">
-                                      {p.title}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                      {p.price}
-                                    </p>
-                                  </div>
-                                </Link>
-                              ))}
-                            </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowGlobalSearch(true)}
+                    className="p-1 text-gray-900 hover:text-[#005caf] transition-colors"
+                    aria-label="全站搜尋"
+                  >
+                    <Search size={20} strokeWidth={1.5} />
+                  </button>
 
                   <button
                     type="button"
@@ -743,7 +892,7 @@ export const SlideTabsExample = () => {
 
             {/* Mega Menu */}
             <AnimatePresence>
-              {openMega !== "none" && (
+              {(openMega === "categories" || openMega === "brand") && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -858,9 +1007,9 @@ export const SlideTabsExample = () => {
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => setShowSearchDropdown((v) => !v)}
+                onClick={() => setShowGlobalSearch(true)}
                 className="p-2 rounded-full text-gray-600 hover:bg-gray-100"
-                aria-label="搜尋"
+                aria-label="全站搜尋"
               >
                 <Search size={20} />
               </button>
@@ -882,7 +1031,16 @@ export const SlideTabsExample = () => {
               </button>
               <button
                 type="button"
-                onClick={() => setIsMenuOpen(true)}
+                onClick={() => {
+                  setOpenMobileNav(
+                    router.pathname.startsWith("/play")
+                      ? "play"
+                      : router.pathname.startsWith("/coaching")
+                        ? "coaching"
+                        : null,
+                  );
+                  setIsMenuOpen(true);
+                }}
                 className="p-2 rounded-full text-gray-600 hover:bg-gray-100"
                 aria-label="開啟選單"
               >
@@ -896,37 +1054,10 @@ export const SlideTabsExample = () => {
       {/* 固定導覽列佔位 */}
       <div className="h-14 lg:h-[var(--nav-offset-desktop)]" aria-hidden />
 
-      {/* 手機搜尋下拉 */}
-      <AnimatePresence>
-        {showSearchDropdown && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="lg:hidden fixed top-14 left-0 right-0 z-[999] bg-white border-b border-gray-100 shadow-lg px-4 py-3"
-          >
-            <div className="flex items-center gap-2 bg-[#F2F4F7] px-3 py-2.5 rounded-md">
-              <Search size={16} className="text-gray-500 shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearchSubmit}
-                placeholder={T.searchPlaceholderMobile}
-                autoFocus
-                className="bg-transparent text-sm w-full outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowSearchDropdown(false)}
-                className="text-gray-400 p-1"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <GlobalSearchOverlay
+        open={showGlobalSearch}
+        onClose={() => setShowGlobalSearch(false)}
+      />
 
       {/* 全螢幕手機選單（THEO 風格 + fade） */}
       <AnimatePresence>
@@ -946,7 +1077,10 @@ export const SlideTabsExample = () => {
               </div>
               <button
                 type="button"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setOpenMobileNav(null);
+                }}
                 className="flex flex-col items-center gap-0.5 pt-1"
                 aria-label="關閉選單"
               >
@@ -968,18 +1102,104 @@ export const SlideTabsExample = () => {
                     router.pathname === link.href ||
                     (link.href !== "/" &&
                       router.pathname.startsWith(link.href));
+                  const dropdownGroups =
+                    link.key === "play"
+                      ? playDropdownGroups
+                      : coachingDropdownGroups;
+                  const isMobileDropdownOpen =
+                    openMobileNav === link.key;
+
+                  if (!link.hasDropdown) {
+                    return (
+                      <Link
+                        key={link.key}
+                        href={link.href}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setOpenMobileNav(null);
+                        }}
+                        className={`block text-base text-gray-900 ${
+                          isActive ? "underline underline-offset-4" : ""
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  }
 
                   return (
-                    <Link
-                      key={link.key}
-                      href={link.href}
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`block text-base text-gray-900 ${
-                        isActive ? "underline underline-offset-4" : ""
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
+                    <div key={link.key}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenMobileNav((current) =>
+                            current === link.key ? null : link.key,
+                          )
+                        }
+                        className={`flex w-full items-center justify-between text-left text-base text-gray-900 ${
+                          isActive ? "text-[#005caf]" : ""
+                        }`}
+                        aria-expanded={isMobileDropdownOpen}
+                        aria-controls={`mobile-${link.key}-dropdown`}
+                      >
+                        <span>{link.label}</span>
+                        <span className="flex h-7 w-7 items-center justify-center border border-[#005caf]/20 text-[#005caf]">
+                          <ChevronDown
+                            size={14}
+                            strokeWidth={2}
+                            className={`transition-transform duration-200 ${
+                              isMobileDropdownOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </span>
+                      </button>
+
+                      <AnimatePresence initial={false}>
+                        {isMobileDropdownOpen && (
+                          <motion.div
+                            id={`mobile-${link.key}-dropdown`}
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.22, ease: "easeInOut" }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-4 grid gap-5 border-l border-[#005caf]/20 pl-4 sm:grid-cols-2">
+                              {dropdownGroups.map((group) => (
+                                <div key={group.title}>
+                                  <p className="mb-2 text-[9px] font-black tracking-[0.18em] text-gray-400">
+                                    {group.title}
+                                  </p>
+                                  <div className="space-y-0.5">
+                                    {group.links.map((item) => (
+                                      <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={() => {
+                                          setIsMenuOpen(false);
+                                          setOpenMobileNav(null);
+                                        }}
+                                        className="group flex items-start gap-3 py-2.5"
+                                      >
+                                        <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rotate-45 bg-[#005caf] transition-transform duration-200 group-active:scale-125" />
+                                        <span className="min-w-0">
+                                          <span className="block text-xs font-black text-gray-900">
+                                            {item.label}
+                                          </span>
+                                          <span className="mt-0.5 block text-[10px] leading-relaxed text-gray-500">
+                                            {item.desc}
+                                          </span>
+                                        </span>
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   );
                 })}
               </nav>

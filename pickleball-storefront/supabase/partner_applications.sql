@@ -18,6 +18,9 @@ create table if not exists public.partner_applications (
   city text,
   website text,
   instagram text,
+  line_url text,
+  instagram_url text,
+  facebook_url text,
   message text not null,
 
   admin_note text,

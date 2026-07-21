@@ -623,6 +623,46 @@
       "default_hint": "Click a common item, or type your own"
     }
   },
+  "presets": {
+    "credentials": [
+      "PPR Certified Coach",
+      "Certified Sports Coach",
+      "Sports Science Background",
+      "Basic Sports Injury Prevention Certificate",
+      "Association-Affiliated Coach",
+      "5+ Years of Coaching Experience",
+      "Competitive Player Experience",
+      "National-Level Athlete"
+    ],
+    "specialties": [
+      "Beginner Fundamentals",
+      "Doubles Strategy",
+      "Kitchen & Dinking",
+      "Third Shot",
+      "Serve & Return",
+      "Technique Correction",
+      "Match Psychology",
+      "Women's Class",
+      "Senior Players",
+      "Youth",
+      "Parent & Child",
+      "Private Lessons"
+    ],
+    "tags": [
+      "Beginner",
+      "Group Class",
+      "Private Lesson",
+      "Clinic",
+      "Beginner Class",
+      "Women's Class",
+      "Senior Players",
+      "Tournament Prep",
+      "Doubles",
+      "Indoor",
+      "Outdoor",
+      "Weekend Class"
+    ]
+  },
   "enums": {
     "class_type": {
       "group": "Group Class",

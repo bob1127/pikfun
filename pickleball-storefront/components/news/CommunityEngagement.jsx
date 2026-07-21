@@ -170,9 +170,11 @@ export function PostLikeBar({ postId }) {
   return (
     <div className="mt-8 flex items-center justify-between gap-4 py-5 border-y border-gray-100">
       <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+        {t("like.eyebrow") ? (
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
           {t("like.eyebrow")}
         </p>
+        ) : null}
         <p className="text-sm text-gray-600">{t("like.prompt")}</p>
       </div>
       <BluePillButton
@@ -383,6 +385,9 @@ export function PostCommentsBoard({ postId }) {
       ? comments.filter((c) => (c.media || []).length > 0)
       : comments;
 
+  const commentTagsRaw = t("comments.tags", { returnObjects: true });
+  const commentTags = Array.isArray(commentTagsRaw) ? commentTagsRaw : [];
+
   const handleWriteClick = () => {
     if (!userInfo?.email) {
       window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
@@ -459,9 +464,11 @@ export function PostCommentsBoard({ postId }) {
     <section className="mt-14 border-t border-gray-200 pt-12">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
-          <p className="text-xs font-bold tracking-widest uppercase text-[#005caf] mb-1">
+          {t("comments.eyebrow") ? (
+            <p className="text-xs font-bold tracking-widest uppercase text-[#005caf] mb-1">
             {t("comments.eyebrow")}
           </p>
+          ) : null}
           <h2 className="text-2xl font-black text-gray-900">
             {t("comments.title")}
             <span className="ml-2 text-base font-bold text-gray-400">
@@ -497,7 +504,7 @@ export function PostCommentsBoard({ postId }) {
             {t("comments.commonTagsTitle")}
           </p>
           <div className="flex flex-wrap gap-2">
-            {(t("comments.tags", { returnObjects: true }) || []).map((tag) => (
+            {commentTags.map((tag) => (
               <span
                 key={tag}
                 className="text-xs font-bold px-3 py-1.5 rounded-full bg-white border border-[#005caf]/30 text-[#005caf]"

@@ -32,9 +32,10 @@ import {
 import { useUser } from "@/components/context/UserContext";
 import {
   COACH_REGIONS,
-  CREDENTIAL_PRESETS,
-  SPECIALTY_PRESETS,
-  TAG_PRESETS,
+  getCredentialPresets,
+  getSpecialtyPresets,
+  getTagPresets,
+  getCoachPresetLabel,
   getRegionLabel,
 } from "@/lib/coachProfileFields";
 
@@ -106,12 +107,14 @@ function DotLink({ href, children, external }) {
 function SectionHeading({ id, label, children }) {
   return (
     <div id={id} className="scroll-mt-28 mb-6">
-      <p
-        className="text-[11px] font-black tracking-[0.15em] uppercase mb-2"
-        style={{ color: BLUE }}
-      >
-        {label}
-      </p>
+      {label ? (
+        <p
+          className="text-[11px] font-black tracking-[0.15em] uppercase mb-2"
+          style={{ color: BLUE }}
+        >
+          {label}
+        </p>
+      ) : null}
       <h2 className="text-xl md:text-2xl font-black text-[#222] leading-snug">
         {children}
       </h2>
@@ -146,12 +149,14 @@ function CoachArticlesSection({ coachName, avatar }) {
     <section className="max-w-[1200px] mx-auto px-6 md:px-10 mt-20">
       <div className="flex items-end justify-between gap-4 mb-8">
         <div>
-          <p
+          {t("profile.articles.eyebrow") ? (
+            <p
             className="text-[11px] font-black tracking-[0.15em] uppercase mb-2"
             style={{ color: BLUE }}
           >
             {t("profile.articles.eyebrow")}
           </p>
+          ) : null}
           <h2 className="text-xl md:text-2xl font-black text-[#222]">
             {t("profile.articles.title", { name: coachName })}
           </h2>
@@ -433,11 +438,14 @@ function CoachProfileSidebar({
               alt={related[0].name}
               className="w-full aspect-[4/3] object-cover"
             />
-            <span className="absolute top-0 left-0 bg-white/90 text-[9px] font-black tracking-widest uppercase px-2.5 py-1.5 text-[#222]">
-              {t("profile.sidebar.pickup_badge_line1")}
-              <br />
-              {t("profile.sidebar.pickup_badge_line2")}
-            </span>
+            {(t("profile.sidebar.pickup_badge_line1") ||
+              t("profile.sidebar.pickup_badge_line2")) && (
+              <span className="absolute top-0 left-0 bg-white/90 text-[9px] font-black tracking-widest uppercase px-2.5 py-1.5 text-[#222]">
+                {t("profile.sidebar.pickup_badge_line1")}
+                <br />
+                {t("profile.sidebar.pickup_badge_line2")}
+              </span>
+            )}
           </div>
           <Link
             href={`/coaching/coach/${related[0].slug}`}
@@ -698,12 +706,14 @@ export default function CoachProfilePage() {
             {/* 左側淡白漸層，襯托文字 */}
             <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-transparent" />
             <div className="relative max-w-[1200px] mx-auto px-6 md:px-10 h-full flex flex-col justify-center">
-              <p
+              {t("profile.hero.eyebrow") ? (
+                <p
                 className="text-[11px] md:text-xs font-black tracking-[0.25em] uppercase mb-3"
                 style={{ color: BLUE }}
               >
                 {t("profile.hero.eyebrow")}
               </p>
+              ) : null}
               <h1 className="text-3xl md:text-5xl font-black text-[#1A1A1A] leading-tight">
                 {coach.title} {coach.name}
               </h1>
@@ -1121,7 +1131,7 @@ export default function CoachProfilePage() {
                             onChange={(v) =>
                               setDraft({ ...draft, credentials: v })
                             }
-                            presets={CREDENTIAL_PRESETS}
+                            presets={getCredentialPresets(t)}
                             mode="lines"
                           />
                         </div>
@@ -1142,7 +1152,11 @@ export default function CoachProfilePage() {
                                   className="mt-[7px] inline-block w-1.5 h-1.5 rounded-full shrink-0"
                                   style={{ backgroundColor: BLUE }}
                                 />
-                                {item}
+                                {getCoachPresetLabel(
+                                  item,
+                                  "credentials",
+                                  t,
+                                )}
                               </li>
                             ))}
                           </ul>
@@ -1183,7 +1197,7 @@ export default function CoachProfilePage() {
                             onChange={(v) =>
                               setDraft({ ...draft, specialties: v })
                             }
-                            presets={SPECIALTY_PRESETS}
+                            presets={getSpecialtyPresets(t)}
                             mode="comma"
                           />
                         </div>
@@ -1201,7 +1215,7 @@ export default function CoachProfilePage() {
                                 className="text-[11px] font-bold px-2.5 py-1 rounded-[3px] border bg-white"
                                 style={{ color: CYAN, borderColor: CYAN }}
                               >
-                                {s}
+                                {getCoachPresetLabel(s, "specialties", t)}
                               </span>
                             ))}
                           </div>
@@ -1244,7 +1258,7 @@ export default function CoachProfilePage() {
                               onChange={(v) =>
                                 setDraft({ ...draft, tags: v })
                               }
-                              presets={TAG_PRESETS}
+                              presets={getTagPresets(t)}
                               mode="comma"
                             />
                           </div>
@@ -1257,7 +1271,7 @@ export default function CoachProfilePage() {
                                 key={tag}
                                 className="text-[10px] font-bold px-2 py-[3px] rounded-[3px] border text-[#3157B5] border-[#3157B5]/60 bg-white"
                               >
-                                {tag}
+                                {getCoachPresetLabel(tag, "tags", t)}
                               </span>
                             ))}
                           </div>
@@ -1275,12 +1289,14 @@ export default function CoachProfilePage() {
               {/* 推薦教練（SPECIAL INTERVIEW 第1弾 風格） */}
               {related[0] && (
                 <div className="mt-16 pt-10 border-t border-gray-200">
-                  <p
+                  {t("profile.recommended.eyebrow") ? (
+                    <p
                     className="text-[11px] font-black tracking-[0.15em] uppercase mb-5"
                     style={{ color: BLUE }}
                   >
                     {t("profile.recommended.eyebrow")}
                   </p>
+                  ) : null}
                   <div className="flex flex-col sm:flex-row gap-6">
                     <Link
                       href={`/coaching/coach/${related[0].slug}`}
@@ -1292,11 +1308,14 @@ export default function CoachProfilePage() {
                           alt={related[0].name}
                           className="w-full aspect-[4/3] object-cover hover:scale-[1.03] transition-transform duration-300"
                         />
-                        <span className="absolute top-0 left-0 bg-white/90 text-[9px] font-black tracking-widest uppercase px-2.5 py-1.5 text-[#222]">
-                          {t("profile.recommended.pickup_badge_line1")}
-                          <br />
-                          {t("profile.recommended.pickup_badge_line2")}
-                        </span>
+                        {(t("profile.recommended.pickup_badge_line1") ||
+                          t("profile.recommended.pickup_badge_line2")) && (
+                          <span className="absolute top-0 left-0 bg-white/90 text-[9px] font-black tracking-widest uppercase px-2.5 py-1.5 text-[#222]">
+                            {t("profile.recommended.pickup_badge_line1")}
+                            <br />
+                            {t("profile.recommended.pickup_badge_line2")}
+                          </span>
+                        )}
                       </div>
                     </Link>
                     <div className="flex-1">

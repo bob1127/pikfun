@@ -30,6 +30,7 @@ import {
   formatClassDate,
   formatClassRange,
   formatPrice,
+  getPaymentLabel,
 } from "@/lib/coachUtils";
 import { buildGoogleMapsLink } from "@/lib/playUtils";
 import MapEmbed, { FeePaymentBlock } from "@/components/play/MapEmbed";
@@ -96,9 +97,6 @@ function SideMenu({ items, activeId }) {
   const { t } = useTranslation("coaching");
   return (
     <nav className="hidden lg:block w-[200px] xl:w-[220px] shrink-0 pr-8 mr-6 border-r border-gray-200">
-      <p className="text-xs font-bold text-[#1a2d4a] mb-5 tracking-wide">
-        {t("common.menu_label")}
-      </p>
       <ul className="space-y-1 sticky top-28">
         {items.map((item) => (
           <li key={item.id}>
@@ -658,7 +656,7 @@ export default function CoachingDetailPage() {
   const feeSession = {
     fee_per_person: cls.price_per_person,
     payment_method: cls.payment_method,
-    payment_method_label: cls.payment_method_label,
+    payment_method_label: getPaymentLabel(cls.payment_method, t),
     payment_note: cls.payment_note,
   };
 
@@ -879,12 +877,14 @@ export default function CoachingDetailPage() {
                 ref={overviewRef}
                 className="scroll-mt-28 mb-12"
               >
-                <p
+                {t("detail.overview.eyebrow") ? (
+                  <p
                   className="text-[10px] font-bold tracking-[0.3em] uppercase mb-3"
                   style={{ color: ACCENT }}
                 >
                   {t("detail.overview.eyebrow")}
                 </p>
+                ) : null}
                 <h2 className="text-xl md:text-2xl font-bold text-[#1a2d4a] mb-6 pb-4 border-b border-gray-200">
                   {t("detail.overview.title")}
                 </h2>
@@ -1071,12 +1071,14 @@ export default function CoachingDetailPage() {
                   id="section-related"
                   className="scroll-mt-28 py-16 md:py-20 border-t border-gray-200 mt-8"
                 >
-                  <p
+                  {t("detail.related.eyebrow") ? (
+                    <p
                     className="text-[10px] font-bold tracking-[0.3em] uppercase mb-3 text-center"
                     style={{ color: ACCENT }}
                   >
                     {t("detail.related.eyebrow")}
                   </p>
+                  ) : null}
                   <h2
                     className="text-2xl md:text-3xl font-bold text-center mb-10"
                     style={{ color: ACCENT }}
@@ -1141,12 +1143,14 @@ export default function CoachingDetailPage() {
 
         {/* 圖4：GROUP 底部連結 */}
         <div className="max-w-[1520px] mx-auto px-6 md:px-10 py-10 border-t border-gray-100 bg-white">
-          <p
+          {t("detail.group_links.eyebrow") ? (
+            <p
             className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4"
             style={{ color: ACCENT }}
           >
             {t("detail.group_links.eyebrow")}
           </p>
+          ) : null}
           <div className="grid sm:grid-cols-2 gap-0 border border-gray-200 rounded-xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
             <Link
               href="/coaching"

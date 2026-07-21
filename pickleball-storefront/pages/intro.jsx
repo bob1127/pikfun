@@ -3,7 +3,48 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { getSiteUrl } from "@/lib/siteUrl";
 import { useEffect, useRef, useState } from "react";
 
-const INDUSTRIES = ["全業種", "飲食店", "小売店", "美容・サロン"];
+const COOPERATION_OPTIONS = [
+  {
+    key: "行銷",
+    image: "/images/intro/d631d850-a0cd-44fb-b148-4efe771c2544.png",
+    alt: "PikFun 匹克球社群行銷合作",
+    badge: "品牌曝光",
+    title: "匹克球精準行銷",
+    description:
+      "透過 PikFun 的球友社群、內容專區與活動曝光，讓品牌、球館、教練及賽事資訊接觸真正對匹克球有興趣的受眾。",
+    cta: "洽談行銷合作 →",
+  },
+  {
+    key: "SEO",
+    image: "/images/pik04.jpg",
+    alt: "匹克球品牌 SEO 搜尋曝光",
+    badge: "搜尋曝光",
+    title: "SEO 內容與在地搜尋佈局",
+    description:
+      "規劃關鍵字、場館頁面與專題文章，強化 Google 搜尋及 AI 搜尋能見度，持續累積品牌的自然流量與可信度。",
+    cta: "了解 SEO 合作 →",
+  },
+  {
+    key: "一頁式功能頁",
+    image: "/images/pik06.jpg",
+    alt: "匹克球活動一頁式功能頁",
+    badge: "快速上線",
+    title: "一頁式活動功能頁",
+    description:
+      "為課程、賽事、球館或新品打造專屬頁面，整合品牌介紹、活動資訊、表單、導流與行動按鈕，讓使用者一次完成了解與轉換。",
+    cta: "規劃一頁式頁面 →",
+  },
+  {
+    key: "分潤合作",
+    image: "/images/夥伴召集中.png",
+    alt: "PikFun 匹克球品牌分潤合作",
+    badge: "共同成長",
+    title: "品牌與商品分潤合作",
+    description:
+      "串聯匹克球裝備、課程、場館與活動資源，以內容導購、專屬優惠或合作方案創造可追蹤的轉換與長期收益。",
+    cta: "提出分潤合作 →",
+  },
+];
 
 const HERO_TILES = [
   {
@@ -49,45 +90,45 @@ const CAMPAIGN_SLIDES = [
   },
 ];
 
-const POS_CARDS = [
+const TUTORIAL_CARDS = [
   {
-    src: "/images/intro/pos-card1.png",
-    alt: "Square レジスター",
-    play: true,
-    videoBar: false,
-    body: (
-      <>
-        スタッフ専用とお客さま専用、2つの画面でスムーズな決済を実現する決済端末の
-        <a href="#register">Square レジスター</a>
-      </>
-    ),
+    step: "STEP 01",
+    src: "/images/intro/d631d850-a0cd-44fb-b148-4efe771c2544.png",
+    alt: "登入 PikFun 並建立匹克球揪團",
+    title: "登入並建立揪團",
+    summary: "登入會員後，從揪團頁面開始建立新的匹克球場次。",
+    steps: [
+      "登入 PikFun 會員帳號；尚未加入的球友可先免費註冊。",
+      "進入「揪團打球」頁面，點擊「我要開團」。",
+      "確認開團人資料與聯絡方式，接著進入活動設定。",
+    ],
+    tip: "若尚未登入，系統會先引導至登入頁，完成後即可回到開團流程。",
   },
   {
-    src: "/images/intro/pos-card2.png",
-    alt: "Square ターミナル",
-    play: false,
-    videoBar: true,
-    body: (
-      <>
-        ワイヤレスだから持ち運んで注文や
-        <a href="#cashless">キャッシュレス決済</a>
-        を受け付け。レシートもその場で出せる
-        <a href="#terminal">Square ターミナル</a>
-      </>
-    ),
+    step: "STEP 02",
+    src: "/images/pik04.jpg",
+    alt: "填寫匹克球揪團與球場資訊",
+    title: "填寫活動與球場資訊",
+    summary: "設定日期、程度、名額及球場，讓球友快速判斷是否適合參加。",
+    steps: [
+      "輸入揪團標題、活動日期、開始與結束時間。",
+      "選擇程度、活動類型、人數上限及每人費用。",
+      "使用球場搜尋選取正確場地，並補充集合方式與注意事項。",
+    ],
+    tip: "請從搜尋結果選擇球場，不要只輸入文字地址，地圖與活動才會正確連結。",
   },
   {
-    src: "/images/intro/pos-card3.png",
-    alt: "Square 請求書",
-    play: true,
-    videoBar: false,
-    body: (
-      <>
-        <a href="#invoice">請求書</a>
-        をメールでサッと送信、お客さまはオンラインでそのまま決済。自動リマインダーで支払い忘れも防げる
-        <a href="#invoices">Square 請求書</a>
-      </>
-    ),
+    step: "STEP 03",
+    src: "/images/pik06.jpg",
+    alt: "發布匹克球揪團並管理報名",
+    title: "確認發布與管理報名",
+    summary: "送出前再次確認資料，發布後即可分享並管理參加名單。",
+    steps: [
+      "檢查時間、地點、費用及名額，確認無誤後發布。",
+      "複製活動連結，分享到 LINE、Facebook 或球友群組。",
+      "至會員中心查看報名名單；如有變動，請及早更新或通知球友。",
+    ],
+    tip: "活動額滿後系統會顯示名額狀態；若取消活動，務必同步通知已報名球友。",
   },
 ];
 
@@ -166,6 +207,23 @@ const STORE_PRODUCTS = [
   },
 ];
 
+/* 合作 Partner：第一張為正式夥伴，其餘為招募佔位卡 */
+const PARTNER_ITEMS = [
+  {
+    key: "taichung-pickleball",
+    name: "台中匹克領域",
+    logo: "/images/cooperation/132774c0-28a9-431d-b407-13c3b8e280c2.png",
+    line1: "PikFun 合作球場夥伴",
+    line2: "台中市・室內匹克球場",
+  },
+  ...Array.from({ length: 7 }, (_, i) => ({
+    key: `open-slot-${i + 1}`,
+    placeholder: true,
+    name: "等你來加入",
+    line1: "成為 PikFun 合作夥伴",
+  })),
+];
+
 function scrollByCard(scroller, dir) {
   if (!scroller) return;
   const card = scroller.querySelector("[data-card]");
@@ -176,31 +234,30 @@ function scrollByCard(scroller, dir) {
 }
 
 function IntroContent() {
-  const [industry, setIndustry] = useState("全業種");
+  const [cooperationKey, setCooperationKey] = useState(
+    COOPERATION_OPTIONS[0].key,
+  );
+  const cooperation =
+    COOPERATION_OPTIONS.find((item) => item.key === cooperationKey) ||
+    COOPERATION_OPTIONS[0];
+  const [activeTutorial, setActiveTutorial] = useState(null);
   const [campaignIndex, setCampaignIndex] = useState(0);
-  const [campaignImgVisible, setCampaignImgVisible] = useState(true);
   const campaign = CAMPAIGN_SLIDES[campaignIndex];
-  const campaignAnimating = useRef(false);
 
   const nextCampaign = () => {
-    if (campaignAnimating.current) return;
-    campaignAnimating.current = true;
-    setCampaignImgVisible(false);
-    window.setTimeout(() => {
-      setCampaignIndex((i) => (i + 1) % CAMPAIGN_SLIDES.length);
-      // next frame: fade in new image over solid bg
-      window.requestAnimationFrame(() => {
-        setCampaignImgVisible(true);
-        window.setTimeout(() => {
-          campaignAnimating.current = false;
-        }, 450);
-      });
-    }, 320);
+    setCampaignIndex((i) => (i + 1) % CAMPAIGN_SLIDES.length);
   };
 
   const storeRef = useRef(null);
   const [storePrevOff, setStorePrevOff] = useState(true);
   const [storeNextOff, setStoreNextOff] = useState(false);
+  const partnerRef = useRef(null);
+  const partnerDragRef = useRef({
+    active: false,
+    startX: 0,
+    startScrollLeft: 0,
+  });
+  const [partnerDragging, setPartnerDragging] = useState(false);
 
   const updateStoreNav = () => {
     const el = storeRef.current;
@@ -221,6 +278,89 @@ function IntroContent() {
     };
   }, []);
 
+  useEffect(() => {
+    const el = partnerRef.current;
+    if (!el) return undefined;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return undefined;
+    }
+
+    let animationFrame;
+    let previousTime = performance.now();
+
+    const animate = (time) => {
+      const elapsed = Math.min(time - previousTime, 50);
+      previousTime = time;
+
+      if (!partnerDragRef.current.active) {
+        el.scrollLeft += elapsed * 0.035;
+        const loopWidth = el.scrollWidth / 2;
+        if (loopWidth > 0 && el.scrollLeft >= loopWidth) {
+          el.scrollLeft -= loopWidth;
+        }
+      }
+
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, []);
+
+  const startPartnerDrag = (event) => {
+    const el = partnerRef.current;
+    if (!el) return;
+    partnerDragRef.current = {
+      active: true,
+      startX: event.clientX,
+      startScrollLeft: el.scrollLeft,
+    };
+    setPartnerDragging(true);
+    el.setPointerCapture?.(event.pointerId);
+  };
+
+  const movePartnerDrag = (event) => {
+    const el = partnerRef.current;
+    const drag = partnerDragRef.current;
+    if (!el || !drag.active) return;
+
+    event.preventDefault();
+    const loopWidth = el.scrollWidth / 2;
+    let nextScroll = drag.startScrollLeft - (event.clientX - drag.startX);
+
+    if (loopWidth > 0) {
+      nextScroll = ((nextScroll % loopWidth) + loopWidth) % loopWidth;
+    }
+    el.scrollLeft = nextScroll;
+  };
+
+  const endPartnerDrag = (event) => {
+    if (!partnerDragRef.current.active) return;
+    partnerDragRef.current.active = false;
+    setPartnerDragging(false);
+    const el = partnerRef.current;
+    if (el?.hasPointerCapture?.(event.pointerId)) {
+      el.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  useEffect(() => {
+    if (!activeTutorial) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setActiveTutorial(null);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [activeTutorial]);
+
   return (
     <main className="sq-page">
       {/* ── Section 1: Hero ── */}
@@ -235,15 +375,15 @@ function IntroContent() {
 
           <div className="sq-cta-row">
             <div className="sq-cta-item">
-              <span className="sq-bubble">最短 1 分で！</span>
+              <span className="sq-bubble">教練/揪團/課程/球場主</span>
               <a href="#signup" className="sq-btn sq-btn--primary">
                 免費召集中！
               </a>
             </div>
             <div className="sq-cta-item">
-              <span className="sq-bubble">入力項目少なめ！</span>
+              <span className="sq-bubble">行銷/宣傳/seo/分潤</span>
               <a href="#contact" className="sq-btn sq-btn--outline">
-                お問い合わせ
+                合作吧！
               </a>
             </div>
           </div>
@@ -267,14 +407,9 @@ function IntroContent() {
         <div className="sq-campaign">
           <div className="sq-campaign-visual">
             <img
-              key={campaign.src}
-              src={campaign.src}
-              alt={campaign.alt}
-              className={
-                campaignImgVisible
-                  ? "sq-campaign-img is-visible"
-                  : "sq-campaign-img"
-              }
+              src={CAMPAIGN_SLIDES[0].src}
+              alt={CAMPAIGN_SLIDES[0].alt}
+              className="sq-campaign-img"
             />
           </div>
           <div className="sq-campaign-copy">
@@ -304,42 +439,43 @@ function IntroContent() {
       {/* ── Section 3: Product showcase ── */}
       <section className="sq-product-sec" aria-labelledby="sq-product-title">
         <div className="sq-product">
-          <div className="sq-product-main">
+          <div className="sq-product-main" key={cooperation.key}>
             <div className="sq-product-media">
-              <img
-                src="/images/intro/register-scene.png"
-                alt="Square レジスター (第2世代) の利用シーン"
-              />
+              <img src={cooperation.image} alt={cooperation.alt} />
             </div>
             <div className="sq-product-copy">
-              <span className="sq-product-badge">新登場</span>
+              <span className="sq-product-badge">{cooperation.badge}</span>
               <h2 id="sq-product-title" className="sq-product-heading">
-                Square レジスター (第2世代)
+                {cooperation.title}
               </h2>
-              <p className="sq-product-desc">
-                高感度のデュアルタッチスクリーンと内蔵POSアプリを搭載し、日々の業務で生じるさまざまな状況にも対応できる高い耐久性を備えています。
-              </p>
-              <a href="#register" className="sq-product-link">
-                詳細はこちら →
+              <p className="sq-product-desc">{cooperation.description}</p>
+              <a href="#contact" className="sq-product-link">
+                {cooperation.cta}
               </a>
             </div>
           </div>
 
           <div className="sq-filters">
-            <span className="sq-filters-label">業種別に見る →</span>
-            <div className="sq-filters-pills" role="tablist" aria-label="業種">
-              {INDUSTRIES.map((name) => (
+            <span className="sq-filters-label">合作方式 →</span>
+            <div
+              className="sq-filters-pills"
+              role="tablist"
+              aria-label="合作方式"
+            >
+              {COOPERATION_OPTIONS.map((item) => (
                 <button
-                  key={name}
+                  key={item.key}
                   type="button"
                   role="tab"
-                  aria-selected={industry === name}
+                  aria-selected={cooperationKey === item.key}
                   className={
-                    industry === name ? "sq-pill sq-pill--active" : "sq-pill"
+                    cooperationKey === item.key
+                      ? "sq-pill sq-pill--active"
+                      : "sq-pill"
                   }
-                  onClick={() => setIndustry(name)}
+                  onClick={() => setCooperationKey(item.key)}
                 >
-                  {name}
+                  {item.key}
                 </button>
               ))}
             </div>
@@ -351,48 +487,93 @@ function IntroContent() {
       <section className="sq-pos-sec" aria-labelledby="sq-pos-title">
         <div className="sq-pos-inner">
           <h2 id="sq-pos-title" className="sq-pos-heading">
-            お店でも、オンラインでも。
+            A . 揪團發布
             <br />
-            最短当日から販売を始められます。
+            發布最新揪團資訊，邀請共同歡樂打球。
           </h2>
-          <a href="#pos-demo" className="sq-pos-demo-link">
-            SquareのPOS機能のデモを見る →
-          </a>
+          <button
+            type="button"
+            className="sq-pos-demo-link"
+            onClick={() => setActiveTutorial(TUTORIAL_CARDS[0])}
+          >
+            操作步驟→
+          </button>
 
           <div className="sq-pos-grid">
-            {POS_CARDS.map((slide) => (
-              <article className="sq-pos-card" key={slide.alt}>
+            {TUTORIAL_CARDS.map((tutorial) => (
+              <button
+                type="button"
+                className="sq-pos-card"
+                key={tutorial.step}
+                onClick={() => setActiveTutorial(tutorial)}
+                aria-label={`查看${tutorial.title}操作步驟`}
+              >
                 <div className="sq-pos-media">
-                  <img src={slide.src} alt={slide.alt} />
-                  {slide.play && (
-                    <span className="sq-play" aria-hidden>
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 14 14"
-                        fill="none"
-                      >
-                        <circle cx="7" cy="7" r="7" fill="rgba(0,0,0,0.35)" />
-                        <path d="M5.5 4.2v5.6L10 7 5.5 4.2z" fill="#fff" />
-                      </svg>
-                    </span>
-                  )}
-                  {slide.videoBar && (
-                    <div className="sq-video-bar" aria-hidden>
-                      <span className="sq-video-play">▶</span>
-                      <span className="sq-video-time">0:01 / 0:04</span>
-                      <span className="sq-video-spacer" />
-                      <span>🔊</span>
-                      <span>⛶</span>
-                    </div>
-                  )}
+                  <img src={tutorial.src} alt={tutorial.alt} />
+                  <span className="sq-pos-step">{tutorial.step}</span>
+                  <span className="sq-pos-open" aria-hidden>
+                    ＋
+                  </span>
                 </div>
-                <p className="sq-pos-caption">{slide.body}</p>
-              </article>
+                <span className="sq-pos-caption">
+                  <span className="sq-pos-caption-link">{tutorial.title}</span>
+                  {tutorial.summary}
+                </span>
+              </button>
             ))}
           </div>
         </div>
       </section>
+
+      {activeTutorial && (
+        <div
+          className="sq-tutorial-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sq-tutorial-title"
+        >
+          <button
+            type="button"
+            className="sq-tutorial-backdrop"
+            aria-label="關閉操作教學"
+            onClick={() => setActiveTutorial(null)}
+          />
+          <div className="sq-tutorial-dialog">
+            <button
+              type="button"
+              className="sq-tutorial-close"
+              aria-label="關閉"
+              onClick={() => setActiveTutorial(null)}
+            >
+              ×
+            </button>
+            <div className="sq-tutorial-image">
+              <img src={activeTutorial.src} alt={activeTutorial.alt} />
+              <span>{activeTutorial.step}</span>
+            </div>
+            <div className="sq-tutorial-content">
+              <p className="sq-tutorial-kicker">揪團發布操作教學</p>
+              <h3 id="sq-tutorial-title">{activeTutorial.title}</h3>
+              <p className="sq-tutorial-summary">{activeTutorial.summary}</p>
+              <ol className="sq-tutorial-steps">
+                {activeTutorial.steps.map((step, index) => (
+                  <li key={step}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <p>{step}</p>
+                  </li>
+                ))}
+              </ol>
+              <p className="sq-tutorial-tip">
+                <strong>提醒</strong>
+                {activeTutorial.tip}
+              </p>
+              <a href="/play/create" className="sq-tutorial-cta">
+                立即建立揪團 →
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Section 5: Dark Terminal feature ── */}
       <section className="sq-dark-sec" aria-labelledby="sq-dark-title">
@@ -482,6 +663,97 @@ function IntroContent() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Section 7: 合作 Partner ── */}
+      <section className="sq-partner-sec" aria-labelledby="sq-partner-title">
+        <header className="sq-partner-head">
+          <h2 id="sq-partner-title" className="sq-partner-heading">
+            PARTNER
+          </h2>
+          <p className="sq-partner-sub">與 PikFun 一起推廣匹克球的合作夥伴</p>
+        </header>
+
+        <div className="sq-partner-wrap">
+          <div
+            ref={partnerRef}
+            className={`sq-partner-marquee${
+              partnerDragging ? " is-dragging" : ""
+            }`}
+            onPointerDown={startPartnerDrag}
+            onPointerMove={movePartnerDrag}
+            onPointerUp={endPartnerDrag}
+            onPointerCancel={endPartnerDrag}
+          >
+            <div className="sq-partner-track">
+              {[0, 1].map((copy) => (
+                <div
+                  className="sq-partner-group"
+                  key={copy}
+                  aria-hidden={copy === 1 || undefined}
+                >
+                  {PARTNER_ITEMS.map((item) => (
+                    <article
+                      className={`sq-partner-card${
+                        item.placeholder ? " sq-partner-card--open" : ""
+                      }`}
+                      key={`${copy}-${item.key}`}
+                    >
+                      <div className="sq-partner-logo">
+                        {item.placeholder ? (
+                          <span className="sq-partner-logo-open" aria-hidden>
+                            ＋
+                          </span>
+                        ) : (
+                          <img
+                            src={item.logo}
+                            alt={item.name}
+                            loading="lazy"
+                            draggable="false"
+                          />
+                        )}
+                      </div>
+                      <h3 className="sq-partner-name">{item.name}</h3>
+                      <p className="sq-partner-meta">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          aria-hidden
+                        >
+                          <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4" />
+                        </svg>
+                        <span>{item.line1}</span>
+                      </p>
+                      {item.line2 && (
+                        <p className="sq-partner-meta">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            aria-hidden
+                          >
+                            <path d="M12 21s-7-5.5-7-11a7 7 0 1 1 14 0c0 5.5-7 11-7 11z" />
+                            <circle cx="12" cy="10" r="2.5" />
+                          </svg>
+                          <span>{item.line2}</span>
+                        </p>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="sq-partner-cta-row">
+          <a href="/coaching" className="sq-partner-cta">
+            合作教練一覽 <span aria-hidden>↗</span>
+          </a>
         </div>
       </section>
 
@@ -745,18 +1017,21 @@ function IntroContent() {
           grid-template-columns: 1.15fr 0.85fr;
           border-radius: 28px;
           overflow: hidden;
-          min-height: 300px;
+          min-height: 320px;
           background: #f2f2f2;
           align-items: stretch;
         }
 
         .sq-campaign-visual {
           position: relative;
-          min-height: 300px;
+          min-height: 320px;
+          height: 100%;
+          align-self: stretch;
           background: #0039a6;
           overflow: hidden;
         }
 
+        /* 左側滿版背景圖：貼齊外層圓角容器 */
         .sq-campaign-img {
           position: absolute;
           inset: 0;
@@ -764,16 +1039,8 @@ function IntroContent() {
           height: 100%;
           object-fit: cover;
           object-position: center;
-          /* crop out baked-in rounded corners on asset */
-          transform: scale(1.12);
           display: block;
-          opacity: 0;
-          transition: opacity 0.32s ease;
           pointer-events: none;
-        }
-
-        .sq-campaign-img.is-visible {
-          opacity: 1;
         }
 
         .sq-campaign-copy {
@@ -824,10 +1091,6 @@ function IntroContent() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .sq-campaign-img {
-            transition: none;
-          }
-
           .sq-campaign-copy-body > * {
             animation: none;
           }
@@ -932,8 +1195,52 @@ function IntroContent() {
           align-items: center;
         }
 
+        /* 切換合作方式時的過渡動畫（sq-product-main 以 key 重新掛載觸發） */
+        .sq-product-main .sq-product-media {
+          animation: sq-coop-media-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .sq-product-main .sq-product-copy > * {
+          animation: sq-copy-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .sq-product-main .sq-product-copy > *:nth-child(1) {
+          animation-delay: 0.06s;
+        }
+
+        .sq-product-main .sq-product-copy > *:nth-child(2) {
+          animation-delay: 0.12s;
+        }
+
+        .sq-product-main .sq-product-copy > *:nth-child(3) {
+          animation-delay: 0.18s;
+        }
+
+        .sq-product-main .sq-product-copy > *:nth-child(4) {
+          animation-delay: 0.24s;
+        }
+
+        @keyframes sq-coop-media-in {
+          from {
+            opacity: 0;
+            transform: translateY(14px) scale(0.985);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .sq-product-main .sq-product-media,
+          .sq-product-main .sq-product-copy > * {
+            animation: none;
+          }
+        }
+
+        /* 右上、左下 50px 圓角，另外兩角直角 */
         .sq-product-media {
-          border-radius: 28px;
+          border-radius: 0 50px 0 50px;
           overflow: hidden;
           line-height: 0;
           background: #eee;
@@ -1073,6 +1380,10 @@ function IntroContent() {
           font-size: 15px;
           font-weight: 500;
           text-decoration: none;
+          border: 0;
+          padding: 0;
+          background: transparent;
+          cursor: pointer;
         }
 
         .sq-pos-demo-link:hover {
@@ -1088,6 +1399,24 @@ function IntroContent() {
 
         .sq-pos-card {
           min-width: 0;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          text-align: left;
+          font: inherit;
+          color: inherit;
+          cursor: pointer;
+        }
+
+        .sq-pos-card:hover .sq-pos-media img,
+        .sq-pos-card:focus-visible .sq-pos-media img {
+          transform: scale(1.035);
+        }
+
+        .sq-pos-card:focus-visible {
+          outline: 2px solid #006aff;
+          outline-offset: 5px;
+          border-radius: 14px;
         }
 
         .sq-pos-media {
@@ -1104,52 +1433,246 @@ function IntroContent() {
           height: 100%;
           object-fit: cover;
           display: block;
+          transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .sq-play {
+        .sq-pos-step {
           position: absolute;
-          right: 10px;
-          bottom: 10px;
-          line-height: 0;
+          left: 12px;
+          top: 12px;
+          padding: 6px 9px;
+          border-radius: 999px;
+          background: rgba(0, 0, 0, 0.76);
+          color: #fff;
+          font-size: 10px;
+          font-weight: 700;
+          line-height: 1;
+          letter-spacing: 0.12em;
         }
 
-        .sq-video-bar {
+        .sq-pos-open {
           position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
+          right: 12px;
+          bottom: 12px;
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          background: #fff;
+          color: #111;
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 6px 10px;
-          background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
-          color: #fff;
-          font-size: 11px;
+          justify-content: center;
+          box-shadow: 0 5px 18px rgba(0, 0, 0, 0.18);
+          font-size: 18px;
           line-height: 1;
+          transition: transform 0.25s ease;
         }
 
-        .sq-video-play {
-          font-size: 9px;
-        }
-
-        .sq-video-spacer {
-          flex: 1;
+        .sq-pos-card:hover .sq-pos-open {
+          transform: rotate(90deg);
         }
 
         .sq-pos-caption {
           margin: 16px 0 0;
+          display: block;
           font-size: 15px;
           line-height: 1.8;
           color: #333;
         }
 
-        .sq-pos-caption :global(a) {
+        .sq-pos-caption-link {
+          display: block;
           color: #006aff;
+        }
+
+        .sq-pos-card:hover .sq-pos-caption-link {
+          text-decoration: underline;
+        }
+
+        /* ── 操作教學 Popup ── */
+        .sq-tutorial-modal {
+          position: fixed;
+          inset: 0;
+          z-index: 999999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+
+        .sq-tutorial-backdrop {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          border: 0;
+          background: rgba(0, 0, 0, 0.62);
+          backdrop-filter: blur(5px);
+          cursor: pointer;
+          animation: sq-modal-fade 0.25s ease both;
+        }
+
+        .sq-tutorial-dialog {
+          position: relative;
+          z-index: 1;
+          width: min(900px, 100%);
+          max-height: min(760px, calc(100vh - 40px));
+          display: grid;
+          grid-template-columns: 0.9fr 1.1fr;
+          overflow: auto;
+          border-radius: 0 50px 0 50px;
+          background: #fff;
+          box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+          animation: sq-modal-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .sq-tutorial-close {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          z-index: 3;
+          width: 38px;
+          height: 38px;
+          border: 0;
+          border-radius: 50%;
+          background: #fff;
+          color: #111;
+          box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14);
+          font-size: 26px;
+          line-height: 1;
+          cursor: pointer;
+        }
+
+        .sq-tutorial-image {
+          position: relative;
+          min-height: 540px;
+          overflow: hidden;
+          background: #e9eef5;
+        }
+
+        .sq-tutorial-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .sq-tutorial-image > span {
+          position: absolute;
+          left: 20px;
+          top: 20px;
+          padding: 7px 11px;
+          border-radius: 999px;
+          background: #111;
+          color: #fff;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+        }
+
+        .sq-tutorial-content {
+          padding: 54px 52px 46px;
+        }
+
+        .sq-tutorial-kicker {
+          margin: 0;
+          color: #006aff;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+        }
+
+        .sq-tutorial-content h3 {
+          margin: 12px 0 0;
+          color: #111;
+          font-size: clamp(26px, 3vw, 34px);
+          line-height: 1.35;
+        }
+
+        .sq-tutorial-summary {
+          margin: 14px 0 0;
+          color: #555;
+          font-size: 14px;
+          line-height: 1.8;
+        }
+
+        .sq-tutorial-steps {
+          margin: 28px 0 0;
+          padding: 0;
+          list-style: none;
+          border-top: 1px solid #e6e6e6;
+        }
+
+        .sq-tutorial-steps li {
+          display: grid;
+          grid-template-columns: 36px 1fr;
+          gap: 12px;
+          padding: 16px 0;
+          border-bottom: 1px solid #e6e6e6;
+        }
+
+        .sq-tutorial-steps li > span {
+          color: #006aff;
+          font-size: 12px;
+          font-weight: 700;
+          padding-top: 2px;
+        }
+
+        .sq-tutorial-steps li p {
+          margin: 0;
+          color: #222;
+          font-size: 14px;
+          line-height: 1.7;
+        }
+
+        .sq-tutorial-tip {
+          margin: 22px 0 0;
+          padding: 14px 16px;
+          border-radius: 10px;
+          background: #f1f5fb;
+          color: #4a5565;
+          font-size: 12px;
+          line-height: 1.7;
+        }
+
+        .sq-tutorial-tip strong {
+          display: block;
+          margin-bottom: 3px;
+          color: #111;
+        }
+
+        .sq-tutorial-cta {
+          margin-top: 24px;
+          display: inline-flex;
+          align-items: center;
+          min-height: 44px;
+          padding: 0 20px;
+          border-radius: 4px;
+          background: #006aff;
+          color: #fff;
+          font-size: 14px;
+          font-weight: 700;
           text-decoration: none;
         }
 
-        .sq-pos-caption :global(a):hover {
-          text-decoration: underline;
+        @keyframes sq-modal-fade {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes sq-modal-in {
+          from {
+            opacity: 0;
+            transform: translateY(24px) scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
 
         /* ── Dark Terminal ── */
@@ -1460,6 +1983,170 @@ function IntroContent() {
           right: -8px;
         }
 
+        /* ── 合作 Partner ── */
+        .sq-partner-sec {
+          background: #dfdcd4;
+          padding: 76px 0 64px;
+          overflow: hidden;
+        }
+
+        .sq-partner-head {
+          text-align: center;
+          padding: 0 24px;
+        }
+
+        .sq-partner-heading {
+          margin: 0;
+          font-size: clamp(30px, 3.4vw, 42px);
+          font-weight: 900;
+          letter-spacing: 0.14em;
+          color: #111;
+          line-height: 1.2;
+        }
+
+        .sq-partner-sub {
+          margin: 12px 0 0;
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          color: #333;
+        }
+
+        .sq-partner-wrap {
+          position: relative;
+          margin-top: 40px;
+        }
+
+        .sq-partner-marquee {
+          overflow: hidden;
+          padding: 16px 0 24px;
+          cursor: grab;
+          touch-action: pan-y;
+          user-select: none;
+          -webkit-user-select: none;
+        }
+
+        .sq-partner-marquee.is-dragging {
+          cursor: grabbing;
+        }
+
+        .sq-partner-track {
+          display: flex;
+          width: max-content;
+        }
+
+        .sq-partner-group {
+          display: flex;
+          gap: 20px;
+          padding-right: 20px;
+        }
+
+        .sq-partner-card {
+          flex: 0 0 250px;
+          background: #ffffff;
+          padding: 34px 22px 30px;
+          text-align: left;
+          transition: transform 0.35s ease;
+        }
+
+        .sq-partner-card:hover {
+          transform: translateY(-12px);
+        }
+
+        .sq-partner-logo {
+          height: 110px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 26px;
+        }
+
+        .sq-partner-logo img {
+          max-height: 100%;
+          max-width: 140px;
+          object-fit: contain;
+        }
+
+        .sq-partner-logo-open {
+          width: 64px;
+          height: 64px;
+          border-radius: 50%;
+          border: 2px dashed #b9b5ab;
+          color: #b9b5ab;
+          font-size: 28px;
+          line-height: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .sq-partner-card--open {
+          background: #f7f6f2;
+          border: 1.5px dashed #c9c5bb;
+        }
+
+        .sq-partner-card--open .sq-partner-name,
+        .sq-partner-card--open .sq-partner-meta,
+        .sq-partner-card--open .sq-partner-meta svg {
+          color: #8d897f;
+        }
+
+        .sq-partner-name {
+          margin: 0 0 12px;
+          font-size: 14px;
+          font-weight: 700;
+          line-height: 1.6;
+          color: #111;
+          min-height: 3.2em;
+        }
+
+        .sq-partner-meta {
+          margin: 0 0 7px;
+          display: flex;
+          align-items: flex-start;
+          gap: 6px;
+          font-size: 11px;
+          line-height: 1.6;
+          color: #555;
+        }
+
+        .sq-partner-meta svg {
+          flex: 0 0 13px;
+          width: 13px;
+          height: 13px;
+          margin-top: 2px;
+          color: #111;
+        }
+
+        .sq-partner-cta-row {
+          margin-top: 30px;
+          display: flex;
+          justify-content: center;
+        }
+
+        .sq-partner-cta {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          min-height: 46px;
+          padding: 0 34px;
+          border-radius: 999px;
+          background: #111;
+          color: #fff;
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+          text-decoration: none;
+          transition:
+            transform 0.25s ease,
+            background 0.25s ease;
+        }
+
+        .sq-partner-cta:hover {
+          transform: translateY(-3px);
+          background: #000;
+        }
+
         @media (max-width: 900px) {
           .sq-campaign {
             grid-template-columns: 1fr;
@@ -1469,10 +2156,6 @@ function IntroContent() {
           .sq-campaign-visual {
             min-height: 220px;
             aspect-ratio: 16 / 10;
-          }
-
-          .sq-campaign-img {
-            transform: scale(1.08);
           }
 
           .sq-campaign-copy {
@@ -1490,12 +2173,26 @@ function IntroContent() {
           }
 
           .sq-product-media {
-            border-radius: 20px;
+            border-radius: 0 36px 0 36px;
           }
 
           .sq-pos-grid {
             grid-template-columns: 1fr;
             gap: 28px;
+          }
+
+          .sq-tutorial-dialog {
+            grid-template-columns: 1fr;
+            border-radius: 0 36px 0 36px;
+          }
+
+          .sq-tutorial-image {
+            min-height: 230px;
+            max-height: 280px;
+          }
+
+          .sq-tutorial-content {
+            padding: 34px 24px 30px;
           }
 
           .sq-dark-inner {
@@ -1523,6 +2220,10 @@ function IntroContent() {
 
           .sq-store-nav--next {
             right: 0;
+          }
+
+          .sq-partner-card {
+            flex: 0 0 220px;
           }
         }
 

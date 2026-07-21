@@ -1,29 +1,50 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Loader2, Trash2 } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import { categoryLabel } from "@/lib/communityPosts";
 import { BlueArrowLink } from "@/components/ui/BlueCta";
 
-function StatusBadge({ status }) {
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || "zh-TW", ["common", "news"])),
+    },
+  };
+}
+
+function StatusBadge({ status, t }) {
   const map = {
-    pending: { label: "審核中", className: "bg-[#FFD43A]/30 text-black" },
-    approved: { label: "已上架", className: "bg-green-100 text-green-800" },
-    rejected: { label: "未通過", className: "bg-red-100 text-red-700" },
+    pending: {
+      label: t("community.submissionForm.status.pending"),
+      className: "bg-[#FFD43A]/30 text-black",
+    },
+    approved: {
+      label: t("community.submissionForm.status.approved"),
+      className: "bg-green-100 text-green-800",
+    },
+    rejected: {
+      label: t("community.submissionForm.status.rejected"),
+      className: "bg-red-100 text-red-700",
+    },
   };
   const s = map[status] || map.pending;
   return (
-    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.className}`}>
+    <span
+      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.className}`}
+    >
       {s.label}
     </span>
   );
 }
 
 export default function MemberPostsPage() {
+  const { t, i18n } = useTranslation("news");
+  const locale = i18n.language === "en" ? "en" : "zh-TW";
   const router = useRouter();
   const { userInfo, loading: userLoading } = useUser();
   const [eligibility, setEligibility] = useState(null);
@@ -40,7 +61,9 @@ export default function MemberPostsPage() {
 
   useEffect(() => {
     if (userLoading || !userInfo?.email) return;
-    fetch(`/api/community-posts/eligibility?email=${encodeURIComponent(userInfo.email)}`)
+    fetch(
+      `/api/community-posts/eligibility?email=${encodeURIComponent(userInfo.email)}`,
+    )
       .then((r) => r.json())
       .then(setEligibility)
       .catch(() => setEligibility({ eligible: false }))
@@ -68,7 +91,13 @@ export default function MemberPostsPage() {
   }, [fetchPosts]);
 
   const handleDelete = async (post) => {
-    if (!confirm(`確定要刪除「${post.title}」嗎？`)) return;
+    if (
+      !confirm(
+        t("community.submissionForm.deleteConfirm", { title: post.title }),
+      )
+    ) {
+      return;
+    }
     setDeletingId(post.id);
     try {
       const res = await fetch(`/api/community-posts/${post.id}`, {
@@ -78,10 +107,10 @@ export default function MemberPostsPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "刪除失敗");
+        alert(data.error || t("community.submissionForm.deleteFailed"));
         return;
       }
-      await fetchPosts();
+      setPosts((prev) => prev.filter((p) => p.id !== post.id));
     } finally {
       setDeletingId(null);
     }
@@ -90,7 +119,8 @@ export default function MemberPostsPage() {
   if (userLoading || checking) {
     return (
       <main className="min-h-screen pt-24 flex items-center justify-center text-gray-500">
-        <Loader2 className="animate-spin mr-2" size={20} /> 載入中...
+        <Loader2 className="animate-spin mr-2" size={20} />{" "}
+        {t("community.submissionForm.loading")}
       </main>
     );
   }
@@ -98,45 +128,57 @@ export default function MemberPostsPage() {
   return (
     <>
       <Head>
-        <title>我的投稿 | PikFun 匹克方</title>
+        <title>{t("community.submissionForm.listPageTitle")} | PikFun</title>
       </Head>
 
       <main className="bg-[#F8FAFC] min-h-screen pt-24 pb-20">
         <div className="max-w-[900px] mx-auto px-6">
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div>
-              <h1 className="text-2xl font-black">我的投稿</h1>
+              <h1 className="text-2xl font-black">
+                {t("community.submissionForm.listPageTitle")}
+              </h1>
               <p className="text-sm text-gray-500 mt-1">
-                通過審核的文章將顯示於{" "}
+                {t("community.submissionForm.listPageDesc")}{" "}
                 <Link href="/news" className="text-[#005caf] underline">
-                  最新消息
+                  {t("community.submissionForm.newsLink")}
                 </Link>
               </p>
             </div>
             {eligibility?.eligible ? (
-              <BlueArrowLink href="/member/posts/new">新增投稿</BlueArrowLink>
+              <BlueArrowLink href="/member/posts/new">
+                {t("community.submissionForm.addPost")}
+              </BlueArrowLink>
             ) : null}
           </div>
 
           {!eligibility?.eligible && (
             <div className="p-6 border border-dashed border-gray-300 bg-white rounded-xl text-center mb-8">
-              <p className="font-bold text-black mb-1">尚未開通投稿權限</p>
+              <p className="font-bold text-black mb-1">
+                {t("community.submissionForm.noPermissionTitle")}
+              </p>
               <p className="text-sm text-gray-500 max-w-md mx-auto">
-                通過「申請進駐」審核（教練、球場主或揪團主）後，即可在此發表文章並顯示於最新消息。
+                {t("community.submissionForm.noPermissionDesc")}
               </p>
               <div className="flex flex-wrap justify-center gap-5 mt-5">
-                <BlueArrowLink href="/member/apply">申請進駐</BlueArrowLink>
-                <BlueArrowLink href="/contact">聯繫合作洽談</BlueArrowLink>
+                <BlueArrowLink href="/member/apply">
+                  {t("community.submissionForm.applyCta")}
+                </BlueArrowLink>
+                <BlueArrowLink href="/contact">
+                  {t("community.submissionForm.contactCta")}
+                </BlueArrowLink>
               </div>
             </div>
           )}
 
           {loading ? (
-            <p className="text-gray-400">載入中...</p>
+            <p className="text-gray-400">
+              {t("community.submissionForm.loading")}
+            </p>
           ) : posts.length === 0 ? (
             eligibility?.eligible && (
               <div className="p-10 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
-                還沒有投稿，點擊「新增投稿」開始撰寫第一篇文章吧！
+                {t("community.submissionForm.emptyPosts")}
               </div>
             )
           ) : (
@@ -155,7 +197,7 @@ export default function MemberPostsPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400">
-                        無封面
+                        {t("community.submissionForm.noCover")}
                       </div>
                     )}
                   </div>
@@ -164,24 +206,27 @@ export default function MemberPostsPage() {
                       <h2 className="font-bold text-sm text-black truncate">
                         {post.title}
                       </h2>
-                      <StatusBadge status={post.status} />
+                      <StatusBadge status={post.status} t={t} />
                     </div>
                     <p className="text-xs text-gray-400 mb-2">
-                      {categoryLabel(post.category)} ·{" "}
-                      {new Date(post.created_at).toLocaleDateString("zh-TW")}
+                      {categoryLabel(post.category, locale)} ·{" "}
+                      {new Date(post.created_at).toLocaleDateString(
+                        locale === "en" ? "en-US" : "zh-TW",
+                      )}
                     </p>
                     {post.status === "rejected" && post.admin_note && (
                       <p className="text-xs text-red-600 mb-2">
-                        退回原因：{post.admin_note}
+                        {t("community.submissionForm.rejectReason")}
+                        {post.admin_note}
                       </p>
                     )}
                     <div className="flex flex-wrap items-center gap-4 mt-1">
                       <BlueArrowLink href={`/member/posts/${post.id}/edit`}>
-                        編輯
+                        {t("community.submissionForm.edit")}
                       </BlueArrowLink>
                       {post.status === "approved" && (
                         <BlueArrowLink href={`/news/${post.slug}`}>
-                          查看文章
+                          {t("community.submissionForm.viewPost")}
                         </BlueArrowLink>
                       )}
                       {post.status !== "approved" && (
@@ -190,7 +235,8 @@ export default function MemberPostsPage() {
                           disabled={deletingId === post.id}
                           className="inline-flex items-center gap-1 text-xs font-bold text-gray-400 hover:text-red-600 disabled:opacity-50"
                         >
-                          <Trash2 size={12} /> 刪除
+                          <Trash2 size={12} />{" "}
+                          {t("community.submissionForm.delete")}
                         </button>
                       )}
                     </div>

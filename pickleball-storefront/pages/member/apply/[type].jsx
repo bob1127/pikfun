@@ -41,7 +41,9 @@ export default function PartnerApplyFormPage() {
     phone: "",
     city: "",
     website: "",
-    instagram: "",
+    line_url: "",
+    instagram_url: "",
+    facebook_url: "",
     message: "",
   });
 
@@ -222,7 +224,7 @@ export default function PartnerApplyFormPage() {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-1.5">
                   網站／粉專
@@ -235,17 +237,44 @@ export default function PartnerApplyFormPage() {
                   placeholder="https://"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1.5">
-                  Instagram
-                </label>
-                <input
-                  name="instagram"
-                  value={form.instagram}
-                  onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:border-[#005caf]"
-                  placeholder="@username"
-                />
+            </div>
+
+            <div>
+              <p className="mb-3 text-xs font-bold text-gray-500">
+                社群連結（選填）
+              </p>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {[
+                  {
+                    name: "line_url",
+                    label: "LINE",
+                    placeholder: "https://line.me/...",
+                  },
+                  {
+                    name: "instagram_url",
+                    label: "Instagram",
+                    placeholder: "https://instagram.com/...",
+                  },
+                  {
+                    name: "facebook_url",
+                    label: "Facebook",
+                    placeholder: "https://facebook.com/...",
+                  },
+                ].map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5">
+                      {field.label}
+                    </label>
+                    <input
+                      type="url"
+                      name={field.name}
+                      value={form[field.name]}
+                      onChange={handleChange}
+                      className="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:border-[#005caf]"
+                      placeholder={field.placeholder}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 

@@ -13,6 +13,7 @@ const FOOTER_TEXT = {
     login: "會員登入 / 註冊",
     privacy: "隱私權政策",
     terms: "服務條款",
+    cookieSettings: "Cookie 設定",
     columns: [
       {
         title: "關於匹克方",
@@ -83,6 +84,7 @@ const FOOTER_TEXT = {
     login: "Log In / Sign Up",
     privacy: "Privacy Policy",
     terms: "Terms of Service",
+    cookieSettings: "Cookie Settings",
     columns: [
       {
         title: "About PikFun",
@@ -268,11 +270,23 @@ export default function Footer() {
             <Link href="/terms" className="hover:text-white transition-colors">
               {T.terms}
             </Link>
+            <span className="text-[#444444]">|</span>
+            <button
+              type="button"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent("pikfun:open-cookie-settings"),
+                )
+              }
+              className="hover:text-white transition-colors"
+            >
+              {T.cookieSettings}
+            </button>
           </div>
           <div className="flex flex-col md:flex-row items-center gap-1.5 md:gap-3 text-center">
             <p>Copyright © PikFun All rights reserved.</p>
             <span className="hidden md:inline text-[#444444]">|</span>
-            <p>藍鏈數位企業社 統一編號 60982396</p>
+            <p>藍鏈數位企業社 60982396</p>
             <span className="hidden md:inline text-[#444444]">|</span>
             <p>
               Design by{" "}

@@ -206,6 +206,13 @@ export default function AdminPartnerApplicationsPage() {
                         {app.city && <p>地區：{app.city}</p>}
                         {app.website && <p>網站：{app.website}</p>}
                         {app.instagram && <p>IG：{app.instagram}</p>}
+                        {app.line_url && <p>LINE：{app.line_url}</p>}
+                        {app.instagram_url && (
+                          <p>Instagram：{app.instagram_url}</p>
+                        )}
+                        {app.facebook_url && (
+                          <p>Facebook：{app.facebook_url}</p>
+                        )}
                       </div>
                       {app.status === "pending" && (
                         <div className="flex gap-2 pt-2">

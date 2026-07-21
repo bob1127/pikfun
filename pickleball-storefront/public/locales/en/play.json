@@ -467,6 +467,9 @@
       "specialties": "Event Highlights (comma separated)",
       "tags": "Popular Tags (comma separated)",
       "instagram": "Instagram Username",
+      "line_url": "LINE Link",
+      "instagram_url": "Instagram Link",
+      "facebook_url": "Facebook Link",
       "contact_email": "Public Contact Email",
       "avatar": "Avatar Image URL",
       "cover_image": "Cover Image URL"
@@ -505,7 +508,33 @@
     "contact_empty": "No contact info yet. Click \"Edit\" to add it.",
     "contact_cta": "See {{name}}'s Sessions",
     "stats_title": "Hosting Stats",
-    "popular_tags_title": "Popular Tags"
+    "popular_tags_title": "Popular Tags",
+    "presets": {
+      "specialties": [
+        "Beginner Friendly",
+        "Weekly Sessions",
+        "Indoor Courts",
+        "Outdoor Courts",
+        "Evening Sessions",
+        "Weekend Sessions",
+        "Level-Based Play",
+        "Coaching Included",
+        "Bring Your Own Paddle",
+        "Paddles Provided"
+      ],
+      "tags": [
+        "Beginner Group",
+        "Advanced Group",
+        "Mixed Levels",
+        "Doubles",
+        "Taipei",
+        "Taichung",
+        "Kaohsiung",
+        "Early Bird",
+        "Night Owl",
+        "Weekend Group"
+      ]
+    }
   },
   "map_marker": {
     "fallback_label": "Court",

@@ -23,12 +23,14 @@ export default function FeaturedCoachesSection() {
     <section className="bg-white py-16 md:py-24">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <header className="mb-10 md:mb-14 max-w-3xl">
-          <p
+          {t("featured.eyebrow") ? (
+            <p
             className="text-sm md:text-[15px] font-bold tracking-wide mb-3"
             style={{ color: BLUE }}
           >
             {t("featured.eyebrow")}
           </p>
+          ) : null}
           <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-black tracking-tight leading-tight mb-4">
             {t("featured.title")}
           </h2>

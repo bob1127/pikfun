@@ -1,5 +1,6 @@
 import { readPlacesCache } from "@/lib/googlePlacesCache";
 import { TAIWAN_CITIES } from "@/lib/courtCities";
+import { getCourtCustomPhotosMap } from "@/lib/courtCustomPhotos";
 
 /**
  * 全台球場總覽：只彙整 Supabase 內既有的 Google Places 快取，
@@ -12,13 +13,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const perCity = await Promise.all(
-      TAIWAN_CITIES.map(async (city) => {
-        const entry = await readPlacesCache(city);
-        const courts = entry?.data?.courts || [];
-        return courts.map((c) => ({ ...c, city }));
-      }),
-    );
+    const [perCity, customPhotos] = await Promise.all([
+      Promise.all(
+        TAIWAN_CITIES.map(async (city) => {
+          const entry = await readPlacesCache(city);
+          const courts = entry?.data?.courts || [];
+          return courts.map((c) => ({ ...c, city }));
+        }),
+      ),
+      getCourtCustomPhotosMap(),
+    ]);
 
     const seen = new Set();
     const courts = [];
@@ -31,6 +35,7 @@ export default async function handler(req, res) {
       courts.push({
         ...publicCourt,
         photo_count: Array.isArray(photo_refs) ? photo_refs.length : 0,
+        custom_photos: customPhotos.get(key) || [],
       });
     }
 

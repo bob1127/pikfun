@@ -46,24 +46,11 @@ function getApiKey() {
   );
 }
 
-async function fetchDetailPhotoRefs(placeId, apiKey) {
-  const url = new URL(
-    "https://maps.googleapis.com/maps/api/place/details/json",
-  );
-  url.searchParams.set("place_id", placeId);
-  url.searchParams.set("fields", "photos");
-  url.searchParams.set("key", apiKey);
-  const res = await fetch(url.toString());
-  const data = await res.json();
-  if (data.status !== "OK") return [];
-  return (data.result?.photos || [])
-    .slice(0, MAX_PHOTOS)
-    .map((p) => p.photo_reference)
-    .filter(Boolean);
-}
-
-/** 取得球場所有照片參照：優先讀 refs 快取，否則呼叫 Place Details 一次並存檔 */
-async function getPhotoRefs(placeId, apiKey) {
+/**
+ * 只接受預先存在 Supabase 球場快取中的 Place ID。
+ * 避免公開端點被拿來查任意地點並產生 Place Details 費用。
+ */
+async function getPhotoRefs(placeId) {
   const refsFile = join(REFS_DIR, `${placeId}.json`);
   if (existsSync(refsFile)) {
     try {
@@ -78,17 +65,7 @@ async function getPhotoRefs(placeId, apiKey) {
   }
 
   const promise = (async () => {
-    let refs = [];
-    if (apiKey) {
-      try {
-        refs = await fetchDetailPhotoRefs(placeId, apiKey);
-      } catch (e) {
-        console.error("[courts/photo] details error", e.message);
-      }
-    }
-    if (!refs.length) {
-      refs = await getSearchRefs(placeId);
-    }
+    const refs = await getSearchRefs(placeId);
     try {
       mkdirSync(REFS_DIR, { recursive: true });
       writeFileSync(refsFile, JSON.stringify({ refs, ts: Date.now() }));
@@ -111,9 +88,13 @@ export default async function handler(req, res) {
     return res.status(405).end();
   }
 
+  if (process.env.ENABLE_GOOGLE_PLACE_PHOTOS !== "true") {
+    return res.status(410).end();
+  }
+
   const ip = getClientIp(req);
   const limit = checkRateLimit(`court-photo:${ip}`, {
-    limit: 180,
+    limit: 30,
     windowMs: 60_000,
   });
   if (!limit.allowed) {
@@ -140,7 +121,7 @@ export default async function handler(req, res) {
   }
 
   const apiKey = getApiKey();
-  const refs = await getPhotoRefs(placeId, apiKey);
+  const refs = await getPhotoRefs(placeId);
   const ref = refs[index];
   if (!ref) return res.status(404).end();
   if (!apiKey) return res.status(404).end();

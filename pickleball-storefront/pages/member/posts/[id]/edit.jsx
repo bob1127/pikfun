@@ -1,15 +1,24 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Loader2 } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import CommunityPostForm from "@/components/member/CommunityPostForm";
 import { BlueArrowLink } from "@/components/ui/BlueCta";
 
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || "zh-TW", ["common", "news"])),
+    },
+  };
+}
+
 export default function EditCommunityPostPage() {
+  const { t } = useTranslation("news");
   const router = useRouter();
   const { id } = router.query;
   const { userInfo, loading: userLoading } = useUser();
@@ -30,12 +39,15 @@ export default function EditCommunityPostPage() {
     fetch(`/api/community-posts/${id}?email=${encodeURIComponent(userInfo.email)}`)
       .then(async (res) => {
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "找不到文章");
+        if (!res.ok)
+          throw new Error(
+            data.error || t("community.submissionForm.notFound"),
+          );
         setPost(data.post);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [id, userInfo?.email]);
+  }, [id, userInfo?.email, t]);
 
   const handleSubmit = async (values) => {
     if (!userInfo?.email) return;
@@ -48,10 +60,13 @@ export default function EditCommunityPostPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "更新失敗");
+        alert(
+          data.error ||
+            t("community.submissionForm.errors.updateFailed"),
+        );
         return;
       }
-      alert("已重新送出審核");
+      alert(t("community.submissionForm.resubmitted"));
       router.push("/member/posts");
     } finally {
       setSubmitting(false);
@@ -61,7 +76,8 @@ export default function EditCommunityPostPage() {
   if (userLoading || loading) {
     return (
       <main className="min-h-screen pt-24 flex items-center justify-center text-gray-500">
-        <Loader2 className="animate-spin mr-2" size={20} /> 載入中...
+        <Loader2 className="animate-spin mr-2" size={20} />{" "}
+        {t("community.submissionForm.loading")}
       </main>
     );
   }
@@ -69,9 +85,11 @@ export default function EditCommunityPostPage() {
   if (error || !post) {
     return (
       <main className="min-h-screen pt-24 text-center">
-        <p className="text-gray-500 mb-4">{error || "找不到文章"}</p>
+        <p className="text-gray-500 mb-4">
+          {error || t("community.submissionForm.notFound")}
+        </p>
         <Link href="/member/posts" className="underline font-bold">
-          返回我的投稿
+          {t("community.submissionForm.backToPosts")}
         </Link>
       </main>
     );
@@ -80,20 +98,22 @@ export default function EditCommunityPostPage() {
   return (
     <>
       <Head>
-        <title>編輯投稿 | PikFun 匹克方</title>
+        <title>{t("community.submissionForm.editPageTitle")} | PikFun</title>
       </Head>
 
       <main className="bg-[#F8FAFC] min-h-screen pt-24 pb-20">
         <div className="max-w-[1180px] mx-auto px-6">
           <BlueArrowLink href="/member/posts" className="mb-6">
-            返回我的投稿
+            {t("community.submissionForm.backToPosts")}
           </BlueArrowLink>
 
-          <h1 className="text-2xl font-black mb-8">編輯投稿</h1>
+          <h1 className="text-2xl font-black mb-8">
+            {t("community.submissionForm.editPageTitle")}
+          </h1>
 
           {post.status === "approved" && (
             <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              此文章目前已上架。送出修改後會重新進入審核，通過後才會再次公開。
+              {t("community.submissionForm.approvedEditNotice")}
             </p>
           )}
 
@@ -101,7 +121,7 @@ export default function EditCommunityPostPage() {
             initialValues={post}
             role={post.author_role}
             submitting={submitting}
-            submitLabel="重新送出審核"
+            submitLabel={t("community.submissionForm.resubmit")}
             rejectedNote={post.status === "rejected" ? post.admin_note : ""}
             onSubmit={handleSubmit}
             onCancel={() => router.push("/member/posts")}

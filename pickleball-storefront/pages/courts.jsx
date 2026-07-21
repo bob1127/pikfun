@@ -61,22 +61,13 @@ function courtToPerson(court, t, locale, activities = []) {
         `${court.name} ${court.address || ""}`,
       )}`;
 
-  // Place Details 最多回傳約 6 張，抓不到的候選會由輪播元件自動略過
-  const photos =
-    court.place_id && court.photo_count > 0
-      ? Array.from(
-          { length: 6 },
-          (_, i) =>
-            `/api/courts/photo?place_id=${encodeURIComponent(court.place_id)}&i=${i}`,
-        )
-      : [];
-
   return {
     key: court.place_id || court.id,
     name: court.name,
     role: `${court.city || ""}${court.city ? "・" : ""}${t("courts_map.role")}`,
     photo: DEFAULT_COURT_IMAGE,
-    photos,
+    // 僅顯示 PikFun 自有、存於 Cloudflare R2 的實拍照。
+    photos: Array.isArray(court.custom_photos) ? court.custom_photos : [],
     heroImageFull: true,
     catch: court.address || "",
     href: mapsUrl,
@@ -215,12 +206,14 @@ export default function CourtsMapPage() {
 
       <main className="bg-[#eef4fb] min-h-screen pb-24">
         <div className="max-w-[1400px] mx-auto px-6 md:px-10 pt-10 md:pt-14">
-          <p
+          {t("courts_map.eyebrow") ? (
+            <p
             className="text-xs font-black tracking-widest uppercase mb-3"
             style={{ color: BLUE }}
           >
             {t("courts_map.eyebrow")}
           </p>
+          ) : null}
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-3">

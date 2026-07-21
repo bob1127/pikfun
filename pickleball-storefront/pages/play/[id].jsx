@@ -27,6 +27,7 @@ import {
   formatSessionDate,
   formatSessionRange,
   formatFee,
+  getPaymentLabel,
   buildGoogleMapsLink,
 } from "@/lib/playUtils";
 import { MiniDateCard } from "@/components/play/DateCard";
@@ -573,7 +574,7 @@ export default function PlayDetailPage() {
               )}
               {!isFree && session.payment_method_label && (
                 <p className="pld-pay-note">
-                  {session.payment_method_label}
+                  {getPaymentLabel(session.payment_method, t)}
                   {session.payment_note ? ` · ${session.payment_note}` : ""}
                 </p>
               )}

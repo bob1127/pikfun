@@ -250,7 +250,7 @@ export default function BlogPostFooter({
       {latestPosts.length > 0 && (
         <section className="pt-14">
           <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#005caf] mb-2">
-            Relevant Pickup Articles
+            相關精選文章
           </p>
           <div className="flex items-end justify-between gap-4 mb-8">
             <h2 className="text-2xl md:text-3xl font-black text-gray-900">
@@ -282,7 +282,7 @@ export default function BlogPostFooter({
       {/* ② 圖三風格：推薦閱讀清單 + 右側站點資訊卡 */}
       <section className="mt-16 pt-12 border-t border-gray-100">
         <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#005caf] mb-2">
-          Recommended Reading
+          推薦閱讀
         </p>
         <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2">
           {t("footer.carousel.recommended")}
@@ -364,7 +364,9 @@ export default function BlogPostFooter({
                     <a
                       key={s.name}
                       href={s.href}
-                      target={s.href.startsWith("mailto:") ? undefined : "_blank"}
+                      target={
+                        s.href.startsWith("mailto:") ? undefined : "_blank"
+                      }
                       rel="noopener noreferrer"
                       aria-label={s.name}
                       title={s.name}

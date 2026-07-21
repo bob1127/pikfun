@@ -25,6 +25,7 @@ import { ParallaxProvider, Parallax } from "react-scroll-parallax";
 // 🔥 引入剛剛設計的進駐夥伴元件
 import PartnersSection from "../components/PartnersSection"; // 假設您將它放在 components 目錄下
 import HomePopupAd from "../components/HomePopupAd";
+import PickleballGrowthSection from "../components/PickleballGrowthSection";
 import VelocityText from "../components/VelocityText";
 import { fetchHomeWpPosts } from "@/lib/wordpress";
 
@@ -225,16 +226,6 @@ export default function Home({
           </VelocityText>
 
           <div className="max-w-[1440px] mx-auto px-6 md:px-16 mt-8 md:mt-16 flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-0">
-            {/* 垂直標籤 (僅在桌面版顯示) */}
-            <div
-              className="hidden lg:flex flex-col items-center gap-6 text-[11px] font-bold tracking-[0.3em] text-gray-800 uppercase"
-              style={{ writingMode: "vertical-rl" }}
-            >
-              <span>02</span>
-              <div className="w-[1px] h-16 bg-gray-900"></div>
-              <span>Service</span>
-            </div>
-
             {/* 標題區塊 */}
             <motion.div {...fadeUpProps} className="w-full lg:w-[45%] lg:pl-10">
               <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-gray-900 leading-[1.6] tracking-wide">
@@ -259,6 +250,11 @@ export default function Home({
             </motion.div>
           </div>
         </section>
+
+        {/* =========================================
+          Section 1.5: 台灣匹克球發展趨勢（成長曲線圖）
+          ========================================= */}
+        <PickleballGrowthSection />
 
         {/* =========================================
           Section 2: About Us 與 圖片排版
@@ -287,16 +283,6 @@ export default function Home({
 
             {/* 右側文字內容區塊 */}
             <div className="w-full lg:w-[50%] relative">
-              {/* 桌面版右側垂直標籤 (絕對定位) */}
-              <div
-                className="hidden lg:flex absolute top-0 -right-12 flex-col items-center gap-6 text-[11px] font-bold tracking-[0.3em] text-gray-800 uppercase"
-                style={{ writingMode: "vertical-rl" }}
-              >
-                <span>01</span>
-                <div className="w-[1px] h-16 bg-gray-900"></div>
-                <span>About us</span>
-              </div>
-
               <motion.div {...fadeUpProps}>
                 <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-gray-900 leading-[1.6] tracking-wide mb-10">
                   {t("about.heading_line1")}

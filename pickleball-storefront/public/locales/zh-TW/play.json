@@ -186,7 +186,7 @@
     "hero": {
       "member_fallback": "揪球員",
       "title": "開揪球局",
-      "subtitle": "找球友一起上場 🏓",
+      "subtitle": "找球友一起上場 ",
       "tag_doubles": "雙打",
       "tag_singles": "單打",
       "tag_mixed": "混打",
@@ -432,7 +432,7 @@
   "host_profile": {
     "seo_title": "{{name}}｜揪團主・活動策辦人｜PikFun",
     "seo_description": "查看 {{name}} 的匹克球揪團、活動與策辦人介紹。",
-    "eyebrow": "HOST PROFILE",
+    "eyebrow": "",
     "fallback_title": "匹克球活動策辦人",
     "fallback_excerpt": "一起上場、認識球友，享受每一場匹克球活動。",
     "about": "關於策辦人",
@@ -467,6 +467,9 @@
       "specialties": "活動特色（以逗號分隔）",
       "tags": "熱門標籤（以逗號分隔）",
       "instagram": "Instagram 帳號",
+      "line_url": "LINE 連結",
+      "instagram_url": "Instagram 連結",
+      "facebook_url": "Facebook 連結",
       "contact_email": "公開聯絡信箱",
       "avatar": "頭像圖片網址",
       "cover_image": "封面圖片網址"
@@ -505,7 +508,33 @@
     "contact_empty": "尚未填寫聯絡資訊，點「編輯」補上。",
     "contact_cta": "看 {{name}} 開的揪團",
     "stats_title": "揪團數據",
-    "popular_tags_title": "熱門標籤"
+    "popular_tags_title": "熱門標籤",
+    "presets": {
+      "specialties": [
+        "新手友善",
+        "固定週開團",
+        "室內場地",
+        "室外場地",
+        "夜間場次",
+        "週末場次",
+        "分級開打",
+        "含教學指導",
+        "自備球拍",
+        "提供球拍"
+      ],
+      "tags": [
+        "新手團",
+        "進階團",
+        "混合團",
+        "雙打",
+        "台北",
+        "台中",
+        "高雄",
+        "早鳥團",
+        "夜貓團",
+        "週末團"
+      ]
+    }
   },
   "map_marker": {
     "fallback_label": "球場",
@@ -514,7 +543,7 @@
   "courts_map": {
     "seo_title": "全台匹克球場地圖｜PikFun 匹克方",
     "seo_description": "PikFun 全台匹克球場地圖，收錄各縣市匹克球場館位置與資訊，點擊地圖即可查看球場詳情。",
-    "eyebrow": "Court Map",
+    "eyebrow": "",
     "title": "全台匹克球場地圖",
     "desc": "收錄全台各縣市的匹克球場館，資料來自 Google 地圖商家並持續累積更新。點擊地圖上的藍色圖釘即可查看球場資訊。",
     "all_cities": "全部縣市",
@@ -537,7 +566,7 @@
     }
   },
   "people": {
-    "eyebrow": "Community Members",
+    "eyebrow": "",
     "title": "社群夥伴介紹",
     "tabs": {
       "coaches": "教練",

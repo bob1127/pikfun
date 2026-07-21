@@ -8,7 +8,12 @@ export const organizerSupabase = createClient(
 );
 
 export const ORGANIZER_PUBLIC_FIELDS =
-  "id,slug,display_name,title,avatar,cover_image,city,region,excerpt,bio,story,specialties,tags,instagram,contact_email,published,created_at,updated_at";
+  "id,slug,display_name,title,avatar,cover_image,city,region,excerpt,bio,story,specialties,tags,instagram,line_url,instagram_url,facebook_url,contact_email,published,created_at,updated_at";
+
+const safeSocialUrl = (value) =>
+  /^https?:\/\//i.test(String(value || "").trim())
+    ? String(value).trim()
+    : "";
 
 export function dbRowToOrganizer(row) {
   if (!row) return null;
@@ -27,6 +32,14 @@ export function dbRowToOrganizer(row) {
     specialties: row.specialties || [],
     tags: row.tags || [],
     instagram: row.instagram || "",
+    line_url: safeSocialUrl(row.line_url),
+    instagram_url: safeSocialUrl(
+      row.instagram_url ||
+        (row.instagram
+          ? `https://www.instagram.com/${String(row.instagram).replace("@", "")}`
+          : ""),
+    ),
+    facebook_url: safeSocialUrl(row.facebook_url),
     contact_email: row.contact_email || "",
     published: row.published !== false,
     created_at: row.created_at,

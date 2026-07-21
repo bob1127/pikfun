@@ -19,6 +19,9 @@ const editableFields = new Set([
   "specialties",
   "tags",
   "instagram",
+  "line_url",
+  "instagram_url",
+  "facebook_url",
   "contact_email",
 ]);
 
@@ -29,6 +32,11 @@ const cleanList = (value) =>
     .map((item) => cleanText(item, 40))
     .filter(Boolean)
     .slice(0, 20);
+const SOCIAL_URL_FIELDS = new Set([
+  "line_url",
+  "instagram_url",
+  "facebook_url",
+]);
 
 export default async function handler(req, res) {
   const { slug } = req.query;
@@ -100,6 +108,14 @@ export default async function handler(req, res) {
         } else if (key === "avatar" || key === "cover_image") {
           const url = cleanText(value, 1000);
           if (url && !/^https?:\/\//i.test(url)) continue;
+          payload[key] = url || null;
+        } else if (SOCIAL_URL_FIELDS.has(key)) {
+          const url = cleanText(value, 1000);
+          if (url && !/^https?:\/\//i.test(url)) {
+            return res.status(400).json({
+              error: "社群連結需為完整的 http:// 或 https:// 網址",
+            });
+          }
           payload[key] = url || null;
         } else {
           payload[key] = cleanText(value, 300);

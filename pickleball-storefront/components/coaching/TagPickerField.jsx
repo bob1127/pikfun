@@ -22,7 +22,9 @@ export default function TagPickerField({
   const toggle = mode === "lines" ? toggleLineItem : toggleCommaItem;
 
   const handlePresetClick = (item) => {
-    onChange(toggle(value, item));
+    const presetValue =
+      typeof item === "string" ? item : String(item?.value || "");
+    onChange(toggle(value, presetValue));
   };
 
   return (
@@ -34,10 +36,16 @@ export default function TagPickerField({
       {presets.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
           {presets.map((item) => {
-            const active = isSelected(value, item);
+            const presetValue =
+              typeof item === "string" ? item : String(item?.value || "");
+            const presetLabel =
+              typeof item === "string"
+                ? item
+                : String(item?.label || item?.value || "");
+            const active = isSelected(value, presetValue);
             return (
               <button
-                key={item}
+                key={presetValue}
                 type="button"
                 onClick={() => handlePresetClick(item)}
                 className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-colors ${
@@ -47,7 +55,7 @@ export default function TagPickerField({
                 }`}
               >
                 {active ? "✓ " : "+ "}
-                {item}
+                {presetLabel}
               </button>
             );
           })}

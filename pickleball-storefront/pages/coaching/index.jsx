@@ -12,6 +12,7 @@ import { EXTRA_QUICK_TAGS } from "@/lib/coachSearch";
 import { useUser } from "@/components/context/UserContext";
 import ClassCard from "@/components/coaching/ClassCard";
 import CoachingSidebar from "@/components/coaching/CoachingSidebar";
+import CoachHeroShowcase from "@/components/coaching/CoachHeroShowcase";
 import PeopleShowcaseSection from "@/components/play/PeopleShowcaseSection";
 import CoachingRecruitFooter from "@/components/coaching/CoachingRecruitFooter";
 
@@ -132,17 +133,17 @@ export default function CoachingListPage() {
         <meta name="description" content={t("seo.list_desc")} />
       </Head>
 
-      <main className="bg-[#f5f7fa] min-h-screen pt-24 pb-0">
+      <main className="bg-[#f5f7fa] min-h-screen  pb-0">
+        {/* 頂部 Hero — 人物輪播 + 跑馬燈色帶 */}
+        <CoachHeroShowcase />
+
         <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-          {/* 頂部標題 — 圖4 風格 */}
-          <header className="flex items-end justify-between gap-6 py-12 md:py-16 border-b border-gray-200">
+          {/* 頂部標題 */}
+          <header className="py-12 md:py-16 border-b border-gray-200">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <p className="text-[10px] font-bold tracking-[0.35em] text-[#3366CC] uppercase mb-3">
-                {t("list.eyebrow")}
-              </p>
               <h1 className="text-3xl md:text-5xl font-bold text-[#1a2d4a] tracking-tight">
                 {t("list.title")}
               </h1>
@@ -150,9 +151,6 @@ export default function CoachingListPage() {
                 {t("list.subtitle")}
               </p>
             </motion.div>
-            <span className="hidden md:block text-[#3366CC] font-bold text-lg tracking-wider shrink-0">
-              {"{01}"}
-            </span>
           </header>
 
           <div className="flex flex-col lg:flex-row gap-0 py-10 md:py-14">
@@ -188,12 +186,9 @@ export default function CoachingListPage() {
 
             {/* 主內容區 */}
             <div className="flex-1 min-w-0">
-              {/* 篩選列 — 圖3 GROUP 風格 */}
+              {/* 篩選列 */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-gray-200">
                 <div>
-                  <p className="text-[10px] font-bold tracking-[0.25em] text-[#3366CC] uppercase mb-2">
-                    {t("common.group_label")}
-                  </p>
                   <div className="flex flex-wrap gap-x-6 gap-y-2">
                     {FILTERS.filter((f) => !f.requireAuth || userInfo).map(
                       (f) => (
@@ -313,7 +308,12 @@ export default function CoachingListPage() {
               ) : (
                 <div className="space-y-6 md:space-y-8">
                   {classes.map((cls, i) => (
-                    <ClassCard key={cls.id} cls={cls} index={i} layout="horizontal" />
+                    <ClassCard
+                      key={cls.id}
+                      cls={cls}
+                      index={i}
+                      layout="horizontal"
+                    />
                   ))}
                 </div>
               )}

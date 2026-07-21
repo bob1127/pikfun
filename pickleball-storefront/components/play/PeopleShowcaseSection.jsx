@@ -491,12 +491,14 @@ export default function PeopleShowcaseSection() {
 
   return (
     <section className="max-w-[1400px] mx-auto px-6 md:px-10 mt-24 md:mt-32">
-      <p
+      {t("people.eyebrow") ? (
+        <p
         className="text-xs font-black tracking-widest uppercase mb-3"
         style={{ color: BLUE }}
       >
         {t("people.eyebrow")}
       </p>
+      ) : null}
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-10">
         <h2 className="text-2xl md:text-4xl font-black text-gray-900">

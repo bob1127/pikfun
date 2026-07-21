@@ -14,6 +14,7 @@ import {
   PostLikeBar,
   PostCommentsBoard,
 } from "@/components/news/CommunityEngagement";
+import CommunityInstagramPosts from "@/components/news/CommunityInstagramPosts";
 
 const BLUE = "#005caf";
 
@@ -93,6 +94,9 @@ function SidebarRelatedItem({ post }) {
         <p className="text-xs font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-[#005caf] transition-colors">
           {post.title}
         </p>
+        {post.date && (
+          <p className="mt-1 text-[10px] text-gray-400">{post.date}</p>
+        )}
       </div>
     </Link>
   );
@@ -237,9 +241,11 @@ export default function CommunityArticleLayout({
       <section className="bg-[#f7f9fc] border-b border-gray-100">
         <div className="max-w-[1180px] mx-auto px-6 py-10 md:py-14 grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#005caf] mb-3">
-              {meta.eyebrow}
-            </p>
+            {meta.eyebrow ? (
+              <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#005caf] mb-3">
+                {meta.eyebrow}
+              </p>
+            ) : null}
             <h1 className="text-3xl md:text-[2.35rem] font-black leading-tight text-gray-900 mb-3">
               {post.title}
             </h1>
@@ -347,6 +353,8 @@ export default function CommunityArticleLayout({
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
+          <CommunityInstagramPosts urls={post.instagram_urls} />
+
           {lightbox && (
             <GalleryLightbox
               images={lightbox.images}
@@ -402,15 +410,8 @@ export default function CommunityArticleLayout({
                 {t("community.sidebarPopularTitle")}
               </h3>
               <div>
-                {recentPosts.slice(0, 4).map((item, i) => (
-                  <div key={item.id} className="relative">
-                    <span className="absolute -left-1 top-3 z-10 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#005caf] text-[10px] font-bold text-white">
-                      {i + 1}
-                    </span>
-                    <div className="pl-5">
-                      <SidebarRelatedItem post={item} />
-                    </div>
-                  </div>
+                {recentPosts.slice(0, 4).map((item) => (
+                  <SidebarRelatedItem key={item.id} post={item} />
                 ))}
               </div>
             </div>
@@ -436,9 +437,11 @@ export default function CommunityArticleLayout({
         <section className="max-w-[1180px] mx-auto px-6 mt-20 pt-12 border-t border-gray-100">
           <div className="flex items-end justify-between mb-8 gap-4">
             <div>
-              <p className="text-xs font-bold tracking-widest uppercase text-[#005caf] mb-1">
-                {meta.relatedLabel}
-              </p>
+              {meta.relatedLabel ? (
+                <p className="text-xs font-bold tracking-widest uppercase text-[#005caf] mb-1">
+                  {meta.relatedLabel}
+                </p>
+              ) : null}
               <h2 className="text-2xl font-black text-gray-900">
                 {meta.relatedTitle}
               </h2>

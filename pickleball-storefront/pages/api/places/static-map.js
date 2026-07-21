@@ -5,6 +5,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  if (process.env.ENABLE_GOOGLE_PLACE_PHOTOS !== "true") {
+    return res.status(410).json({ error: "Google map images are disabled" });
+  }
+
   const { lat = "", lng = "", width = "800", height = "450" } = req.query;
   if (lat === "" || lng === "") {
     return res.status(400).json({ error: "Missing coordinates" });

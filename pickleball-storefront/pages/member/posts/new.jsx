@@ -1,14 +1,23 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Loader2 } from "lucide-react";
 import { useUser } from "@/components/context/UserContext";
 import CommunityPostForm from "@/components/member/CommunityPostForm";
 import { BlueArrowLink } from "@/components/ui/BlueCta";
 
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || "zh-TW", ["common", "news"])),
+    },
+  };
+}
+
 export default function NewCommunityPostPage() {
+  const { t } = useTranslation("news");
   const router = useRouter();
   const { userInfo, loading: userLoading } = useUser();
   const [eligibility, setEligibility] = useState(null);
@@ -23,7 +32,9 @@ export default function NewCommunityPostPage() {
 
   useEffect(() => {
     if (userLoading || !userInfo?.email) return;
-    fetch(`/api/community-posts/eligibility?email=${encodeURIComponent(userInfo.email)}`)
+    fetch(
+      `/api/community-posts/eligibility?email=${encodeURIComponent(userInfo.email)}`,
+    )
       .then((r) => r.json())
       .then((data) => {
         setEligibility(data);
@@ -50,10 +61,12 @@ export default function NewCommunityPostPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "送出失敗");
+        alert(
+          data.error || t("community.submissionForm.errors.submitFailed"),
+        );
         return;
       }
-      alert("已送出審核，通過後將顯示於最新消息");
+      alert(t("community.submissionForm.submitted"));
       router.push("/member/posts");
     } finally {
       setSubmitting(false);
@@ -63,7 +76,8 @@ export default function NewCommunityPostPage() {
   if (userLoading || checking || !eligibility?.eligible) {
     return (
       <main className="min-h-screen pt-24 flex items-center justify-center text-gray-500">
-        <Loader2 className="animate-spin mr-2" size={20} /> 載入中...
+        <Loader2 className="animate-spin mr-2" size={20} />{" "}
+        {t("community.submissionForm.loading")}
       </main>
     );
   }
@@ -71,21 +85,23 @@ export default function NewCommunityPostPage() {
   return (
     <>
       <Head>
-        <title>新增投稿 | PikFun 匹克方</title>
+        <title>{t("community.submissionForm.newPageTitle")} | PikFun</title>
       </Head>
 
       <main className="bg-[#F8FAFC] min-h-screen pt-24 pb-20">
         <div className="max-w-[1180px] mx-auto px-6">
           <BlueArrowLink href="/member/posts" className="mb-6">
-            返回我的投稿
+            {t("community.submissionForm.backToPosts")}
           </BlueArrowLink>
 
-          <h1 className="text-2xl font-black mb-8">新增投稿</h1>
+          <h1 className="text-2xl font-black mb-8">
+            {t("community.submissionForm.newPageTitle")}
+          </h1>
 
           <CommunityPostForm
             role={eligibility.role}
             submitting={submitting}
-            submitLabel="送出審核"
+            submitLabel={t("community.submissionForm.reviewTitle")}
             onSubmit={handleSubmit}
             onCancel={() => router.push("/member/posts")}
           />

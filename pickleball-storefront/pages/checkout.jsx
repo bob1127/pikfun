@@ -849,45 +849,9 @@ export default function CheckoutPage() {
                   )}
 
                   {!isCvsPickup && (
-                  <div className="grid grid-cols-2 gap-3">
-                    {isTW ? (
-                      <>
-                        <select
-                          name="city"
-                          value={formData.city}
-                          onChange={handleChange}
-                          className={selectClass}
-                        >
-                          <option value="" disabled>
-                            {t("checkout.selectCity", "選擇縣市")}
-                          </option>
-                          {Object.keys(TAIWAN_CITIES).map((city) => (
-                            <option key={city} value={city}>
-                              {city}
-                            </option>
-                          ))}
-                        </select>
-                        <select
-                          name="district"
-                          value={formData.district}
-                          onChange={handleChange}
-                          disabled={!formData.city}
-                          className={`${selectClass} ${!formData.city ? "bg-[#fafafa] text-[#b0b0b0]" : ""}`}
-                        >
-                          <option value="" disabled>
-                            {t("checkout.selectDistrict", "選擇區域")}
-                          </option>
-                          {formData.city &&
-                            TAIWAN_CITIES[formData.city].map((district) => (
-                              <option key={district} value={district}>
-                                {district}
-                              </option>
-                            ))}
-                        </select>
-                      </>
-                    ) : (
-                      <>
-                        {availableStates.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {isTW ? (
+                        <>
                           <select
                             name="city"
                             value={formData.city}
@@ -895,29 +859,14 @@ export default function CheckoutPage() {
                             className={selectClass}
                           >
                             <option value="" disabled>
-                              {t("checkout.stateProvince", "State / Province")}
+                              {t("checkout.selectCity", "選擇縣市")}
                             </option>
-                            {availableStates.map((state) => (
-                              <option key={state.isoCode} value={state.isoCode}>
-                                {state.name}
+                            {Object.keys(TAIWAN_CITIES).map((city) => (
+                              <option key={city} value={city}>
+                                {city}
                               </option>
                             ))}
                           </select>
-                        ) : (
-                          <input
-                            type="text"
-                            name="city"
-                            placeholder={t(
-                              "checkout.stateProvince",
-                              "State / Province",
-                            )}
-                            value={formData.city}
-                            onChange={handleChange}
-                            className={inputClass}
-                          />
-                        )}
-
-                        {availableCities.length > 0 ? (
                           <select
                             name="district"
                             value={formData.district}
@@ -926,30 +875,87 @@ export default function CheckoutPage() {
                             className={`${selectClass} ${!formData.city ? "bg-[#fafafa] text-[#b0b0b0]" : ""}`}
                           >
                             <option value="" disabled>
-                              {t("checkout.city", "City")}
+                              {t("checkout.selectDistrict", "選擇區域")}
                             </option>
-                            {availableCities.map((city) => (
-                              <option key={city.name} value={city.name}>
-                                {city.name}
-                              </option>
-                            ))}
+                            {formData.city &&
+                              TAIWAN_CITIES[formData.city].map((district) => (
+                                <option key={district} value={district}>
+                                  {district}
+                                </option>
+                              ))}
                           </select>
-                        ) : (
-                          <input
-                            type="text"
-                            name="district"
-                            placeholder={t("checkout.city", "City")}
-                            value={formData.district}
-                            onChange={handleChange}
-                            disabled={
-                              !formData.city && availableStates.length > 0
-                            }
-                            className={inputClass}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
+                        </>
+                      ) : (
+                        <>
+                          {availableStates.length > 0 ? (
+                            <select
+                              name="city"
+                              value={formData.city}
+                              onChange={handleChange}
+                              className={selectClass}
+                            >
+                              <option value="" disabled>
+                                {t(
+                                  "checkout.stateProvince",
+                                  "State / Province",
+                                )}
+                              </option>
+                              {availableStates.map((state) => (
+                                <option
+                                  key={state.isoCode}
+                                  value={state.isoCode}
+                                >
+                                  {state.name}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              type="text"
+                              name="city"
+                              placeholder={t(
+                                "checkout.stateProvince",
+                                "State / Province",
+                              )}
+                              value={formData.city}
+                              onChange={handleChange}
+                              className={inputClass}
+                            />
+                          )}
+
+                          {availableCities.length > 0 ? (
+                            <select
+                              name="district"
+                              value={formData.district}
+                              onChange={handleChange}
+                              disabled={!formData.city}
+                              className={`${selectClass} ${!formData.city ? "bg-[#fafafa] text-[#b0b0b0]" : ""}`}
+                            >
+                              <option value="" disabled>
+                                {t("checkout.city", "City")}
+                              </option>
+                              {availableCities.map((city) => (
+                                <option key={city.name} value={city.name}>
+                                  {city.name}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              type="text"
+                              name="district"
+                              placeholder={t("checkout.city", "City")}
+                              value={formData.district}
+                              onChange={handleChange}
+                              disabled={
+                                !formData.city && availableStates.length > 0
+                              }
+                              className={inputClass}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
                   )}
 
                   {!isCvsPickup && (

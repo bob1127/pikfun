@@ -26,9 +26,9 @@ import {
 import { useUser } from "@/components/context/UserContext";
 import {
   COACH_REGIONS,
-  CREDENTIAL_PRESETS,
-  SPECIALTY_PRESETS,
-  TAG_PRESETS,
+  getCredentialPresets,
+  getSpecialtyPresets,
+  getTagPresets,
   slugify,
   sanitizeSlugInput,
   isValidSlug,
@@ -107,9 +107,11 @@ function ApprovedCoachView({ coachProfile, application, stats }) {
             <div className="bg-gradient-to-r from-[#005caf] to-[#1a3a8a] px-6 py-5 text-white">
               <div className="flex items-center gap-2 mb-1">
                 <BadgeCheck size={20} className="text-[#c8f542]" />
-                <span className="text-xs font-bold tracking-widest uppercase text-white/80">
-                  {t("apply.approved.badge")}
-                </span>
+                {t("apply.approved.badge") ? (
+                  <span className="text-xs font-bold tracking-widest uppercase text-white/80">
+                    {t("apply.approved.badge")}
+                  </span>
+                ) : null}
               </div>
               <h1 className="text-2xl font-black">{t("apply.approved.title")}</h1>
               <p className="text-sm text-white/75 mt-1">
@@ -605,9 +607,11 @@ export default function CoachApplyPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <p className="text-[10px] font-black tracking-widest text-gray-500 uppercase mb-2">
-              {isEditMode ? t("apply.form.eyebrow_edit") : t("apply.form.eyebrow_new")}
-            </p>
+            {(isEditMode ? t("apply.form.eyebrow_edit") : t("apply.form.eyebrow_new")) ? (
+              <p className="text-[10px] font-black tracking-widest text-gray-500 uppercase mb-2">
+                {isEditMode ? t("apply.form.eyebrow_edit") : t("apply.form.eyebrow_new")}
+              </p>
+            ) : null}
             <h1 className="text-3xl font-black text-black mb-2">
               {isEditMode ? t("apply.form.title_edit") : t("apply.form.title_new")}
             </h1>
@@ -793,7 +797,7 @@ export default function CoachApplyPage() {
                   onChange={(v) =>
                     setForm((prev) => ({ ...prev, credentials: v }))
                   }
-                  presets={CREDENTIAL_PRESETS}
+                  presets={getCredentialPresets(t)}
                   mode="lines"
                   placeholder={t("apply.form.fields.credentials_placeholder")}
                   rows={4}
@@ -804,7 +808,7 @@ export default function CoachApplyPage() {
                   onChange={(v) =>
                     setForm((prev) => ({ ...prev, specialties: v }))
                   }
-                  presets={SPECIALTY_PRESETS}
+                  presets={getSpecialtyPresets(t)}
                   mode="lines"
                   placeholder={t("apply.form.fields.specialties_placeholder")}
                   rows={4}
@@ -815,7 +819,7 @@ export default function CoachApplyPage() {
                 label={t("apply.form.fields.tags_label")}
                 value={form.tags}
                 onChange={(v) => setForm((prev) => ({ ...prev, tags: v }))}
-                presets={TAG_PRESETS}
+                presets={getTagPresets(t)}
                 mode="comma"
                 placeholder={t("apply.form.fields.tags_placeholder")}
                 hint={t("apply.form.fields.tags_hint")}

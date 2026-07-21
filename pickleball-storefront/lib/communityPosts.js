@@ -13,6 +13,7 @@ const AUTHOR_ROLE_LABEL_I18N = {
   coach: { "zh-TW": "教練", en: "Coach" },
   court_owner: { "zh-TW": "球場主", en: "Court Owner" },
   organizer: { "zh-TW": "活動主揪", en: "Organizer" },
+  individual: { "zh-TW": "個人投稿者", en: "Individual Contributor" },
 };
 
 const DEFAULT_AUTHOR_ROLE_LABEL = { "zh-TW": "PikFun 夥伴", en: "PikFun Partner" };
@@ -54,6 +55,154 @@ export function categoryLabel(value, locale = "zh-TW") {
   const entry = CATEGORY_LABEL_I18N[value];
   if (!entry) return DEFAULT_CATEGORY_LABEL[locale] || DEFAULT_CATEGORY_LABEL["zh-TW"];
   return entry[locale] || entry["zh-TW"];
+}
+
+export const NEWS_SUBMISSION_TYPES = [
+  { value: "event", label: "活動賽事" },
+  { value: "coach", label: "教練投稿" },
+  { value: "court_owner", label: "球場主投稿" },
+  { value: "individual", label: "個人投稿" },
+];
+
+const NEWS_SUBMISSION_TYPE_LABEL_I18N = {
+  event: { "zh-TW": "活動賽事", en: "Events" },
+  coach: { "zh-TW": "教練投稿", en: "Coach Post" },
+  court_owner: { "zh-TW": "球場主投稿", en: "Court Owner Post" },
+  individual: { "zh-TW": "個人投稿", en: "Individual Post" },
+};
+
+export function getNewsSubmissionTypes(locale = "zh-TW") {
+  return Object.entries(NEWS_SUBMISSION_TYPE_LABEL_I18N).map(
+    ([value, labels]) => ({
+      value,
+      label: labels[locale] || labels["zh-TW"],
+    }),
+  );
+}
+
+/** 活動類文章優先歸入活動賽事，其餘依已驗證的作者身分分類。 */
+export function getNewsSubmissionType(category, authorRole) {
+  if (category === "event") return "event";
+  if (authorRole === "coach") return "coach";
+  if (authorRole === "court_owner") return "court_owner";
+  return "individual";
+}
+
+/**
+ * 解析單一 Instagram 貼文／Reels 網址。
+ * @returns {{ ok: true, url: string } | { ok: false, code: string, reason: string }}
+ */
+export function parseInstagramPostUrl(input) {
+  const trimmed = String(input || "").trim();
+  if (!trimmed) {
+    return {
+      ok: false,
+      code: "empty",
+      reason: "請貼上 Instagram 貼文網址",
+    };
+  }
+
+  let url;
+  try {
+    url = new URL(
+      /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`,
+    );
+  } catch {
+    return {
+      ok: false,
+      code: "invalidUrl",
+      reason: "網址格式不正確，請確認是否為完整連結（含 https://）",
+    };
+  }
+
+  if (!/(^|\.)instagram\.com$/i.test(url.hostname)) {
+    return {
+      ok: false,
+      code: "notInstagram",
+      reason: "僅支援 instagram.com 網址，請勿貼其他平台連結",
+    };
+  }
+
+  const path = url.pathname.replace(/\/embed\/?$/i, "");
+  const match = path.match(/^\/(p|reel|reels|tv)\/([^/?#]+)/i);
+  if (!match) {
+    if (/^\/(stories)\//i.test(path)) {
+      return {
+        ok: false,
+        code: "storiesUnsupported",
+        reason: "不支援限時動態（Stories），請改貼公開貼文或 Reels 網址",
+      };
+    }
+    if (/^\/[^/]+\/?$/i.test(path) && !/^\/(p|reel|reels|tv)\b/i.test(path)) {
+      return {
+        ok: false,
+        code: "profileUrl",
+        reason:
+          "這看起來是個人檔案網址，請改貼單則貼文（/p/…）或 Reels（/reel/…）",
+      };
+    }
+    return {
+      ok: false,
+      code: "needPostOrReel",
+      reason:
+        "請貼公開貼文或 Reels 網址，例如 https://www.instagram.com/p/xxxxx/ 或 /reel/xxxxx/",
+    };
+  }
+
+  const type = match[1].toLowerCase() === "reels" ? "reel" : match[1].toLowerCase();
+  return {
+    ok: true,
+    url: `https://www.instagram.com/${type}/${match[2]}/`,
+  };
+}
+
+export function normalizeInstagramPostUrls(value) {
+  const values = Array.isArray(value) ? value : [];
+  const normalized = [];
+  for (const item of values) {
+    const parsed = parseInstagramPostUrl(item);
+    if (parsed.ok && !normalized.includes(parsed.url)) {
+      normalized.push(parsed.url);
+    }
+  }
+  return normalized.slice(0, 6);
+}
+
+/** 將原始陣列與正規化結果比對，回傳第一個無效網址的原因（若有） */
+export function getInstagramUrlsValidationError(value) {
+  if (!Array.isArray(value)) return null;
+  if (value.length > 6) {
+    return "Instagram 貼文最多可加入 6 則";
+  }
+  const seen = new Set();
+  for (const item of value) {
+    const parsed = parseInstagramPostUrl(item);
+    if (!parsed.ok) {
+      return parsed.reason;
+    }
+    if (seen.has(parsed.url)) {
+      return "同一個 Instagram 貼文請勿重複加入";
+    }
+    seen.add(parsed.url);
+  }
+  return null;
+}
+
+export function formatCommunityPostsDbError(error) {
+  const message = String(error?.message || "");
+  if (
+    message.includes("instagram_urls") &&
+    (message.includes("schema cache") || message.includes("column"))
+  ) {
+    return "資料庫尚未加入 Instagram 欄位：請在 Supabase SQL Editor 執行 supabase/community_posts_instagram.sql，執行後稍候再試";
+  }
+  if (
+    message.includes("row-level security") ||
+    message.includes("RLS")
+  ) {
+    return "資料庫權限不足：請在 Supabase SQL Editor 執行 supabase/community_posts_rls_fix.sql";
+  }
+  return message || "儲存失敗，請稍後再試";
 }
 
 function slugifyBase(input) {
@@ -160,8 +309,12 @@ export function mapCommunityPostToNewsCard(post, locale = "zh-TW") {
     date: formatCommunityDate(dateSrc),
     rawDate: dateSrc,
     categories: [categoryLabel(post.category, locale)],
+    categoryKey: post.category || "active",
     authorName: post.author_name,
     authorRole: getAuthorRoleLabel(post.author_role, locale),
+    authorRoleKey: post.author_role,
+    newsType: getNewsSubmissionType(post.category, post.author_role),
+    instagram_urls: post.instagram_urls || [],
   };
 }
 
@@ -180,6 +333,9 @@ export function mapCommunityPostToDetail(post, locale = "zh-TW") {
     categoryKey: post.category || "active",
     authorName: post.author_name,
     authorRole: getAuthorRoleLabel(post.author_role, locale),
+    authorRoleKey: post.author_role,
+    newsType: getNewsSubmissionType(post.category, post.author_role),
+    instagram_urls: post.instagram_urls || [],
     authorEmail: post.author_email,
     authorAvatar: post.author_avatar || null,
   };

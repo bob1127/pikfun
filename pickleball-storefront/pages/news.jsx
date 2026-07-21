@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Head from "next/head";
 import { getSiteUrl } from "@/lib/siteUrl";
 import Link from "next/link";
@@ -7,6 +7,18 @@ import { motion } from "framer-motion";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { fetchMergedNewsFeed } from "@/lib/newsFeed";
+
+const NEWS_TYPE_KEYS = {
+  event: "eventTab",
+  coach: "coachTab",
+  court_owner: "courtOwnerTab",
+  individual: "individualTab",
+};
+
+function getPostTypeLabel(post, t) {
+  if (post.source === "wordpress") return t("list.officialTab");
+  return t(`list.${NEWS_TYPE_KEYS[post.newsType] || "individualTab"}`);
+}
 
 const HeroPost = ({ post, t }) => {
   if (!post) return null;
@@ -37,7 +49,7 @@ const HeroPost = ({ post, t }) => {
           <div className="flex justify-between items-start mb-4 border-b border-white/30 pb-4">
             <span className="text-xs font-bold tracking-[0.2em] uppercase">
               {post.source === "community"
-                ? t("hero.badgeCommunity")
+                ? getPostTypeLabel(post, t)
                 : t("hero.badgeLatest")}
             </span>
             <span className="text-sm font-mono">{post.date}</span>
@@ -80,7 +92,7 @@ const NewsCard = ({ post, index, t }) => {
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className="group flex flex-col"
     >
-      <Link href={`/news/${post.slug}`} className="block h-full flex flex-col">
+      <Link href={`/news/${post.slug}`} className="h-full flex flex-col">
         <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100 mb-5">
           <Image
             src={post.image}
@@ -97,6 +109,15 @@ const NewsCard = ({ post, index, t }) => {
           <div className="flex justify-between items-center mb-2">
             <span className="text-[10px] font-bold text-[#005caf] uppercase tracking-widest">
               {post.categories?.[0] || t("card.defaultCategory")}
+            </span>
+            <span
+              className={`text-[10px] font-bold px-2 py-1 ${
+                post.source === "community"
+                  ? "bg-[#edf8f2] text-[#237a57]"
+                  : "bg-[#eef4fb] text-[#005caf]"
+              }`}
+            >
+              {getPostTypeLabel(post, t)}
             </span>
           </div>
           <h3 className="text-lg font-bold text-gray-900 leading-snug mb-3 group-hover:text-[#005caf] transition-colors line-clamp-2">
@@ -123,9 +144,46 @@ const NewsCard = ({ post, index, t }) => {
 
 export default function NewsPage({ posts = [] }) {
   const { t } = useTranslation("news");
-  const heroPost = posts.length > 0 ? posts[0] : null;
-  const gridPosts = posts.length > 1 ? posts.slice(1) : [];
+  const [activeSource, setActiveSource] = useState("all");
+  const filteredPosts =
+    activeSource === "all"
+      ? posts
+      : posts.filter((post) => {
+          if (activeSource === "official") {
+            return post.source === "wordpress";
+          }
+          if (activeSource === "community") {
+            return post.source === "community";
+          }
+          return (
+            post.source === "community" && post.newsType === activeSource
+          );
+        });
+  const heroPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
+  const gridPosts = filteredPosts.length > 1 ? filteredPosts.slice(1) : [];
   const siteUrl = getSiteUrl();
+  const sourceTabs = [
+    { key: "all", label: t("list.allTab"), count: posts.length },
+    {
+      key: "official",
+      label: t("list.officialTab"),
+      count: posts.filter((post) => post.source === "wordpress").length,
+    },
+    {
+      key: "community",
+      label: t("list.communityTab"),
+      count: posts.filter((post) => post.source === "community").length,
+    },
+  ];
+  const submissionTabs = Object.entries(NEWS_TYPE_KEYS).map(
+    ([key, translationKey]) => ({
+      key,
+      label: t(`list.${translationKey}`),
+      count: posts.filter(
+        (post) => post.source === "community" && post.newsType === key,
+      ).length,
+    }),
+  );
 
   const schemaItemList = {
     "@context": "https://schema.org",
@@ -167,12 +225,76 @@ export default function NewsPage({ posts = [] }) {
         </div>
 
         <div className="max-w-[1440px] mx-auto px-6 md:px-10">
-          {posts.length === 0 ? (
+          {posts.length > 0 && (
+            <div
+              className="mb-12 rounded-xl bg-[#f7f7f7] p-5 md:p-8"
+              role="tablist"
+              aria-label={t("list.filterLabel")}
+            >
+              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                <h2 className="text-xl font-black tracking-tight text-gray-900 md:text-2xl">
+                  {t("list.filterTitle")}
+                </h2>
+                <div className="flex max-w-full gap-1 overflow-x-auto rounded-full bg-white p-1">
+                  {sourceTabs.map((tab) => {
+                    const active = activeSource === tab.key;
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => setActiveSource(tab.key)}
+                        className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-colors md:px-5 ${
+                          active
+                            ? "bg-[#e90064] text-white"
+                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-2 gap-2 md:grid-cols-4">
+                {submissionTabs.map((tab) => {
+                  const active = activeSource === tab.key;
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setActiveSource(tab.key)}
+                      className={`min-h-12 border px-3 py-3 text-sm font-medium transition-colors ${
+                        active
+                          ? "border-[#e90064] bg-[#fff0f6] font-bold text-[#e90064]"
+                          : "border-gray-200 bg-white text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {filteredPosts.length === 0 ? (
             <div className="text-center py-20 text-gray-500">
-              {t("list.empty")}
+              {posts.length === 0
+                ? t("list.empty")
+                : t("list.emptyFiltered")}
             </div>
           ) : (
-            <>
+            <motion.div
+              key={activeSource}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
               <HeroPost post={heroPost} t={t} />
               {gridPosts.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
@@ -181,7 +303,7 @@ export default function NewsPage({ posts = [] }) {
                   ))}
                 </div>
               )}
-            </>
+            </motion.div>
           )}
         </div>
 

@@ -184,6 +184,15 @@ export async function searchGooglePickleballCourts({
   district = "",
   maxPages = 2,
 } = {}) {
+  // 預設完全停用付費 Places 搜尋；需明確在伺服器開啟才允許呼叫。
+  if (process.env.ENABLE_GOOGLE_PLACES_API !== "true") {
+    return {
+      available: false,
+      courts: [],
+      message: "Google Places 搜尋已停用，使用既有快取資料",
+    };
+  }
+
   const apiKey = getApiKey();
   if (!apiKey) {
     return { available: false, courts: [], message: "未設定 Google Maps API Key" };

@@ -10,6 +10,7 @@ import { UserProvider } from "../components/context/UserContext";
 import { CartProvider } from "../components/context/CartContext"; 
 
 import Layout from "@/components/Layout";
+import GlobalSocialShare from "@/components/GlobalSocialShare";
 import { FontSizeProvider } from "@/components/blog/FontSizeContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
@@ -49,6 +50,7 @@ function MyApp({ Component, pageProps }) {
                       <Component {...pageProps} />
                     </motion.div>
                   </AnimatePresence>
+                  <GlobalSocialShare />
                 </Layout>
                 </FontSizeProvider>
               </NextUIProvider>

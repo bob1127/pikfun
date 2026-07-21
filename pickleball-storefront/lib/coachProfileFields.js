@@ -59,6 +59,40 @@ export const TAG_PRESETS = [
   "週末班",
 ];
 
+function localizePresets(values, group, t) {
+  return values.map((value, index) => ({
+    // value 保持既有繁中資料值，切換語系只改選項顯示文字。
+    value,
+    label:
+      typeof t === "function"
+        ? t(`presets.${group}.${index}`, { defaultValue: value })
+        : value,
+  }));
+}
+
+export function getCredentialPresets(t) {
+  return localizePresets(CREDENTIAL_PRESETS, "credentials", t);
+}
+
+export function getSpecialtyPresets(t) {
+  return localizePresets(SPECIALTY_PRESETS, "specialties", t);
+}
+
+export function getTagPresets(t) {
+  return localizePresets(TAG_PRESETS, "tags", t);
+}
+
+export function getCoachPresetLabel(value, group, t) {
+  const groups = {
+    credentials: CREDENTIAL_PRESETS,
+    specialties: SPECIALTY_PRESETS,
+    tags: TAG_PRESETS,
+  };
+  const index = (groups[group] || []).indexOf(value);
+  if (index < 0 || typeof t !== "function") return value;
+  return t(`presets.${group}.${index}`, { defaultValue: value });
+}
+
 const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/;
 
 function romanizeForSlug(text) {

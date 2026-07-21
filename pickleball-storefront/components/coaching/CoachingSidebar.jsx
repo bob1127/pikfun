@@ -49,9 +49,8 @@ export default function CoachingSidebar({
 
   return (
     <aside className="lg:w-[260px] xl:w-[280px] shrink-0 lg:border-r lg:border-gray-200 lg:pr-8 lg:mr-8">
-      {/* Menu — 圖2 左側選單 */}
+      {/* 左側選單 */}
       <nav className="mb-10">
-        <p className="text-xs font-bold text-[#1a2d4a] mb-4 tracking-wide">{t("sidebar.menu_label")}</p>
         <ul className="space-y-0.5">
           {NAV_ITEMS.map(({ key }) => (
             <li key={key}>
@@ -72,11 +71,8 @@ export default function CoachingSidebar({
         </ul>
       </nav>
 
-      {/* Search */}
+      {/* 搜尋 */}
       <div className="mb-8 pb-8 border-b border-gray-200">
-        <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">
-          {t("sidebar.search_label")}
-        </p>
         <div className="relative">
           <input
             type="text"

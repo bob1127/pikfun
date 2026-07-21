@@ -119,6 +119,7 @@ export default function PostEditor({
   onChange,
   uploadImage,
   uploadVideo,
+  placeholderText,
 }) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
@@ -153,11 +154,13 @@ export default function PostEditor({
       Video,
       PhotoGallery,
       Placeholder.configure({
-        placeholder: "分享課程亮點、活動細節，或給球友的小提醒…",
+        placeholder:
+          placeholderText ||
+          "分享課程亮點、活動細節，或給球友的小提醒…",
       }),
       CharacterCount.configure({ limit: CONTENT_LIMIT }),
     ],
-    [],
+    [placeholderText],
   );
 
   const editor = useEditor({

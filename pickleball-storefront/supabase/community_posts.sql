@@ -25,6 +25,7 @@ create table if not exists public.community_posts (
   cover_image text,
   content_html text not null,
   category text not null default 'active',
+  instagram_urls text[] not null default '{}',
 
   -- 審核
   admin_note text,

@@ -10,6 +10,7 @@ import Head from "next/head";
 import { getSiteUrl } from "@/lib/siteUrl";
 import CartSidebar from "@/components/CartSidebar"; 
 import PwaSetupPrompt from "@/components/PwaSetupPrompt";
+import CookieConsent from "@/components/CookieConsent";
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -134,6 +135,7 @@ export default function Layout({ children }) {
       {!isStandalonePage && <Navbar />}
       <CartSidebar />
       <PwaSetupPrompt />
+      <CookieConsent />
 
       <div className={isStandalonePage ? "" : "flex flex-col justify-between"}>
         <main>{children}</main>

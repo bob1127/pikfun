@@ -1,6 +1,10 @@
 import { partnerSupabase, applyTypeToAuthorRole } from "@/lib/partnerApplications";
 import { assertAdmin } from "@/lib/adminAuth";
 import { communitySupabase } from "@/lib/communityPosts";
+import {
+  ensureOrganizerProfile,
+  organizerSupabase,
+} from "@/lib/organizerProfiles";
 
 export default async function handler(req, res) {
   const adminEmail = assertAdmin(req, res);
@@ -72,6 +76,39 @@ export default async function handler(req, res) {
 
         if (authorErr) {
           return res.status(500).json({ error: authorErr.message });
+        }
+      }
+
+      // 主揪申請通過後，同步建立／更新公開策辦人頁的聯絡與社群資料。
+      if (app.apply_type === "organizer" && app.member_id) {
+        try {
+          const profile = await ensureOrganizerProfile({
+            id: app.member_id,
+            email: app.applicant_email,
+            name: app.applicant_name,
+            avatar: app.applicant_avatar,
+          });
+          const profilePatch = {
+            contact_email: app.applicant_email,
+            updated_at: new Date().toISOString(),
+          };
+          if (app.company) profilePatch.display_name = app.company;
+          if (app.city) profilePatch.city = app.city;
+          if (app.line_url) profilePatch.line_url = app.line_url;
+          if (app.instagram_url) {
+            profilePatch.instagram_url = app.instagram_url;
+          }
+          if (app.facebook_url) profilePatch.facebook_url = app.facebook_url;
+
+          const { error: profileErr } = await organizerSupabase
+            .from("organizer_profiles")
+            .update(profilePatch)
+            .eq("id", profile.id);
+          if (profileErr) throw profileErr;
+        } catch (profileError) {
+          return res.status(500).json({
+            error: `策辦人介紹頁建立失敗：${profileError.message}`,
+          });
         }
       }
 
