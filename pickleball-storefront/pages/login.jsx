@@ -329,7 +329,7 @@ export default function Login() {
                       <LineIcon />
                     </div>
                     <span className="text-sm font-bold text-[#584E49] uppercase tracking-wide">
-                      Continue with LINE
+                      使用LINE登入
                     </span>
                   </button>
 
@@ -343,7 +343,7 @@ export default function Login() {
                       <GoogleIcon />
                     </div>
                     <span className="text-sm font-bold text-gray-700 group-hover:text-black uppercase tracking-wide">
-                      Continue with Google
+                      使用GOOGLE登入
                     </span>
                   </button>
 
@@ -357,7 +357,7 @@ export default function Login() {
                       <FacebookIcon />
                     </div>
                     <span className="text-sm font-bold text-[#584E49] uppercase tracking-wide">
-                      Continue with Facebook
+                      使用FACEBOOK登入
                     </span>
                   </button>
                 </div>

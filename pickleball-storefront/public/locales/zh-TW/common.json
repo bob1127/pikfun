@@ -996,7 +996,7 @@
     ]
   },
  "member": {
-  "title": "MY ACCOUNT (會員中心)",
+  "title": "會員中心",
   "subtitle": "管理您的訂單與個人資料",
   "welcome": "Hi,",
   "tabs": {
@@ -1007,7 +1007,7 @@
     "logout": "登出帳號"
   },
   "orders": {
-    "title": "ORDER HISTORY (歷史訂單)",
+    "title": "歷史訂單",
     "count": "筆訂單",
     "empty": "您目前沒有任何訂單紀錄",
     "shop_now": "開始購物",

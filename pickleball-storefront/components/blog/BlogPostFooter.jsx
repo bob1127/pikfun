@@ -281,13 +281,9 @@ export default function BlogPostFooter({
 
       {/* ② 圖三風格：推薦閱讀清單 + 右側站點資訊卡 */}
       <section className="mt-16 pt-12 border-t border-gray-100">
-        <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#005caf] mb-2">
-          推薦閱讀
-        </p>
         <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2">
           {t("footer.carousel.recommended")}
         </h2>
-        <div className="w-12 h-1 mb-8" style={{ backgroundColor: BLUE }} />
 
         <div className="grid lg:grid-cols-[1fr_300px] gap-12 items-start">
           <div className="min-w-0">

@@ -1,118 +1,116 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import gsap from "gsap";
 import { CustomEase } from "gsap/dist/CustomEase";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/router";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(CustomEase);
 }
 
-// ==========================================
-// 1. 定義本機端圖片資料 (請將圖片放在 public/images/ 下)
-// ==========================================
-const LOCAL_SLIDES = [
+// 雙語標語成對定義：畫面永遠同時顯示中英，依語系切換主次
+const HERO_SLIDES = [
   {
-    type: "image",
-    src: "/images/index/hero-carousel/banner11.png", // 對應 public/images/index/hero-1.jpg
-    title: "PikFun COMMUNITY",
-    category: "JOIN THE FACTION",
-    alt: "Pickleball Community",
+    src: "/images/index/hero-carousel/banner11.png",
+    zh: { category: "社群", title: "一起上場" },
+    en: { category: "COMMUNITY", title: "PLAY TOGETHER" },
   },
   {
-    type: "image",
     src: "/images/index/hero-carousel/banner23.png",
-    title: "PREMIUM GEAR",
-    category: "EQUIPMENT",
-    alt: "Pickleball Paddles",
+    zh: { category: "球場", title: "準備對打" },
+    en: { category: "ON COURT", title: "READY TO RALLY" },
   },
   {
-    type: "image",
     src: "/images/index/hero-carousel/3d1c939e-b991-4df3-a797-51d81ae4ac43.png",
-    title: "COURT BOOKING",
-    category: "RESERVATION",
-    alt: "Pickleball Courts",
+    zh: { category: "臨打", title: "找到你的球場" },
+    en: { category: "OPEN PLAY", title: "FIND YOUR COURT" },
   },
-
   {
-    type: "image",
     src: "/images/index/hero-carousel/banner01.png",
-    title: "COURT BOOKING",
-    category: "RESERVATION",
-    alt: "Pickleball Courts",
+    zh: { category: "訓練", title: "持續精進" },
+    en: { category: "TRAINING", title: "LEVEL UP" },
   },
   {
-    type: "image",
     src: "/images/index/hero-carousel/banner04.png",
-    title: "COURT BOOKING",
-    category: "RESERVATION",
-    alt: "Pickleball Courts",
+    zh: { category: "社團生活", title: "開打吧" },
+    en: { category: "CLUB LIFE", title: "GAME ON" },
   },
 ];
 
+function resolveSlideCopy(slide, locale) {
+  const primary = locale === "en" ? slide.en : slide.zh;
+  const secondary = locale === "en" ? slide.zh : slide.en;
+  return {
+    type: "image",
+    src: slide.src,
+    category: primary.category,
+    title: primary.title,
+    subtitle: secondary.title,
+    alt: `${slide.zh.title} / ${slide.en.title}`,
+  };
+}
+
 const PickleballAnimation = () => {
+  const router = useRouter();
+  const locale = router.locale === "en" ? "en" : "zh-TW";
+
   const wrapperRef = useRef(null);
   const carouselImagesRef = useRef(null);
   const textTitleRef = useRef(null);
   const textCategoryRef = useRef(null);
+  const textSubtitleRef = useRef(null);
 
-  const [slides, setSlides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const isGsapInitialized = useRef(false);
 
   const stateRef = useRef({
     currentIndex: 0,
     isAnimating: false,
-    slideOffset: 500,
     autoPlayTimer: null,
   });
 
-  // ==========================================
-  // 2. 處理本機圖片初始化與預載
-  // ==========================================
+  const slides = useMemo(
+    () => HERO_SLIDES.map((slide) => resolveSlideCopy(slide, locale)),
+    [locale],
+  );
+
+  const slidesRef = useRef(slides);
+  useEffect(() => {
+    slidesRef.current = slides;
+  }, [slides]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
+    const first = slides[0];
+    if (!first) {
+      setIsLoading(false);
+      return;
+    }
+    const img = new window.Image();
+    img.onload = () => setIsLoading(false);
+    img.onerror = () => setIsLoading(false);
+    img.src = first.src;
+  }, [slides]);
 
-    const preloadFirstImage = (slide) => {
-      if (!slide || slide.type === "video") {
-        setIsLoading(false);
-        return;
-      }
+  // 語系切換時，同步目前畫面三行文字
+  useEffect(() => {
+    const current = slides[stateRef.current.currentIndex];
+    if (!current) return;
+    if (textCategoryRef.current)
+      textCategoryRef.current.innerText = current.category;
+    if (textTitleRef.current) textTitleRef.current.innerText = current.title;
+    if (textSubtitleRef.current)
+      textSubtitleRef.current.innerText = current.subtitle;
+  }, [slides]);
 
-      const img = new window.Image();
-      img.onload = () => setIsLoading(false);
-      img.onerror = () => setIsLoading(false);
-      img.src = slide.src;
-    };
-
-    // 直接設定本機資料並開始預載第一張
-    setSlides(LOCAL_SLIDES);
-    preloadFirstImage(LOCAL_SLIDES[0]);
-  }, []);
-
-  // Helper: 建立媒體元件
   const createMediaElement = (slideData) => {
-    const mediaEl =
-      slideData.type === "video"
-        ? document.createElement("video")
-        : document.createElement("img");
-
+    const mediaEl = document.createElement("img");
     mediaEl.src = slideData.src;
-
-    if (slideData.type === "image") {
-      mediaEl.alt = slideData.alt || slideData.title;
-    }
-
-    if (slideData.type === "video") {
-      mediaEl.muted = true;
-      mediaEl.loop = true;
-      mediaEl.autoplay = true;
-      mediaEl.setAttribute("playsinline", "");
-      mediaEl.onloadeddata = () => mediaEl.play();
-    }
-
+    mediaEl.alt = slideData.alt || slideData.title;
     Object.assign(mediaEl.style, {
       width: "100%",
       height: "100%",
@@ -122,43 +120,54 @@ const PickleballAnimation = () => {
     return mediaEl;
   };
 
-  // 核心：切換動畫函式
+  const animateTextOutIn = (nextData) => {
+    const targets = [
+      textCategoryRef.current,
+      textTitleRef.current,
+      textSubtitleRef.current,
+    ].filter(Boolean);
+    if (!targets.length) return;
+
+    gsap.to(targets, {
+      y: -24,
+      opacity: 0,
+      duration: 0.35,
+      ease: "power2.in",
+      stagger: 0.06,
+      onComplete: () => {
+        if (textCategoryRef.current)
+          textCategoryRef.current.innerText = nextData.category;
+        if (textTitleRef.current)
+          textTitleRef.current.innerText = nextData.title;
+        if (textSubtitleRef.current)
+          textSubtitleRef.current.innerText = nextData.subtitle;
+        gsap.set(targets, { y: 24 });
+        gsap.to(targets, {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          ease: "power2.out",
+          stagger: 0.08,
+        });
+      },
+    });
+  };
+
   const performTransition = (direction) => {
+    const currentSlides = slidesRef.current;
     if (
       stateRef.current.isAnimating ||
       !carouselImagesRef.current ||
-      slides.length === 0
+      currentSlides.length === 0
     )
       return;
     stateRef.current.isAnimating = true;
 
     const nextIndex = stateRef.current.currentIndex;
-    const nextData = slides[nextIndex];
+    const nextData = currentSlides[nextIndex];
+    setActiveIndex(nextIndex);
+    animateTextOutIn(nextData);
 
-    // 文字動畫
-    if (textTitleRef.current && textCategoryRef.current) {
-      gsap.to([textCategoryRef.current, textTitleRef.current], {
-        y: -30,
-        opacity: 0,
-        duration: 0.4,
-        ease: "power2.in",
-        stagger: 0.1,
-        onComplete: () => {
-          textTitleRef.current.innerText = nextData.title;
-          textCategoryRef.current.innerText = nextData.category;
-          gsap.set([textCategoryRef.current, textTitleRef.current], { y: 30 });
-          gsap.to([textCategoryRef.current, textTitleRef.current], {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            ease: "power2.out",
-            stagger: 0.1,
-          });
-        },
-      });
-    }
-
-    // 圖片動畫
     const slideOffset = window.innerWidth < 1000 ? 100 : 500;
     const currentSlide =
       carouselImagesRef.current.querySelector(".img:last-child");
@@ -219,10 +228,10 @@ const PickleballAnimation = () => {
 
   const startAutoPlay = () => {
     stopAutoPlay();
-    if (slides.length > 1) {
+    if (slidesRef.current.length > 1) {
       stateRef.current.autoPlayTimer = setInterval(() => {
         stateRef.current.currentIndex =
-          (stateRef.current.currentIndex + 1) % slides.length;
+          (stateRef.current.currentIndex + 1) % slidesRef.current.length;
         performTransition("right");
       }, 5000);
     }
@@ -234,17 +243,33 @@ const PickleballAnimation = () => {
   };
 
   const clickSlide = (direction) => {
-    if (stateRef.current.isAnimating || slides.length <= 1) return;
+    if (stateRef.current.isAnimating || slidesRef.current.length <= 1) return;
     stopAutoPlay();
     if (direction === "next") {
       stateRef.current.currentIndex =
-        (stateRef.current.currentIndex + 1) % slides.length;
+        (stateRef.current.currentIndex + 1) % slidesRef.current.length;
       performTransition("right");
     } else {
       stateRef.current.currentIndex =
-        (stateRef.current.currentIndex - 1 + slides.length) % slides.length;
+        (stateRef.current.currentIndex - 1 + slidesRef.current.length) %
+        slidesRef.current.length;
       performTransition("left");
     }
+    startAutoPlay();
+  };
+
+  const goToSlide = (index) => {
+    if (
+      stateRef.current.isAnimating ||
+      slidesRef.current.length <= 1 ||
+      index === stateRef.current.currentIndex
+    )
+      return;
+    stopAutoPlay();
+    const direction =
+      index > stateRef.current.currentIndex ? "right" : "left";
+    stateRef.current.currentIndex = index;
+    performTransition(direction);
     startAutoPlay();
   };
 
@@ -278,15 +303,22 @@ const PickleballAnimation = () => {
       initContainer.appendChild(createMediaElement(slides[0]));
       carouselImagesRef.current.appendChild(initContainer);
 
-      if (textTitleRef.current && textCategoryRef.current) {
-        textTitleRef.current.innerText = slides[0].title;
+      if (textCategoryRef.current)
         textCategoryRef.current.innerText = slides[0].category;
-        gsap.fromTo(
-          [textCategoryRef.current, textTitleRef.current],
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1, ease: "power2.out", stagger: 0.2 },
-        );
-      }
+      if (textTitleRef.current) textTitleRef.current.innerText = slides[0].title;
+      if (textSubtitleRef.current)
+        textSubtitleRef.current.innerText = slides[0].subtitle;
+
+      const targets = [
+        textCategoryRef.current,
+        textTitleRef.current,
+        textSubtitleRef.current,
+      ].filter(Boolean);
+      gsap.fromTo(
+        targets,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: "power2.out", stagger: 0.15 },
+      );
     }
 
     startAutoPlay();
@@ -321,65 +353,106 @@ const PickleballAnimation = () => {
           z-index: 20;
           text-align: center;
           pointer-events: none;
-          width: 80%;
+          width: min(88%, 920px);
         }
-        .slide-info p {
-          font-size: 1rem;
-          letter-spacing: 0.2rem;
+        .slide-info .category {
+          font-size: 0.8rem;
+          letter-spacing: 0.28rem;
           text-transform: uppercase;
           color: #fff;
-          margin-bottom: 1rem;
+          margin-bottom: 0.75rem;
+          opacity: 0.9;
         }
-        .slide-info h1 {
-          font-size: 4rem;
+        .slide-info .title {
+          font-size: clamp(2rem, 5.5vw, 3.75rem);
           font-weight: 700;
           color: #fff;
-          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          line-height: 1.15;
+          margin: 0;
         }
-        .slider-controls {
+        .slide-info .subtitle {
+          margin-top: 0.85rem;
+          font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+          letter-spacing: 0.18em;
+          color: rgba(255, 255, 255, 0.78);
+          text-transform: none;
+        }
+        .slider-timeline {
           position: absolute;
-          width: 100%;
-          top: 50%;
-          transform: translateY(-50%);
-          padding: 0 5%;
-          display: flex;
-          justify-content: space-between;
+          left: 50%;
+          bottom: 2.75rem;
+          transform: translateX(-50%);
           z-index: 30;
-          pointer-events: none;
-        }
-        .control-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.85rem;
           pointer-events: auto;
-          padding: 1.5rem;
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(5px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
+        }
+        .timeline-arrow {
+          width: 28px;
+          height: 28px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(255, 255, 255, 0.55);
+          background: transparent;
+          color: #fff;
           cursor: pointer;
-          transition: all 0.3s;
+          transition: background 0.25s ease, border-color 0.25s ease;
+          flex-shrink: 0;
         }
-        .control-btn:hover {
+        .timeline-arrow:hover {
+          background: rgba(255, 255, 255, 0.15);
+          border-color: #fff;
+        }
+        .timeline-arrow svg {
+          fill: currentColor;
+        }
+        .timeline-track {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+          min-width: 140px;
+        }
+        .timeline-segment {
+          height: 1px;
+          flex: 1;
+          min-width: 22px;
+          background: rgba(255, 255, 255, 0.35);
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          transition: background 0.3s ease, height 0.3s ease, transform 0.3s ease;
+        }
+        .timeline-segment.is-active {
+          height: 2px;
           background: #fff;
-          transform: scale(1.1);
-        }
-        .control-btn svg {
-          fill: #fff;
-        }
-        .control-btn:hover svg {
-          fill: #000;
+          transform: scaleY(1.2);
         }
         footer {
           position: absolute;
           bottom: 0;
           width: 100%;
-          padding: 2rem;
+          padding: 1.25rem 2rem;
           display: flex;
           justify-content: space-between;
-          color: #fff;
+          color: rgba(255, 255, 255, 0.55);
           z-index: 20;
+          font-size: 0.7rem;
+          letter-spacing: 0.08em;
+          pointer-events: none;
         }
         @media (max-width: 768px) {
-          .slide-info h1 {
-            font-size: 2.5rem;
+          .slider-timeline {
+            bottom: 2.25rem;
+            gap: 0.65rem;
+          }
+          .timeline-track {
+            min-width: 110px;
+          }
+          footer {
+            padding: 1rem 1.25rem;
           }
         }
       `}</style>
@@ -405,25 +478,47 @@ const PickleballAnimation = () => {
         <div className="carousel">
           <div className="carousel-images" ref={carouselImagesRef}></div>
           <div className="slide-info">
-            <p ref={textCategoryRef}></p>
-            <h1 ref={textTitleRef}></h1>
+            <p className="category" ref={textCategoryRef}></p>
+            <h1 className="title" ref={textTitleRef}></h1>
+            <p className="subtitle" ref={textSubtitleRef}></p>
           </div>
 
           {slides.length > 1 && (
-            <div className="slider-controls">
+            <div className="slider-timeline" aria-label="Hero carousel controls">
               <button
-                className="control-btn"
+                type="button"
+                className="timeline-arrow"
                 onClick={() => clickSlide("prev")}
+                aria-label="Previous slide"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24">
+                <svg width="12" height="12" viewBox="0 0 24 24">
                   <path d="m3.3 12 8.7 8.7 1.5-1.5L6.3 12l7.2-7.2-1.5-1.5L3.3 12Z" />
                 </svg>
               </button>
+
+              <div className="timeline-track" role="tablist">
+                {slides.map((slide, index) => (
+                  <button
+                    key={`${slide.src}-${index}`}
+                    type="button"
+                    role="tab"
+                    aria-label={`Go to slide ${index + 1}`}
+                    aria-selected={index === activeIndex}
+                    className={`timeline-segment${
+                      index === activeIndex ? " is-active" : ""
+                    }`}
+                    onClick={() => goToSlide(index)}
+                  />
+                ))}
+              </div>
+
               <button
-                className="control-btn"
+                type="button"
+                className="timeline-arrow"
                 onClick={() => clickSlide("next")}
+                aria-label="Next slide"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24">
+                <svg width="12" height="12" viewBox="0 0 24 24">
                   <path d="M20.7 12l-8.7-8.7-1.5 1.5 7.2 7.2-7.2 7.2 1.5 1.5 8.7-8.7Z" />
                 </svg>
               </button>

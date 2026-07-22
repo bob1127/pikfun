@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import Link from "next/link";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useTranslation } from "next-i18next";
@@ -9,11 +15,7 @@ const SLIDE_PERCENT = 33.333;
 function buildExtended(events) {
   if (!events.length) return [];
   const clone = Math.min(CLONE_MAX, events.length);
-  return [
-    ...events.slice(-clone),
-    ...events,
-    ...events.slice(0, clone),
-  ];
+  return [...events.slice(-clone), ...events, ...events.slice(0, clone)];
 }
 
 const AutoCarousel = ({ items = [] }) => {
@@ -21,10 +23,7 @@ const AutoCarousel = ({ items = [] }) => {
   const events = items;
   const cloneCount = Math.min(CLONE_MAX, events.length || 1);
 
-  const extendedEvents = useMemo(
-    () => buildExtended(events),
-    [events]
-  );
+  const extendedEvents = useMemo(() => buildExtended(events), [events]);
 
   const [currentIndex, setCurrentIndex] = useState(cloneCount);
   const [isTransitioning, setIsTransitioning] = useState(true);
@@ -117,11 +116,10 @@ const AutoCarousel = ({ items = [] }) => {
     <section className="max-w-7xl mx-auto px-4 py-12 bg-white relative select-none">
       {/* 標題區域 */}
       <div className="mb-8 px-2">
-        <span className="text-[#2369ab] text-sm font-bold block mb-2 uppercase tracking-wider">
-          Pickleball Tips
-        </span>
         <div className="flex justify-between items-end border-b pb-4">
-          <h2 className="text-3xl font-bold text-gray-900">{t("tips.title")}</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            {t("tips.title")}
+          </h2>
 
           {/* 頂部按鈕與查看更多 */}
           <div className="flex items-center gap-6">
@@ -212,7 +210,9 @@ const AutoCarousel = ({ items = [] }) => {
                     <h3 className="text-lg font-bold text-gray-900 mb-1 leading-snug line-clamp-2 min-h-[3.5rem] group-hover:text-[#2369ab] transition-colors">
                       {item.title}
                     </h3>
-                    <p className="text-gray-500 text-xs mb-4">{item.subtitle}</p>
+                    <p className="text-gray-500 text-xs mb-4">
+                      {item.subtitle}
+                    </p>
                     <div className="inline-block px-3 py-1 border border-[#6EC1E4] text-[#6EC1E4] text-[10px] rounded mb-3 font-bold">
                       {item.status}
                     </div>

@@ -270,7 +270,7 @@ export default function MemberProfile() {
                   exit={{ opacity: 0, y: -10 }}
                 >
                   <h3 className="text-sm font-bold tracking-widest uppercase text-black mb-8">
-                    {t("member.dashboard.title", "ACCOUNT OVERVIEW")}
+                    {t("member.dashboard.title", "會員資訊")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     <button
@@ -289,7 +289,10 @@ export default function MemberProfile() {
                       onClick={() => setActiveTab("coaching")}
                       className="p-6 border border-gray-100 bg-white text-left hover:border-gray-300 transition-colors"
                     >
-                      <GraduationCap size={20} className="text-[#3157B5] mb-3" />
+                      <GraduationCap
+                        size={20}
+                        className="text-[#3157B5] mb-3"
+                      />
                       <p className="text-2xl font-black">
                         {coachingMeta?.stats?.upcomingCount ?? 0}
                       </p>
@@ -305,8 +308,12 @@ export default function MemberProfile() {
                         <p className="text-[10px] font-bold text-[#3157B5] uppercase tracking-widest mb-1">
                           進駐教練
                         </p>
-                        <p className="font-bold text-black">{coachingMeta.coachProfile.name}</p>
-                        <p className="text-xs text-gray-500">{coachingMeta.coachProfile.title}</p>
+                        <p className="font-bold text-black">
+                          {coachingMeta.coachProfile.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {coachingMeta.coachProfile.title}
+                        </p>
                       </div>
                       <button
                         type="button"
@@ -320,7 +327,10 @@ export default function MemberProfile() {
 
                   {!coachingMeta?.isCoach && (
                     <div className="p-6 border border-dashed border-gray-200 text-center">
-                      <GraduationCap size={28} className="mx-auto text-gray-300 mb-3" />
+                      <GraduationCap
+                        size={28}
+                        className="mx-auto text-gray-300 mb-3"
+                      />
                       <p className="text-sm text-gray-600 mb-3">
                         {t("member.coaching.cta", "想開課或成為進駐教練？")}
                       </p>
@@ -356,10 +366,10 @@ export default function MemberProfile() {
                 >
                   <div className="mb-8">
                     <h3 className="text-sm font-bold tracking-widest uppercase text-black">
-                      {t("member.tabs.coaching", "COACH DASHBOARD")}
+                      {t("member.tabs.coaching", "管理教練頁、開課與報名紀錄")}
                     </h3>
                     <p className="text-xs text-gray-400 mt-1">
-                      {t("member.coaching.subtitle", "管理教練頁、開課與報名紀錄")}
+                      {t("member.coaching.subtitle", "")}
                     </p>
                   </div>
                   <MemberCoachingPanel

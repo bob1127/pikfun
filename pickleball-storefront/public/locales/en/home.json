@@ -71,6 +71,35 @@
     "more": "View More",
     "empty": "No articles yet. Publish from the WordPress dashboard."
   },
+  "hero": {
+    "slides": [
+      {
+        "category": "COMMUNITY",
+        "title": "PLAY TOGETHER",
+        "alt": "Pickleball community play"
+      },
+      {
+        "category": "ON COURT",
+        "title": "READY TO RALLY",
+        "alt": "Pickleball rally"
+      },
+      {
+        "category": "OPEN PLAY",
+        "title": "FIND YOUR COURT",
+        "alt": "Pickleball courts"
+      },
+      {
+        "category": "TRAINING",
+        "title": "LEVEL UP",
+        "alt": "Pickleball training"
+      },
+      {
+        "category": "CLUB LIFE",
+        "title": "GAME ON",
+        "alt": "Pickleball club life"
+      }
+    ]
+  },
   "community": {
     "title": "Courts & Community",
     "desc_line1": "From beginner chats and player discussions to court info, gear picks, and event updates —",

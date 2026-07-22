@@ -20,7 +20,6 @@ import {
   GraduationCap,
   Newspaper,
   CircleArrowRight,
-  Truck,
   Globe,
   ShieldCheck,
   MapPin,
@@ -675,13 +674,8 @@ export const SlideTabsExample = () => {
                 >
                   <X size={14} strokeWidth={1.5} />
                 </button>
-                <div className="flex items-center justify-center gap-2 px-10 w-full max-w-2xl">
-                  <Truck
-                    size={14}
-                    strokeWidth={1.5}
-                    className="shrink-0 text-white"
-                  />
-                  <div className="h-5 overflow-hidden relative flex-1">
+                <div className="flex items-center justify-center px-10 w-full max-w-2xl">
+                  <div className="h-5 overflow-hidden relative w-full">
                     <AnimatePresence mode="wait">
                       <motion.p
                         key={announceIndex}
@@ -714,9 +708,9 @@ export const SlideTabsExample = () => {
           )}
 
           <div className="border-b border-gray-200 bg-white relative">
-            <div className="mx-auto max-w-[1400px] px-8 h-[72px] flex items-center justify-between">
-              {/* Logo */}
-              <Link href="/" className="flex items-center gap-3 shrink-0">
+            <div className="mx-auto grid h-[72px] max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-8">
+              {/* Logo — 左側 */}
+              <Link href="/" className="flex items-center gap-3 shrink-0 justify-self-start">
                 <img
                   src="/images/logo/pikfun-logo.png"
                   className="w-[42px] h-[42px] object-contain"
@@ -732,161 +726,157 @@ export const SlideTabsExample = () => {
                 </div>
               </Link>
 
-              {/* 選單 + 圖示 */}
-              <div className="flex items-center">
-                <nav className="flex items-center gap-8 mr-8">
-                  {navLinks.map((link) => {
-                    const isActive =
-                      router.pathname === link.href ||
-                      (link.href !== "/" &&
-                        router.pathname.startsWith(link.href));
-                    const dropdownGroups =
-                      link.key === "play"
-                        ? playDropdownGroups
-                        : coachingDropdownGroups;
+              {/* 選單 — 置中 */}
+              <nav className="flex items-center justify-center gap-8">
+                {navLinks.map((link) => {
+                  const isActive =
+                    router.pathname === link.href ||
+                    (link.href !== "/" &&
+                      router.pathname.startsWith(link.href));
+                  const dropdownGroups =
+                    link.key === "play"
+                      ? playDropdownGroups
+                      : coachingDropdownGroups;
 
-                    return (
-                      <div
-                        key={link.key}
-                        className="relative"
-                        onMouseEnter={() =>
-                          setOpenMega(
-                            link.hasMega || link.hasDropdown
-                              ? link.key
-                              : "none",
-                          )
+                  return (
+                    <div
+                      key={link.key}
+                      className="relative"
+                      onMouseEnter={() =>
+                        setOpenMega(
+                          link.hasMega || link.hasDropdown
+                            ? link.key
+                            : "none",
+                        )
+                      }
+                    >
+                      <Link
+                        href={link.href}
+                        className={
+                          link.isAdminLink
+                            ? "inline-flex items-center gap-1.5 text-[13px] font-bold tracking-[0.06em] whitespace-nowrap px-3 py-1.5 rounded-full text-white hover:opacity-90 transition-opacity"
+                            : `inline-flex items-center gap-1 text-[13px] font-normal tracking-[0.06em] transition-colors whitespace-nowrap ${
+                                isActive
+                                  ? "text-[#005caf]"
+                                  : "text-gray-900 hover:text-[#005caf]"
+                              }`
+                        }
+                        style={
+                          link.isAdminLink
+                            ? { backgroundColor: COLORS.blue }
+                            : undefined
                         }
                       >
-                        <Link
-                          href={link.href}
-                          className={
-                            link.isAdminLink
-                              ? "inline-flex items-center gap-1.5 text-[13px] font-bold tracking-[0.06em] whitespace-nowrap px-3 py-1.5 rounded-full text-white hover:opacity-90 transition-opacity"
-                              : `inline-flex items-center gap-1 text-[13px] font-normal tracking-[0.06em] transition-colors whitespace-nowrap ${
-                                  isActive
-                                    ? "text-[#005caf]"
-                                    : "text-gray-900 hover:text-[#005caf]"
-                                }`
-                          }
-                          style={
-                            link.isAdminLink
-                              ? { backgroundColor: COLORS.blue }
-                              : undefined
-                          }
-                        >
-                          {link.isAdminLink && <ShieldCheck size={14} />}
-                          {link.label}
-                          {link.hasDropdown && (
-                            <ChevronDown
-                              size={13}
-                              strokeWidth={2}
-                              className={`transition-transform duration-200 ${
-                                openMega === link.key ? "rotate-180" : ""
-                              }`}
-                            />
-                          )}
-                        </Link>
+                        {link.isAdminLink && <ShieldCheck size={14} />}
+                        {link.label}
+                        {link.hasDropdown && (
+                          <ChevronDown
+                            size={13}
+                            strokeWidth={2}
+                            className={`transition-transform duration-200 ${
+                              openMega === link.key ? "rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </Link>
 
-                        <AnimatePresence>
-                          {link.hasDropdown && openMega === link.key && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 8 }}
-                              transition={{ duration: 0.18 }}
-                              className="absolute top-full z-50 mt-5 w-[520px] border border-gray-200 bg-white p-5"
-                              style={{ left: "-190px" }}
-                            >
-                              <div className="grid grid-cols-2 gap-5">
-                                {dropdownGroups.map((group) => (
-                                  <div key={group.title}>
-                                    <p className="mb-3 border-b border-gray-100 pb-2 text-[10px] font-black tracking-[0.18em] text-gray-400">
-                                      {group.title}
-                                    </p>
-                                    <div className="space-y-1">
-                                      {group.links.map((item) => {
-                                        return (
-                                          <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            onClick={() =>
-                                              setOpenMega("none")
-                                            }
-                                            className="group flex items-start gap-3 p-3 transition-colors duration-200 hover:bg-[#f3f7fc]"
-                                          >
-                                            <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rotate-45 bg-[#005caf] transition-transform duration-200 group-hover:scale-125" />
-                                            <span className="min-w-0">
-                                              <span className="block text-xs font-black text-gray-900 group-hover:text-[#005caf]">
-                                                {item.label}
-                                              </span>
-                                              <span className="mt-1 block text-[10px] leading-relaxed text-gray-400">
-                                                {item.desc}
-                                              </span>
+                      <AnimatePresence>
+                        {link.hasDropdown && openMega === link.key && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            transition={{ duration: 0.18 }}
+                            className="absolute left-1/2 top-full z-50 mt-5 w-[520px] -translate-x-1/2 border border-gray-200 bg-white p-5"
+                          >
+                            <div className="grid grid-cols-2 gap-5">
+                              {dropdownGroups.map((group) => (
+                                <div key={group.title}>
+                                  <p className="mb-3 border-b border-gray-100 pb-2 text-[10px] font-black tracking-[0.18em] text-gray-400">
+                                    {group.title}
+                                  </p>
+                                  <div className="space-y-1">
+                                    {group.links.map((item) => {
+                                      return (
+                                        <Link
+                                          key={item.href}
+                                          href={item.href}
+                                          onClick={() => setOpenMega("none")}
+                                          className="group flex items-start gap-3 p-3 transition-colors duration-200 hover:bg-[#f3f7fc]"
+                                        >
+                                          <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rotate-45 bg-[#005caf] transition-transform duration-200 group-hover:scale-125" />
+                                          <span className="min-w-0">
+                                            <span className="block text-xs font-black text-gray-900 group-hover:text-[#005caf]">
+                                              {item.label}
                                             </span>
-                                          </Link>
-                                        );
-                                      })}
-                                    </div>
+                                            <span className="mt-1 block text-[10px] leading-relaxed text-gray-400">
+                                              {item.desc}
+                                            </span>
+                                          </span>
+                                        </Link>
+                                      );
+                                    })}
                                   </div>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    );
-                  })}
-                </nav>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </nav>
 
-                <div
-                  className="flex items-center gap-5 pl-8 border-l border-gray-200"
-                  onMouseEnter={() => setOpenMega("none")}
-                >
-                  {!userLoading && (
-                    <Link
-                      href={userInfo ? "/member" : "/login"}
-                      className="inline-flex items-center text-gray-900 hover:text-[#005caf] transition-colors"
-                      aria-label={userInfo ? "會員中心" : "登入"}
-                    >
-                      {userInfo ? (
-                        <MemberNavGreeting
-                          userInfo={userInfo}
-                          avatarSize={32}
-                        />
-                      ) : (
-                        <User size={20} strokeWidth={1.5} />
-                      )}
-                    </Link>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={() => setShowGlobalSearch(true)}
-                    className="p-1 text-gray-900 hover:text-[#005caf] transition-colors"
-                    aria-label="全站搜尋"
+              {/* 會員／搜尋／購物車／語系 — 右側 */}
+              <div
+                className="flex items-center justify-self-end gap-5"
+                onMouseEnter={() => setOpenMega("none")}
+              >
+                {!userLoading && (
+                  <Link
+                    href={userInfo ? "/member" : "/login"}
+                    className="inline-flex items-center text-gray-900 hover:text-[#005caf] transition-colors"
+                    aria-label={userInfo ? "會員中心" : "登入"}
                   >
-                    <Search size={20} strokeWidth={1.5} />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsCartOpen(true)}
-                    className="relative p-1 text-gray-900 hover:text-[#005caf] transition-colors"
-                    aria-label="購物車"
-                  >
-                    <ShoppingBag size={20} strokeWidth={1.5} />
-                    {totalQty > 0 && (
-                      <span
-                        className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold text-white flex items-center justify-center"
-                        style={{ backgroundColor: COLORS.pink }}
-                      >
-                        {totalQty > 99 ? "99+" : totalQty}
-                      </span>
+                    {userInfo ? (
+                      <MemberNavGreeting
+                        userInfo={userInfo}
+                        avatarSize={32}
+                      />
+                    ) : (
+                      <User size={20} strokeWidth={1.5} />
                     )}
-                  </button>
+                  </Link>
+                )}
 
-                  <LanguageSwitcher />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowGlobalSearch(true)}
+                  className="p-1 text-gray-900 hover:text-[#005caf] transition-colors"
+                  aria-label="全站搜尋"
+                >
+                  <Search size={20} strokeWidth={1.5} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsCartOpen(true)}
+                  className="relative p-1 text-gray-900 hover:text-[#005caf] transition-colors"
+                  aria-label="購物車"
+                >
+                  <ShoppingBag size={20} strokeWidth={1.5} />
+                  {totalQty > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold text-white flex items-center justify-center"
+                      style={{ backgroundColor: COLORS.pink }}
+                    >
+                      {totalQty > 99 ? "99+" : totalQty}
+                    </span>
+                  )}
+                </button>
+
+                <LanguageSwitcher />
               </div>
             </div>
 
@@ -1106,8 +1096,7 @@ export const SlideTabsExample = () => {
                     link.key === "play"
                       ? playDropdownGroups
                       : coachingDropdownGroups;
-                  const isMobileDropdownOpen =
-                    openMobileNav === link.key;
+                  const isMobileDropdownOpen = openMobileNav === link.key;
 
                   if (!link.hasDropdown) {
                     return (
